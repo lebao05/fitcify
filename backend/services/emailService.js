@@ -10,7 +10,6 @@ const transporter = nodemailer.createTransport({
 
 const mailOptions = {
   from: "webservicee99@gmail.com",
-  subject: "Forget password",
 };
 
 const sendMail = (email, text,subject) => {

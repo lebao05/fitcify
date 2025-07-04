@@ -5,9 +5,9 @@ const notFound = (req, res, next) => {
 
 const errorHandler = (err, req, res, next) => {
   res.status(500).json({
-    EM: err?.message,
-    stack: err?.stack,
-    ER: 1,
+    Message: err?.message,
+    Stack: err?.stack,
+    Error: 1,
   });
 };
 

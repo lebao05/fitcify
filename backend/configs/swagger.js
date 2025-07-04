@@ -1,23 +1,40 @@
-// swagger.js
-const swaggerJSDoc = require("swagger-jsdoc");
-require("dotenv").config();
+const path = require('path');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
   definition: {
-    openapi: "3.0.0",
+    openapi: '3.0.3',
     info: {
-      title: "Fitcify API",
-      version: "1.0.0",
-      description: "API documentation for Fitcify",
+      title: 'Fitcify API',
+      version: '1.0.0',
+      description: 'API documentation for Fitcify backend (Spotify clone)',
     },
     servers: [
       {
-        url: "http://localhost:3000", // Your base URL
+        url: 'http://localhost:5000',  // ✅ Make sure this matches actual backend port
+        description: 'Local development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        cookieAuth: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'accessToken', // ✅ this must match your cookie name
+        },
+      },
+    },
+    security: [
+      {
+        cookieAuth: [],
       },
     ],
   },
-  apis: ["./routes/*.js"], // 👈 Path to your API routes with Swagger comments
+
+  apis: [
+    path.join(__dirname, '..', 'routes', '**', '*.js'),         // inline route docs
+    path.join(__dirname, '..', 'docs', '**', '*.swagger.js'),   // external docs
+  ],
 };
 
-const swaggerSpec = swaggerJSDoc(options);
-module.exports = swaggerSpec;
+module.exports = swaggerJsdoc(options);

@@ -12,7 +12,7 @@ const mailOptions = {
   from: "webservicee99@gmail.com",
 };
 
-const sendMail = (email, text,subject) => {
+const sendMail = (email, text, subject) => {
   mailOptions.to = email;
   mailOptions.html = text;
   mailOptions.subject = subject || "No Subject";

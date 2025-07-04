@@ -1,42 +1,36 @@
-const express = require('express');
-const { register } = require('../controllers/authController');
-const authRoute = express.Router();
+// routes/authRoutes.js
+const express = require("express");
+const passport = require("passport");
+const authCtrl = require("../controllers/authController");
 
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authentication routes
- */
+const router = express.Router();
 
-/**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 example: johndoe
- *               email:
- *                 type: string
- *                 example: johndoe@example.com
- *               password:
- *                 type: string
- *                 example: secret123
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Bad request
- */
-authRoute.post("/register", register);
+/* email/password */
+router.post("/signup", authCtrl.signup);
+router.post("/login", authCtrl.login);
+router.post("/logout", authCtrl.logout);
 
-module.exports = authRoute;
+/* OTP */
+router.post("/otp/login/send", authCtrl.sendLoginOtp);
+router.post("/otp/login/verify", authCtrl.verifyLoginOtp);
+router.post("/otp/forgot/send", authCtrl.sendForgotOtp);
+router.post("/otp/forgot/verify", authCtrl.verifyForgotOtp);
+
+/* password change */
+router.post("/change-password", authCtrl.changePassword);
+
+router.get("/google", authCtrl.googleInit); // start Google login
+router.get("/google/callback", authCtrl.googleCallback); // handle callback
+
+
+/* Facebook OAuth */
+
+router.get("/facebook", authCtrl.facebookInit);
+router.get("/facebook/callback", authCtrl.facebookCallback);
+
+/* protected example */
+router.get("/me", authCtrl.requireAuth, (req, res) =>
+    res.json({ Error: 0, Message: "Authenticated", Data: { user: req.user } })
+);
+
+module.exports = router;

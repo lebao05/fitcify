@@ -47,13 +47,20 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required() {
-        return !this.googleId && !this.facebookId;
+        return this.authProvider == "email";
       },
+    },/* ───────── one­‑time passwords ───────── */
+    loginOtp: {
+      code: { type: String, default: null },
+      expiresAt: { type: Date, default: null },
+    },
+    forgotOtp: {
+      code: { type: String, default: null },
+      expiresAt: { type: Date, default: null },
     },
 
     /* ───────── role & social login ───────── */
     role: { type: String, enum: ["user", "artist", "admin"], default: "user" },
-    googleId: { type: String, default: null, sparse: true },
     facebookId: { type: String, default: null, sparse: true },
     authProvider: {
       type: String,
@@ -120,15 +127,14 @@ userSchema.statics.signupWithEmail = async function ({
 };
 
 // Static method for Google signup
-userSchema.statics.authWithGoogle = async function ({ username, googleId }) {
-  const existingUser = await this.findOne({ $or: [{ googleId }] });
+userSchema.statics.authWithGoogle = async function ({ username, email }) {
+  const existingUser = await this.findOne({ $or: [{ email }] });
   if (existingUser) {
     return existingUser;
   }
   return await this.create({
-    username,
-    googleId,
-    email: generateRandomString(12) + "@gmail.com",
+    username, 
+    email,
     authProvider: "google",
   });
 };
@@ -145,22 +151,43 @@ userSchema.statics.authWithFacebook = async function ({
   return await this.create({
     username,
     facebookId,
-    email: generateRandomString(12) + "@gmail.com",
+    email: generateRandomString(12),
     authProvider: "facebook",
   });
 };
+const OTP_TTL_MIN = 10;                        // 10‑minute default TTL
+
+// create & attach a new OTP (type = "login" | "forgot")
+userSchema.methods.generateOtp = function (type, ttl = OTP_TTL_MIN) {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expires = new Date(Date.now() + ttl * 60 * 1000);
+  this[`${type}Otp`] = { code: otp, expiresAt: expires };
+  return otp;                                   // return plaintext to send via e‑mail
+};
+
+// verify & consume OTP
+userSchema.methods.verifyOtp = async function (type, otp) {
+  const entry = this[`${type}Otp`];
+  if (!entry || !entry.code) return false;
+  const valid = entry.code === otp && entry.expiresAt > Date.now();
+  if (valid) {
+    this[`${type}Otp`] = null;                  // one‑time use → clear it
+    await this.save();
+  }
+  return valid;
+};
 
 // Static method to find user by provider
-userSchema.statics.findByProvider = async function (provider, identifier) {
-  if (provider === "email") {
-    return await this.findOne({ email: identifier });
-  } else if (provider === "google") {
-    return await this.findOne({ googleId: identifier });
-  } else if (provider === "facebook") {
-    return await this.findOne({ facebookId: identifier });
-  } else {
-    throw new Error("Invalid provider");
-  }
-};
+// userSchema.statics.findByProvider = async function (provider, identifier) {
+//   if (provider === "email") {
+//     return await this.findOne({ email: identifier });
+//   } else if (provider === "google") {
+//     return await this.findOne({ googleId: identifier });
+//   } else if (provider === "facebook") {
+//     return await this.findOne({ facebookId: identifier });
+//   } else {
+//     throw new Error("Invalid provider");
+//   }
+// };
 
 module.exports = mongoose.model("User", userSchema);

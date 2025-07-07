@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const artistProfileSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    isbaned: { type: Boolean, default: false },
+    isbanned: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     verificationRequestDate: { type: Date },
     bio: { type: String, default: '' },

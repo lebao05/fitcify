@@ -60,7 +60,6 @@ const userSchema = new mongoose.Schema(
     },
 
     /* ───────── role & social login ───────── */
-    role: { type: String, enum: ["user", "artist", "admin"], default: "user" },
     facebookId: { type: String, default: null, sparse: true },
     authProvider: {
       type: String,

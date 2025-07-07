@@ -1,67 +1,104 @@
-const {
-  getVerificationRequests,
-  approveArtistRequest,
-  rejectArtistRequest,
-  suspendUser,
-  activateUser,
-} = require("../services/adminService");
-
-const getAllVerificationRequests = async (req, res) => {
-  const result = await getVerificationRequests();
-  return res.status(result.status).json({
-    message: result.message,
-    data: result.data || null,
-  });
+const adminService = require("../services/adminService");
+const ArtistVerificationRequest = require('../models/artistVerification');
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await adminService.getAllUsers();
+    res.status(200).json({
+      Message: "Users fetched successfully",
+      Error: 0,
+      Data: users,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const approveArtist = async (req, res) => {
-  const { requestId } = req.params;
-  const result = await approveArtistRequest(requestId);
-  return res.status(result.status).json({
-    message: result.message,
-    data: result.data || null,
-  });
+const getAllArtistVerificationRequests = async (req, res, next) => {
+  try {
+    const result = await adminService.getVerificationRequests();
+    res.status(200).json({
+      Message: "Verification requests fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const rejectArtist = async (req, res) => {
-  const { requestId } = req.params;
-  const { notes } = req.body;
-  const adminId = req.user._id;
-
-  const result = await rejectArtistRequest(requestId, adminId, notes);
-  return res.status(result.status).json({
-    message: result.message,
-    data: result.data || null,
-  });
+const approveArtistRequest = async (req, res, next) => {
+  try {
+    const result = await adminService.processVerificationRequest(
+      req.params.id,
+      "approved",
+      req.user._id
+    );
+    res.status(200).json({
+      Message: "Artist approved successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const suspendUserController = async (req, res) => {
-  const { userId } = req.params;
-  const { reason } = req.body;
-  const adminId = req.user._id;
-
-  const result = await suspendUser(userId, reason, adminId);
-  return res.status(result.status).json({
-    message: result.message,
-    data: result.data || null,
-  });
+const rejectArtistRequest = async (req, res, next) => {
+  try {
+    const result = await adminService.processVerificationRequest(
+      req.params.id,
+      "rejected",
+      req.user._id,
+      req.body.reason
+    );
+    res.status(200).json({
+      Message: "Artist request rejected",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const activateUserController = async (req, res) => {
-  const { userId } = req.params;
-  const adminId = req.user._id;
-
-  const result = await activateUser(userId, adminId);
-  return res.status(result.status).json({
-    message: result.message,
-    data: result.data || null,
-  });
+const suspendArtist = async (req, res, next) => {
+  try {
+    const result = await adminService.suspendArtist(
+      req.params.id,
+      req.user._id
+    );
+    res.status(200).json({
+      Message: "Artist suspended successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
+
+const activateArtist = async (req, res, next) => {
+  try {
+    const result = await adminService.activateArtist(
+      req.params.id,
+      req.user._id
+    );
+    res.status(200).json({
+      Message: "Artist activated successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 module.exports = {
-  getAllVerificationRequests,
-  approveArtist,
-  rejectArtist,
-  suspendUserController,
-  activateUserController,
+  getAllUsers,
+  getAllArtistVerificationRequests,
+  approveArtistRequest,
+  rejectArtistRequest,
+  suspendArtist,
+  activateArtist,
 };

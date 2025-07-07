@@ -49,7 +49,7 @@ app.use(
   })
 );
 app.use("/api/auth", authRoute);
-app.use("/api", adminRoute);
+app.use("/api/admin", adminRoute);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

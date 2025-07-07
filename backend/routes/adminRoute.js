@@ -1,47 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const {
-  getAllVerificationRequests,
-  approveArtist,
-  rejectArtist,
-  suspendUserController,
-  activateUserController,
-} = require("../controllers/adminController");
+const adminController = require("../controllers/adminController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
-router.get(
-  "/admin/verification-requests",
-  authMiddleware,
-  isAdmin,
-  getAllVerificationRequests
-);
+router.use(authMiddleware);
+router.use(isAdmin);
 
-router.post(
-  "/admin/verification-requests/:requestId/approve",
-  authMiddleware,
-  isAdmin,
-  approveArtist
-);
+/* Users */
+router.get("/users", adminController.getAllUsers);
 
-router.post(
-  "/admin/verification-requests/:requestId/reject",
-  authMiddleware,
-  isAdmin,
-  rejectArtist
-);
 
-router.post(
-  "/admin/users/:userId/suspend",
-  authMiddleware,
-  isAdmin,
-  suspendUserController
-);
+/* Verification Requests */
+router.get("/verification-requests", adminController.getAllArtistVerificationRequests);
+router.patch("/verification-requests/:id/approve", adminController.approveArtistRequest);
+router.patch("/verification-requests/:id/reject", adminController.rejectArtistRequest);
 
-router.post(
-  "/admin/users/:userId/activate",
-  authMiddleware,
-  isAdmin,
-  activateUserController
-);
+/* Artists */
+router.patch("/artists/:userId/suspend", adminController.suspendArtist);
+router.patch("/artists/:userId/activate", adminController.activateArtist); 
+
 
 module.exports = router;

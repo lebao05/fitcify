@@ -1,131 +1,110 @@
 /**
  * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Admin actions for managing users, artists, and songs
+ */
+
+/**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: Users fetched successfully
+ */
+
+/**
+ * @swagger
  * /api/admin/verification-requests:
  *   get:
- *     summary: Get all pending artist verification requests
- *     tags: [Moderation]
- *     security:
- *       - cookieAuth: []
+ *     summary: Get all artist verification requests
+ *     tags: [Admin]
  *     responses:
  *       200:
- *         description: List of pending verification requests
- *       401:
- *         description: Unauthorized
+ *         description: Verification requests fetched successfully
  */
 
 /**
  * @swagger
- * /api/admin/verification-requests/{requestId}/approve:
+ * /api/admin/verification-requests/{id}/approve:
  *   post:
- *     summary: Approve a pending artist verification request
- *     tags: [Moderation]
- *     security:
- *       - cookieAuth: []
+ *     summary: Approve an artist verification request
+ *     tags: [Admin]
  *     parameters:
  *       - in: path
- *         name: requestId
+ *         name: id
  *         required: true
+ *         description: Request ID
  *         schema:
  *           type: string
- *         description: ID of the verification request
  *     responses:
  *       200:
- *         description: Request approved successfully
- *       404:
- *         description: Request not found
- *       409:
- *         description: Already approved
+ *         description: Artist approved successfully
  */
 
 /**
  * @swagger
- * /api/admin/verification-requests/{requestId}/reject:
+ * /api/admin/verification-requests/{id}/reject:
  *   post:
  *     summary: Reject an artist verification request
- *     tags: [Moderation]
- *     security:
- *       - cookieAuth: []
+ *     tags: [Admin]
  *     parameters:
  *       - in: path
- *         name: requestId
+ *         name: id
  *         required: true
+ *         description: Request ID
  *         schema:
  *           type: string
- *         description: ID of the verification request
- *     requestBody:
- *       required: false
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               notes:
- *                 type: string
- *                 example: Missing required documents
- *     responses:
- *       200:
- *         description: Request rejected successfully
- *       404:
- *         description: Request not found
- *       409:
- *         description: Already rejected
- */
-
-/**
- * @swagger
- * /api/admin/users/{userId}/suspend:
- *   post:
- *     summary: Suspend a user account
- *     tags: [Moderation]
- *     security:
- *       - cookieAuth: []
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the user to suspend
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [reason]
  *             properties:
  *               reason:
  *                 type: string
- *                 example: Violating community guidelines
  *     responses:
  *       200:
- *         description: User suspended successfully
- *       404:
- *         description: User not found
- *       409:
- *         description: Already suspended
+ *         description: Artist request rejected
  */
 
 /**
  * @swagger
- * /api/admin/users/{userId}/activate:
+ * /api/admin/artists/{id}/suspend:
  *   post:
- *     summary: Reactivate (unsuspend) a user account
- *     tags: [Moderation]
- *     security:
- *       - cookieAuth: []
+ *     summary: Suspend an artist
+ *     tags: [Admin]
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: id
  *         required: true
+ *         description: Artist User ID
  *         schema:
  *           type: string
- *         description: ID of the user to reactivate
  *     responses:
  *       200:
- *         description: User reactivated successfully
- *       404:
- *         description: User not found
- *       409:
- *         description: Not currently suspended
+ *         description: Artist suspended successfully
  */
+
+/**
+ * @swagger
+ * /api/admin/artists/{id}/activate:
+ *   post:
+ *     summary: Activate a suspended artist
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Artist User ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Artist activated successfully
+ */
+

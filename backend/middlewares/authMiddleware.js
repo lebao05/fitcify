@@ -1,6 +1,5 @@
 require("dotenv").config();
-
-const { verifyToken } = require("../services/authService");
+const {verifyToken} = require("../services/authService");
 const User = require("../models/user");
 const { validObjectId } = require("../helpers/validateObjectId");
 const PUBLIC_ROUTES = [

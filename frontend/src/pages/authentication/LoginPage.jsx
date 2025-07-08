@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../styles/authentication/LoginPage.scss";
+import "./LoginPage.scss";
 
 export default function SpotifyLogin() {
     const [email, setEmail] = useState("");
@@ -116,7 +116,7 @@ export default function SpotifyLogin() {
                         Don't have an account?{" "}
                         <span
                             className="link"
-                            onClick={() => console.log("Navigate to sign up")}
+                            onClick={() => window.location.href	= "/signup"}
                             role="button"
                             tabIndex={0}
                             onKeyPress={(e) =>

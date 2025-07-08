@@ -1,0 +1,39 @@
+.signup-step1 {
+  min-height: 100vh;
+  background-color: #131920;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
+.password-input {
+  width: 100%;
+  height: 48px;
+  background-color: #1a1a1a;
+  border: 2px solid #2c2828;
+  border-radius: 4px;
+  color: white;
+  padding: 0 48px 0 16px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.password-input:hover {
+  border-color: white;
+}
+.password-input:focus {
+  border-color: white;
+}
+
+.email-container {
+  position: relative;
+  width: 100%;
+  background-color: transparent;
+  &hover {
+    border-color: #ffffff;
+  }
+}

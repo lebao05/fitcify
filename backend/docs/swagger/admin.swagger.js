@@ -30,7 +30,7 @@
 /**
  * @swagger
  * /api/admin/verification-requests/{id}/approve:
- *   post:
+ *   patch:
  *     summary: Approve an artist verification request
  *     tags: [Admin]
  *     parameters:
@@ -48,7 +48,7 @@
 /**
  * @swagger
  * /api/admin/verification-requests/{id}/reject:
- *   post:
+ *   patch:
  *     summary: Reject an artist verification request
  *     tags: [Admin]
  *     parameters:
@@ -75,7 +75,7 @@
 /**
  * @swagger
  * /api/admin/artists/{id}/suspend:
- *   post:
+ *   patch:
  *     summary: Suspend an artist
  *     tags: [Admin]
  *     parameters:
@@ -93,7 +93,7 @@
 /**
  * @swagger
  * /api/admin/artists/{id}/activate:
- *   post:
+ *   patch:
  *     summary: Activate a suspended artist
  *     tags: [Admin]
  *     parameters:

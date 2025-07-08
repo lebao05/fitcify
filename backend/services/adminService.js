@@ -1,4 +1,3 @@
-// services/adminService.js
 const User = require('../models/user');
 const ArtistProfile = require('../models/artistProfile');
 const ArtistVerificationRequest = require('../models/artistVerification');
@@ -9,59 +8,99 @@ const getVerificationRequests = async () =>
   ArtistVerificationRequest.find({ status: 'pending' })
     .populate('userId');
 
-
 const processVerificationRequest = async (
   requestId,
-  decision,   
+  decision,     // "approved" | "rejected"
   adminId,
   reason = null
 ) => {
-  const req = await ArtistVerificationRequest.findById(requestId);
-  if (!req) throw new Error('Verification request not found');
+  const request = await ArtistVerificationRequest.findById(requestId).populate('userId');
+  if (!request) {
+    return {
+      message: "Verification request not found",
+      error: 1,
+      data: null,
+    };
+  }
 
-  req.status = decision;
-  req.processedAt = new Date();
-  req.processedBy = adminId;
-  req.notes = reason;
-  await req.save();
+  const userId = request.userId._id;
 
-  if (decision === 'approve') {
-    const user = await User.findByIdAndUpdate(
-      req.userId,
-      { isVerified: true, role: 'artist' },
-      { new: true }
-    );
+  request.status = decision;
+  request.processedAt = new Date();
+  request.processedBy = adminId;
+  request.notes = reason;
+  await request.save();
 
-    let profile = await ArtistProfile.findOne({ userId: user._id });
+  const user = await User.findById(userId);
+  if (!user) {
+    return {
+      message: "User associated with this request not found",
+      error: 1,
+      data: null,
+    };
+  }
+
+  if (decision === 'approved') {
+    user.isVerified = true;
+    user.role = 'artist';
+
+    // Create or update artist profile
+    let profile = await ArtistProfile.findOne({ userId });
     if (!profile) {
-      profile = await ArtistProfile.create({ userId: user._id, isVerified: true });
-    } else if (!profile.isVerified) {
+      profile = await ArtistProfile.create({
+        userId,
+        isVerified: true,
+        verificationRequestDate: new Date()
+      });
+    } else {
       profile.isVerified = true;
       await profile.save();
     }
 
     if (!user.artistProfile || !user.artistProfile.equals(profile._id)) {
       user.artistProfile = profile._id;
-      await user.save();
+    }
+
+  } else if (decision === 'rejected') {
+    user.isVerified = false;
+    user.role = 'user';
+
+    const profile = await ArtistProfile.findOne({ userId });
+    if (profile && profile.isVerified) {
+      profile.isVerified = false;
+      await profile.save();
     }
   }
 
-  return req;
+  await user.save();
+
+  return {
+    message: decision === "approved"
+      ? "Artist approved successfully"
+      : "Artist verification request rejected",
+    error: 0,
+    data: {
+      ...request.toObject(),
+      userId: user.toObject(), 
+    }
+  };
+
 };
 
 /* ───────── moderation: suspend / activate ───────── */
 
 const suspendArtist = async (userId, adminId) => {
   try {
-    const user = await ArtistProfile.findOneAndUpdate(
+    const artist = await ArtistProfile.findOneAndUpdate(
       { userId },
       {
-        isbaned: true,
+        isBanned: true,
         bannedBy: adminId,
         bannedAt: new Date()
-      }, { new: true }
+      },
+      { new: true }
     );
-    return user
+    return artist;
   } catch (err) {
     throw err;
   }
@@ -69,16 +108,17 @@ const suspendArtist = async (userId, adminId) => {
 
 const activateArtist = async (userId, adminId) => {
   try {
-    const user = await ArtistProfile.findOneAndUpdate(
+    const artist = await ArtistProfile.findOneAndUpdate(
       { userId },
       {
-        isbaned: false,
-      }, { new: true } // ← return the *updated* doc
-
+        isBanned: false,
+        bannedBy: null,
+        bannedAt: null
+      },
+      { new: true }
     );
-    return user;
-  }
-  catch (err) {
+    return artist;
+  } catch (err) {
     throw err;
   }
 };

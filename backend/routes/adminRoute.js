@@ -4,20 +4,14 @@ const adminController = require("../controllers/adminController");
 const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
 
 router.use(authMiddleware);
-router.use(isAdmin);
 
-/* Users */
-router.get("/users", adminController.getAllUsers);
+router.get("/users", isAdmin, adminController.getAllUsers);
+router.get("/verification-requests", isAdmin, adminController.getAllArtistVerificationRequests);
+router.patch("/verification-requests/:id/approve", isAdmin, adminController.approveArtistRequest);
+router.patch("/verification-requests/:id/reject", isAdmin, adminController.rejectArtistRequest);
 
-
-/* Verification Requests */
-router.get("/verification-requests", adminController.getAllArtistVerificationRequests);
-router.patch("/verification-requests/:id/approve", adminController.approveArtistRequest);
-router.patch("/verification-requests/:id/reject", adminController.rejectArtistRequest);
-
-/* Artists */
-router.patch("/artists/:userId/suspend", adminController.suspendArtist);
-router.patch("/artists/:userId/activate", adminController.activateArtist); 
+router.patch("/artists/:userId/suspend", isAdmin, adminController.suspendArtist);
+router.patch("/artists/:userId/activate", isAdmin, adminController.activateArtist);
 
 
 module.exports = router;

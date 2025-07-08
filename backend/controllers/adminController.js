@@ -64,7 +64,7 @@ const rejectArtistRequest = async (req, res, next) => {
 const suspendArtist = async (req, res, next) => {
   try {
     const result = await adminService.suspendArtist(
-      req.params.id,
+      req.params.userId,
       req.user._id
     );
     res.status(200).json({
@@ -80,7 +80,7 @@ const suspendArtist = async (req, res, next) => {
 const activateArtist = async (req, res, next) => {
   try {
     const result = await adminService.activateArtist(
-      req.params.id,
+      req.params.userId,
       req.user._id
     );
     res.status(200).json({

@@ -55,4 +55,5 @@ const isArtist = async (req, res, next) => {
   if (req.user.role === "artist") next();
   else next(new Error("This is not artist"));
 };
+
 module.exports = { authMiddleware, isAdmin, isArtist };

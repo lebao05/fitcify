@@ -2,26 +2,17 @@ const User = require('../models/user');
 const ArtistProfile = require('../models/artistProfile');
 const ArtistVerificationRequest = require('../models/artistVerification');
 
-const getAllUsers = async () => User.find();
+const getAllUsers = async () => {
+  return await User.find();
+};
 
-const getVerificationRequests = async () =>
-  ArtistVerificationRequest.find({ status: 'pending' });
+const getVerificationRequests = async () => {
+  return await ArtistVerificationRequest.find({ status: 'pending' });
+};
 
-
-const processVerificationRequest = async (
-  requestId,
-  decision,     // "approved" | "rejected"
-  adminId,
-  reason = null
-) => {
+const processVerificationRequest = async (requestId, decision, adminId, reason = null) => {
   const request = await ArtistVerificationRequest.findById(requestId).populate('userId');
-  if (!request) {
-    return {
-      message: "Verification request not found",
-      error: 1,
-      data: null,
-    };
-  }
+  if (!request) throw new Error("Verification request not found");
 
   const userId = request.userId._id;
 
@@ -32,19 +23,12 @@ const processVerificationRequest = async (
   await request.save();
 
   const user = await User.findById(userId);
-  if (!user) {
-    return {
-      message: "User associated with this request not found",
-      error: 1,
-      data: null,
-    };
-  }
+  if (!user) throw new Error("User associated with this request not found");
 
   if (decision === 'approved') {
     user.isVerified = true;
     user.role = 'artist';
 
-    // Create or update artist profile
     let profile = await ArtistProfile.findOne({ userId });
     if (!profile) {
       profile = await ArtistProfile.create({
@@ -75,54 +59,40 @@ const processVerificationRequest = async (
   await user.save();
 
   return {
-    message: decision === "approved"
-      ? "Artist approved successfully"
-      : "Artist verification request rejected",
-    error: 0,
-    data: {
-      ...request.toObject(),
-      userId: user.toObject(), 
-    }
+    ...request.toObject(),
+    userId: user.toObject(),
   };
-
 };
 
 /* ───────── moderation: suspend / activate ───────── */
 
 const suspendArtist = async (userId, adminId) => {
-  try {
-    const artist = await ArtistProfile.findOneAndUpdate(
-      { userId },
-      {
-        isBanned: true,
-        bannedBy: adminId,
-        bannedAt: new Date()
-      },
-      { new: true }
-    );
-    return artist;
-  } catch (err) {
-    throw err;
-  }
+  const artist = await ArtistProfile.findOneAndUpdate(
+    { userId },
+    {
+      isBanned: true,
+      bannedBy: adminId,
+      bannedAt: new Date()
+    },
+    { new: true }
+  );
+  if (!artist) throw new Error("Artist profile not found");
+  return artist;
 };
 
 const activateArtist = async (userId, adminId) => {
-  try {
-    const artist = await ArtistProfile.findOneAndUpdate(
-      { userId },
-      {
-        isBanned: false,
-        bannedBy: null,
-        bannedAt: null
-      },
-      { new: true }
-    );
-    return artist;
-  } catch (err) {
-    throw err;
-  }
+  const artist = await ArtistProfile.findOneAndUpdate(
+    { userId },
+    {
+      isBanned: false,
+      bannedBy: null,
+      bannedAt: null
+    },
+    { new: true }
+  );
+  if (!artist) throw new Error("Artist profile not found");
+  return artist;
 };
-
 
 module.exports = {
   getAllUsers,

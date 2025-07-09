@@ -1,6 +1,5 @@
 const artistService = require("../services/artistService");
 
-
 const submitArtistVerification = async (req, res, next) => {
   try {
     const result = await artistService.submitArtistVerificationRequest(
@@ -8,9 +7,9 @@ const submitArtistVerification = async (req, res, next) => {
       req.body.notes || null
     );
     res.status(200).json({
-      message: "Verification request submitted",
-      error: 0,
-      data: result,
+      Message: "Verification request submitted",
+      Error: 0,
+      Data: result,
     });
   } catch (err) {
     next(err);
@@ -25,9 +24,9 @@ const uploadSong = async (req, res, next) => {
 
     if (!title || !audioPath) {
       return res.status(400).json({
-        message: "Missing required fields (title, audio)",
-        error: 1,
-        data: null,
+        Message: "Missing required fields (title, audio)",
+        Error: 1,
+        Data: null,
       });
     }
 
@@ -39,12 +38,15 @@ const uploadSong = async (req, res, next) => {
       imagePath,
     });
 
-    res.status(200).json(result);
+    res.status(200).json({
+      Message: "Song uploaded successfully, waiting admin verify",
+      Error: 0,
+      Data: result,
+    });
   } catch (err) {
     next(err);
   }
 };
-
 
 const updateSong = async (req, res, next) => {
   try {
@@ -59,7 +61,11 @@ const updateSong = async (req, res, next) => {
       imagePath,
     });
 
-    res.status(200).json(result);
+    res.status(200).json({
+      Message: "Song updated successfully, waiting admin verify",
+      Error: 0,
+      Data: result,
+    });
   } catch (err) {
     next(err);
   }
@@ -67,19 +73,23 @@ const updateSong = async (req, res, next) => {
 
 const deleteSong = async (req, res, next) => {
   try {
-    const result = await artistService.deleteSong(req.params.songId, req.user._id);
-    res.status(result.error ? 400 : 200).json({
-      Message: result.message,
-      Error: result.error,
-      Data: result.data,
+    const result = await artistService.deleteSong(
+      req.params.songId,
+      req.user._id
+    );
+    res.status(200).json({
+      Message: "Song deleted successfully",
+      Error: 0,
+      Data: result,
     });
   } catch (err) {
     next(err);
   }
 };
+
 module.exports = {
   submitArtistVerification,
   uploadSong,
   updateSong,
-  deleteSong
+  deleteSong,
 };

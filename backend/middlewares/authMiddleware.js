@@ -1,6 +1,5 @@
 require("dotenv").config();
-
-const { verifyToken } = require("../services/authService");
+const {verifyToken} = require("../services/authService");
 const User = require("../models/user");
 const { validObjectId } = require("../helpers/validateObjectId");
 const PUBLIC_ROUTES = [
@@ -56,4 +55,5 @@ const isArtist = async (req, res, next) => {
   if (req.user.role === "artist") next();
   else next(new Error("This is not artist"));
 };
+
 module.exports = { authMiddleware, isAdmin, isArtist };

@@ -1,5 +1,5 @@
 const adminService = require("../services/adminService");
-
+const ArtistVerificationRequest = require('../models/artistVerification');
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await adminService.getAllUsers();
@@ -13,7 +13,6 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
-// Get all pending artist verification requests
 const getAllArtistVerificationRequests = async (req, res, next) => {
   try {
     const result = await adminService.getVerificationRequests();
@@ -27,7 +26,6 @@ const getAllArtistVerificationRequests = async (req, res, next) => {
   }
 };
 
-// Approve an artist request by ID
 const approveArtistRequest = async (req, res, next) => {
   try {
     const result = await adminService.processVerificationRequest(
@@ -45,7 +43,6 @@ const approveArtistRequest = async (req, res, next) => {
   }
 };
 
-// Reject an artist request by ID
 const rejectArtistRequest = async (req, res, next) => {
   try {
     const result = await adminService.processVerificationRequest(
@@ -64,11 +61,10 @@ const rejectArtistRequest = async (req, res, next) => {
   }
 };
 
-// Suspend an artist account
 const suspendArtist = async (req, res, next) => {
   try {
     const result = await adminService.suspendArtist(
-      req.params.id,
+      req.params.userId,
       req.user._id
     );
     res.status(200).json({
@@ -81,11 +77,10 @@ const suspendArtist = async (req, res, next) => {
   }
 };
 
-// Activate a previously suspended artist
 const activateArtist = async (req, res, next) => {
   try {
     const result = await adminService.activateArtist(
-      req.params.id,
+      req.params.userId,
       req.user._id
     );
     res.status(200).json({
@@ -146,6 +141,7 @@ async function rejectSong(req, res, next) {
     next(err);
   }
 }
+
 module.exports = {
   getAllUsers,
   getAllArtistVerificationRequests,

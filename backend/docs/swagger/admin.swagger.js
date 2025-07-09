@@ -177,3 +177,73 @@
  *       200:
  *         description: Artist activated successfully
  */
+
+/**
+ * @swagger
+ * /api/admin/songs/{songId}/approve:
+ *   post:
+ *     summary: Approve a song
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: songId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the song to approve
+ *     responses:
+ *       200:
+ *         description: Song approved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                 Error:
+ *                   type: integer
+ *                 Data:
+ *                   $ref: '#/components/schemas/Song'
+ */
+
+/**
+ * @swagger
+ * /api/admin/songs/{songId}/reject:
+ *   post:
+ *     summary: Reject a song
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: songId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the song to reject
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 description: Reason for rejection
+ *             example:
+ *               reason: "Does not meet content guidelines"
+ *     responses:
+ *       200:
+ *         description: Song rejected successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                 Error:
+ *                   type: integer
+ *                 Data:
+ *                   $ref: '#/components/schemas/Song'
+ */

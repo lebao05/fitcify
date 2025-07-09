@@ -5,8 +5,8 @@ const ArtistVerificationRequest = require('../models/artistVerification');
 const getAllUsers = async () => User.find();
 
 const getVerificationRequests = async () =>
-  ArtistVerificationRequest.find({ status: 'pending' })
-    .populate('userId');
+  ArtistVerificationRequest.find({ status: 'pending' });
+
 
 const processVerificationRequest = async (
   requestId,

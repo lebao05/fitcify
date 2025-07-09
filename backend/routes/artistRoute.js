@@ -7,6 +7,6 @@ router.use(authMiddleware);
 
 router.post('/songs', artistSongCtrl.createSong);
 
-router.get('/songs', artistSongCtrl.listMySongs);
+router.get('/listsongs', artistSongCtrl.listMySongs);
 
 module.exports = router;

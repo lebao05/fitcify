@@ -1,6 +1,10 @@
-// src/redux/slices/userSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { signup, login, verifyLoginOtp } from "../../services/authApi";
+import {
+  signup,
+  login,
+  logout as logoutApi,
+  verifyLoginOtp,
+} from "../../services/authApi"; // adjust if your file path is different
 
 // ───── REGISTER ─────
 export const registerUser = createAsyncThunk(
@@ -11,7 +15,7 @@ export const registerUser = createAsyncThunk(
       return user;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Signup failed"
+        error.response?.data?.Message || "Signup failed"
       );
     }
   }
@@ -26,7 +30,7 @@ export const loginWithPassword = createAsyncThunk(
       return response.Data.user;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Password login failed"
+        error.response?.data?.Message || "Password login failed"
       );
     }
   }
@@ -40,8 +44,24 @@ export const loginWithOtp = createAsyncThunk(
       const response = await verifyLoginOtp({ email, otp });
       return response.Data.user;
     } catch (error) {
+      console.error("Error in loginWithOtp:", error);
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "OTP login failed"
+        error.response?.data?.Message || "OTP login failed"
+      );
+    }
+  }
+);
+
+// ───── LOGOUT ─────
+export const logoutUserThunk = createAsyncThunk(
+  "user/logoutUserThunk",
+  async (_, thunkAPI) => {
+    try {
+      await logoutApi(); // server clears cookies
+      return true;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Logout failed"
       );
     }
   }
@@ -64,8 +84,8 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // REGISTER
     builder
+      // ───── REGISTER ─────
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -79,7 +99,7 @@ const userSlice = createSlice({
         state.loading = false;
       })
 
-      // LOGIN WITH PASSWORD
+      // ───── LOGIN WITH PASSWORD ─────
       .addCase(loginWithPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -93,7 +113,7 @@ const userSlice = createSlice({
         state.loading = false;
       })
 
-      // LOGIN WITH OTP
+      // ───── LOGIN WITH OTP ─────
       .addCase(loginWithOtp.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -105,10 +125,20 @@ const userSlice = createSlice({
       .addCase(loginWithOtp.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+
+      // ───── LOGOUT ─────
+      .addCase(logoutUserThunk.fulfilled, (state) => {
+        state.user = null;
+        state.loading = false;
+      })
+      .addCase(logoutUserThunk.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
 
+// ───── EXPORTS ─────
 export const { logoutUser } = userSlice.actions;
-
 export default userSlice.reducer;

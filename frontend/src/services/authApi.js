@@ -23,11 +23,8 @@ export const sendLoginOtp = async (email) => {
   return res.data;
 };
 
-export const verifyLoginOtp = async (email, otp) => {
-  const res = await axiosInstance.post("/auth/otp/login/verify", {
-    email,
-    otp,
-  });
+export const verifyLoginOtp = async (formData) => {
+  const res = await axiosInstance.post("/auth/otp/login/verify", formData);
   return res.data;
 };
 

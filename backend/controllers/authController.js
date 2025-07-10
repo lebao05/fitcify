@@ -61,10 +61,8 @@ exports.sendLoginOtp = async (req, res, next) => {
 
 exports.verifyLoginOtp = async (req, res, next) => {
   try {
-    const { user, token } = await authService.verifyLoginOtp(
-      req.body.email,
-      req.body.otp
-    );
+    const { email, otp } = req.body; // ✅ destructure clearly
+    const { user, token } = await authService.verifyLoginOtp(email, otp); // ✅ pass as strings
     authService.setCookie(res, "accessToken", token, cookieOpts(req));
     res.json({ Error: 0, Message: "Logged in with OTP", Data: { user } });
   } catch (err) {

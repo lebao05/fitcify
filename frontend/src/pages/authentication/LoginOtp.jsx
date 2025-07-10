@@ -8,7 +8,7 @@ export default function EmailVerification({ email }) {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const dipatch = useDispatch();
+  const dispatch = useDispatch();
   /* ----- handlers ----- */
   const handleInputChange = (index, value) => {
     if (value.length > 1) return;
@@ -33,7 +33,7 @@ export default function EmailVerification({ email }) {
       );
     }
   };
-  const loginWithOtp = async () => {
+  const login = async () => {
     const otp = code.join("");
     if (otp.length !== 6) {
       alert("Please enter a valid 6-digit OTP.");
@@ -45,10 +45,7 @@ export default function EmailVerification({ email }) {
       navigate("/");
     } catch (error) {
       console.error("Error logging in with OTP:", error);
-      alert(
-        error?.response?.data?.message ||
-          "Failed to log in with OTP. Please try again."
-      );
+      alert(error || "Failed to log in with OTP. Please try again.");
     }
   };
   const handlePaste = (e) => {
@@ -64,79 +61,82 @@ export default function EmailVerification({ email }) {
   };
 
   const ready = code.every((d) => d !== "");
-
-  return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
-      {/* “logo” */}
-      <div className="absolute top-8 left-8">
-        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-          <div className="space-y-0.5">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="w-4 h-0.5 bg-black rounded" />
-            ))}
+  if (!email || !email.trim()) {
+    window.location.href = "/login";
+    return null;
+  } else
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+        {/* “logo” */}
+        <div className="absolute top-8 left-8">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <div className="space-y-0.5">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="w-4 h-0.5 bg-black rounded" />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="w-full max-w-md text-center space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold mb-2">
-            Enter the 6‑digit code sent to
-          </h1>
-          <h1 className="text-2xl font-bold">{obfuscateEmail(email)}</h1>
-        </div>
+        <div className="w-full max-w-md text-center space-y-8">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">
+              Enter the 6‑digit code sent to
+            </h1>
+            <h1 className="text-2xl font-bold">{obfuscateEmail(email)}</h1>
+          </div>
 
-        {/* six inputs */}
-        <div className="flex justify-center gap-3">
-          {code.map((digit, i) => (
-            <input
-              key={i}
-              ref={(el) => (inputRefs.current[i] = el)}
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleInputChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              onPaste={handlePaste}
-              className="w-12 h-12 bg-transparent border-2 border-gray-600 rounded text-white text-center text-xl font-bold outline-none transition-all transform
+          {/* six inputs */}
+          <div className="flex justify-center gap-3">
+            {code.map((digit, i) => (
+              <input
+                key={i}
+                ref={(el) => (inputRefs.current[i] = el)}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleInputChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                onPaste={handlePaste}
+                className="w-12 h-12 bg-transparent border-2 border-gray-600 rounded text-white text-center text-xl font-bold outline-none transition-all transform
                          hover:border-white hover:scale-110 hover:text-2xl cursor-pointer"
-            />
-          ))}
-        </div>
+              />
+            ))}
+          </div>
 
-        {/* resend button */}
-        <button
-          className="px-6 py-2 border border-gray-600 rounded-full text-white transition-all transform
+          {/* resend button */}
+          <button
+            className="px-6 py-2 border border-gray-600 rounded-full text-white transition-all transform
                            hover:border-white hover:text-lg cursor-pointer"
-          onClick={handeResendOtp}
-        >
-          Resend code
-        </button>
+            onClick={handeResendOtp}
+          >
+            Resend code
+          </button>
 
-        {/* log‑in button */}
-        <button
-          disabled={!ready}
-          className={`w-full h-12 rounded-full font-bold text-black transition-all transform ${
-            ready
-              ? "bg-[#1DB954] hover:bg-[#1ed760] hover:text-lg cursor-pointer"
-              : "bg-gray-600 cursor-not-allowed"
-          }`}
-          onClick={loginWithOtp}
-        >
-          Log in
-        </button>
+          {/* log‑in button */}
+          <button
+            disabled={!ready}
+            className={`w-full h-12 rounded-full font-bold text-black transition-all transform ${
+              ready
+                ? "bg-[#1DB954] hover:bg-[#1ed760] hover:text-lg cursor-pointer"
+                : "bg-gray-600 cursor-not-allowed"
+            }`}
+            onClick={login}
+          >
+            Log in
+          </button>
 
-        {/* alt login */}
-        <button
-          className="text-white transition-all transform
+          {/* alt login */}
+          <button
+            className="text-white transition-all transform
                            hover:text-lg cursor-pointer"
-          onClick={() => navigate("/login?method=password")}
-        >
-          Log in with a password
-        </button>
+            onClick={() => navigate("/login?method=password")}
+          >
+            Log in with a password
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
 }

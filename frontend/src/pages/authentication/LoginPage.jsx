@@ -18,7 +18,7 @@ export default function SpotifyLogin({ email, setEmail }) {
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [otpError, setOtpError] = useState(""); // new
+  const [loginError, setLoginError] = useState(""); // new
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,13 +33,13 @@ export default function SpotifyLogin({ email, setEmail }) {
   };
 
   const handleContinue = async () => {
-    setOtpError(""); // Reset OTP error on new attempt
+    setLoginError(""); // Reset OTP error on new attempt
     if (!email.trim() || !validateEmail(email)) {
       setShowError(true);
       return;
     }
-    try {
-      if (showPassword) {
+    if (showPassword) {
+      try {
         setIsLoading(true);
         const result = await dispatch(
           loginWithPassword({ email, password })
@@ -47,17 +47,23 @@ export default function SpotifyLogin({ email, setEmail }) {
         console.log("Login successful:", result);
         setIsLoading(false);
         navigate("/");
-      } else {
+      } catch (error) {
+        setIsLoading(false);
+        console.error("Error logging in with password:", error);
+        setLoginError(error || "Login failed. Please try again.");
+      }
+    } else {
+      try {
+        setIsLoading(true);
         const result = await sendLoginOtp(email);
         console.log("OTP sent:", result);
+        setIsLoading(false);
         navigate("/loginotp");
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        setIsLoading(false);
+        setLoginError(error?.response?.data?.Message || "Failed to send OTP.");
       }
-    } catch (error) {
-      console.error("Error sending OTP:", error);
-      setOtpError(
-        error?.response?.data?.Message ||
-          "Failed to send OTP. Please try again."
-      );
     }
   };
 
@@ -146,9 +152,9 @@ export default function SpotifyLogin({ email, setEmail }) {
               {isLoading ? "Logging in..." : "Continue"}
             </button>
           </div>
-          {otpError && (
+          {loginError && (
             <div className="text-red-500 text-sm mt-1 text-left font-medium">
-              {otpError}
+              {loginError}
             </div>
           )}
         </div>

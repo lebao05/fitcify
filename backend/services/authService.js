@@ -130,8 +130,13 @@ async function changePassword(email, newPassword) {
   await user.save();
   return true;
 }
-
+async function checkUserExists(email) {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("No account with that email");
+  return user;
+}
 module.exports = {
+  checkUserExists,
   /* helpers */
   generateAccessToken,
   isAuthenticated,

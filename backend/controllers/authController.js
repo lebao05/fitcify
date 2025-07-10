@@ -16,7 +16,14 @@ const getRedirectUrl = (req) => {
   // if (fromQuery && !ALLOWED.includes(fromQuery)) return fallback;
   return fromQuery;
 };
-
+exports.checkEmailExists = async (req, res, next) => {
+  try {
+    const user = await authService.checkUserExists(req.body.email);
+    res.json({ Error: 0, Message: "Email exists" });
+  } catch (err) {
+    next(err);
+  }
+};
 /* ───── Email / Password ───── */
 exports.signup = async (req, res, next) => {
   try {

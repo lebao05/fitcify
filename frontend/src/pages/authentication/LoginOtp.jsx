@@ -1,11 +1,14 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
-export default function EmailVerification() {
+import obfuscateEmail from "../../utils/obfuscateEmail";
+import { sendLoginOtp } from "../../services/authApi";
+import { useDispatch } from "react-redux";
+import { loginWithOtp } from "../../redux/slices/userSlice";
+export default function EmailVerification({ email }) {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-
+  const dipatch = useDispatch();
   /* ----- handlers ----- */
   const handleInputChange = (index, value) => {
     if (value.length > 1) return;
@@ -19,7 +22,35 @@ export default function EmailVerification() {
     if (e.key === "Backspace" && !code[index] && index > 0)
       inputRefs.current[index - 1]?.focus();
   };
-
+  const handeResendOtp = async () => {
+    try {
+      await sendLoginOtp(email);
+      alert("OTP resent successfully!");
+    } catch (error) {
+      alert(
+        error?.response?.data?.message ||
+          "Failed to resend OTP. Please try again."
+      );
+    }
+  };
+  const loginWithOtp = async () => {
+    const otp = code.join("");
+    if (otp.length !== 6) {
+      alert("Please enter a valid 6-digit OTP.");
+      return;
+    }
+    try {
+      const result = await dispatch(loginWithOtp({ email, otp })).unwrap();
+      console.log("Login successful:", result);
+      navigate("/");
+    } catch (error) {
+      console.error("Error logging in with OTP:", error);
+      alert(
+        error?.response?.data?.message ||
+          "Failed to log in with OTP. Please try again."
+      );
+    }
+  };
   const handlePaste = (e) => {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").slice(0, 6);
@@ -52,7 +83,7 @@ export default function EmailVerification() {
           <h1 className="text-2xl font-bold mb-2">
             Enter the 6‑digit code sent to
           </h1>
-          <h1 className="text-2xl font-bold">you at t**3@g***l.com.</h1>
+          <h1 className="text-2xl font-bold">{obfuscateEmail(email)}</h1>
         </div>
 
         {/* six inputs */}
@@ -79,6 +110,7 @@ export default function EmailVerification() {
         <button
           className="px-6 py-2 border border-gray-600 rounded-full text-white transition-all transform
                            hover:border-white hover:text-lg cursor-pointer"
+          onClick={handeResendOtp}
         >
           Resend code
         </button>
@@ -91,6 +123,7 @@ export default function EmailVerification() {
               ? "bg-[#1DB954] hover:bg-[#1ed760] hover:text-lg cursor-pointer"
               : "bg-gray-600 cursor-not-allowed"
           }`}
+          onClick={loginWithOtp}
         >
           Log in
         </button>
@@ -99,7 +132,7 @@ export default function EmailVerification() {
         <button
           className="text-white transition-all transform
                            hover:text-lg cursor-pointer"
-          onClick={() => navigate("/loginpassword")}
+          onClick={() => navigate("/login?method=password")}
         >
           Log in with a password
         </button>

@@ -1,0 +1,308 @@
+// Variables
+$black: #000000;
+$dark-gray: #121212;
+$medium-gray: #282828;
+$light-gray: #404040;
+$text-gray: #b3b3b3;
+$white: #ffffff;
+$blue: #1db954;
+$hover-scale: 1.04;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-base {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+@mixin hover-scale {
+  &:hover {
+    transform: scale($hover-scale);
+  }
+}
+
+// Main header styles
+.header-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: $black;
+  border-bottom: 1px solid $medium-gray;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    height: 64px;
+    max-width: 100%;
+  }
+
+  .left-section {
+    display: flex;
+    align-items: center;
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      @include flex-center;
+      img {
+        border-radius: 30%;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  // Center Section
+  .center-section {
+    position: relative;
+    left: 12%;
+    @media screen and (max-width: 1300px) {
+      left: 0;
+      justify-content: center;
+      padding: 0 12px;
+    }
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    max-width: 700px;
+    margin: 0 12px;
+    height: 100%;
+    .home-btn {
+      @include button-base;
+      width: 50px;
+      height: 50px;
+      background-color: $medium-gray;
+      border-radius: 50%;
+      @include flex-center;
+      color: $text-gray;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: $light-gray;
+        color: $white;
+      }
+    }
+
+    .search-feature {
+      max-width: 500px;
+      flex: 1;
+      @media screen and (max-width: 768px) {
+        min-width: 350px;
+      }
+      .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background-color: $medium-gray;
+        border: 2px solid transparent;
+        border-radius: 500px;
+        padding: 12px 16px;
+        transition: all 0.5s ease;
+
+        &:hover,
+        &:focus-within {
+          background-color: rgb(46, 39, 39);
+          border-color: $white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-icon {
+          color: $text-gray;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        input {
+          background: transparent;
+          border: none;
+          color: $white;
+          width: 100%;
+          font-size: 18px;
+          outline: none;
+
+          &::placeholder {
+            color: $text-gray;
+          }
+        }
+      }
+    }
+  }
+
+  // Right Section
+  .right-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    .divider {
+      width: 1px;
+      height: 24px;
+      background-color: $light-gray;
+    }
+    .nav-button {
+      @include button-base;
+      color: $text-gray;
+      font-size: 17px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 500px;
+      @include hover-scale;
+
+      &:hover {
+        color: $white;
+      }
+
+      &.download-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+    .signup-button {
+      @include button-base;
+      background-color: transparent;
+      color: $text-gray;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 500px;
+      @include hover-scale;
+      @media screen and (max-width: 768px) {
+        width: 100px;
+      }
+
+      &:hover {
+        color: $white;
+      }
+    }
+    .login-button {
+      @include button-base;
+      background-color: $white;
+      color: $black;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 500px;
+      @include hover-scale;
+      @media screen and (max-width: 768px) {
+        width: 100px;
+      }
+      &:hover {
+        background-color: #f1f1f1;
+      }
+    }
+    .icon-button {
+      @include button-base;
+      width: 32px; // Increased size for better visibility
+      height: 32px;
+      background-color: $medium-gray;
+      border-radius: 50%; // Circular button
+      @include flex-center;
+      color: $text-gray;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: $light-gray;
+        color: $white;
+      }
+    }
+
+    .notifications {
+      position: relative;
+
+      .notification-dot {
+        width: 8px;
+        height: 8px;
+        background-color: $blue;
+        border-radius: 50%;
+        position: absolute;
+        top: 4px;
+        right: 4px;
+      }
+    }
+
+    .friends {
+      position: relative;
+    }
+
+    .user-profile-container {
+      position: relative;
+
+      .user-profile {
+        @include button-base;
+        width: 40px;
+        height: 40px;
+        background-color: $medium-gray;
+        border: 6px solid rgb(78, 77, 76); // White border around avatar
+        border-radius: 50%;
+        @include flex-center;
+        color: $white;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $light-gray;
+        }
+      }
+
+      .navigation-bar {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        width: 200px;
+        background-color: $medium-gray;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        padding: 8px 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: all 0.2s ease;
+
+        &.active {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+
+        .dropdown-item {
+          @include button-base;
+          width: 100%;
+          text-align: left;
+          padding: 12px 16px;
+          color: $white;
+          font-size: 14px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: $light-gray;
+            color: $white;
+          }
+        }
+
+        .dropdown-divider {
+          height: 1px;
+          background-color: $light-gray;
+          margin: 8px 0;
+        }
+      }
+    }
+  }
+}

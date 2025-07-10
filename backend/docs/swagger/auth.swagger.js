@@ -40,7 +40,27 @@
  *       201:
  *         description: User created
  */
-
+/**
+ * @swagger
+ * /api/auth/check-user-exists:
+ *   post:
+ *     summary: Check if a user exists by email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: johndoe@example.com
+ *     responses:
+ *       200:
+ *         description: Email exists
+ */
 /**
  * @swagger
  * /api/auth/login:

@@ -1,5 +1,5 @@
 require("dotenv").config();
-const {verifyToken} = require("../services/authService");
+const { verifyToken } = require("../services/authService");
 const User = require("../models/user");
 const { validObjectId } = require("../helpers/validateObjectId");
 const PUBLIC_ROUTES = [
@@ -11,8 +11,8 @@ const PUBLIC_ROUTES = [
   { method: "GET", path: "/api/auth/google" },
   { method: "GET", path: "/api/auth/google/callback" },
   { method: "GET", path: "/api/auth/facebook" },
-  { method: "GET", path: "/api/auth/facebook/callback" }
-
+  { method: "GET", path: "/api/auth/facebook/callback" },
+  { method: "GET", path: "/api/auth/check-email-exists" },
 ];
 
 function isPublic(req) {

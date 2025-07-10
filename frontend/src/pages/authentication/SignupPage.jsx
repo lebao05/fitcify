@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../styles/authentication/SignupPage.scss";
+import "./SignupPage.scss";
 import { Navigate, useNavigate } from "react-router-dom";
 
 export default function SpotifyLogin() {
@@ -29,6 +29,7 @@ export default function SpotifyLogin() {
             setShowError(true);
             return;
         }
+        nagivate("/signup-step1");
     };
 
     const handleSignupWithGoogle = () => {

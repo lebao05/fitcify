@@ -1,0 +1,55 @@
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+.album-card {
+  color: variables.$text-primary;
+  padding: 1rem; 
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+
+  &:hover{
+    background-color: #222222;
+  }
+  .album-image-container {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 1rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .album-action-btn {
+      position: absolute;
+      bottom: 5px;
+      right: -1px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 2;
+    }
+  }
+  .album-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .album-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    .album-name {
+      font-size: 16px;
+      margin-bottom: 0.2rem;
+      &:hover{
+        text-decoration: underline;
+      }
+    }
+    .album-artist {
+      color: variables.$text-muted;
+      font-size: 14px;
+    }
+  }
+}

@@ -1,0 +1,67 @@
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+.track-number{
+  width: 40px;
+  color: variables.$text-secondary;
+  font-size: 14px;
+  text-align: center;
+ 
+}
+
+.track-item {
+  display: flex; 
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+
+  &:hover{
+    cursor: pointer;
+    background-color: #252424;
+  }
+
+  .track-info{
+    display: grid;
+    grid-template-columns: 50px 2fr 1.5fr 0.25fr;
+    color: white;
+    font-size: 14px;
+    width: 100%;
+
+    .track-image{
+      width: 40px;
+      object-fit: cover;
+      height: 40px;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    .track-title{
+      display: flex;
+      flex-direction: column;
+      margin-right: 1rem;
+
+      .track-name{
+        white-space: nowrap;        
+        overflow: hidden;           
+        text-overflow: ellipsis;
+      }
+      .track-artist{
+        color: variables.$text-secondary;
+        font-size: 14px;
+      }
+    }
+
+    .track-album{
+      color: variables.$text-secondary;
+      margin-right: 1rem;
+      white-space: nowrap;        
+      overflow: hidden;          
+      text-overflow: ellipsis;
+    }
+
+    .track-duration{
+      color: variables.$text-secondary;
+      font-size: 14px;
+    }
+  }
+}

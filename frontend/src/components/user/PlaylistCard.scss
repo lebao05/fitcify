@@ -1,0 +1,62 @@
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+
+.playlist-card {
+  color: variables.$text-primary;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  &:hover{
+    cursor:pointer;
+    background-color: #222222;
+  }
+
+  .playlist-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .playlist-info {
+    display: flex;
+    flex-direction: column;
+
+    .playlist-name{
+      &:hover{
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+
+    .playlist-creator {
+      color: variables.$text-muted;
+      font-size: 14px;
+    }
+  }
+
+  .playlist-image-container {
+    position: relative;
+    width: fit-content;
+    height: fit-content;
+  }
+
+  .playlist-play-button {
+    position: absolute;
+    bottom: 5px;
+    right: -1px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 2;
+  }
+
+  .playlist-image-container:hover .playlist-play-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

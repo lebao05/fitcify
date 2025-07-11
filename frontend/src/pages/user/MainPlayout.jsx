@@ -7,8 +7,8 @@ const MainPlayout = () => {
   return (
     <div>
       <HeaderBar />
-      <div className="h-screen bg-black">
-        <div className="h-[100%] flex">
+      <div className="flex flex-col h-screen bg-black">
+        <div className="flex flex-1 overflow-hidden">
           <Sidebar />
           <Display></Display>
         </div>

@@ -1,104 +1,130 @@
 /**
  * @swagger
  * tags:
- *   name: Songs
- *   description: Endpoints for artists to manage their songs
+ *   name: Artist
+ *   description: artist actions for submit verification, content request , and songs
  */
 
 /**
  * @swagger
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- *   schemas:
- *     Song:
- *       type: object
- *       properties:
- *         _id:
- *           type: string
- *         title:
- *           type: string
- *         artistId:
- *           type: string
- *         duration:
- *           type: number
- *           description: Duration in seconds
- *         audioUrl:
- *           type: string
- *         imageUrl:
- *           type: string
- *         albumId:
- *           type: string
- *           nullable: true
- *         isApproved:
- *           type: boolean
- *         createdAt:
- *           type: string
- *           format: date-time
- *         updatedAt:
- *           type: string
- *           format: date-time
- */
-
-/**
- * @swagger
- * /api/songs:
+ * /api/artist/verification-request:
  *   post:
- *     summary: Create a new song
- *     tags: [Songs]
- *     security:
- *       - bearerAuth: []
+ *     summary: Submit a verification request to become an artist
+ *     tags: [Artist]
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - title
- *               - duration
- *               - audioUrl
  *             properties:
- *               title:
+ *               notes:
  *                 type: string
- *               duration:
- *                 type: number
- *                 description: Duration in seconds
- *               audioUrl:
- *                 type: string
- *               imageUrl:
- *                 type: string
- *                 description: Optional cover image URL
- *               albumId:
- *                 type: string
- *                 description: Optional album ID
+ *                 description: Optional note or message from the user
  *     responses:
- *       201:
- *         description: Song created successfully
+ *       200:
+ *         description: Verification request submitted
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Song'
+ *               $ref: '#/components/schemas/DefaultResponse'
  */
 
 /**
  * @swagger
- * /api/listsongs:
- *   get:
- *     summary: Get all songs created by the authenticated artist
- *     tags: [Songs]
- *     security:
- *       - bearerAuth: []
+ * /api/artist/songs:
+ *   post:
+ *     summary: Upload a new song (artist only)
+ *     tags: [Artist]
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - audio
+ *             properties:
+ *               title:
+ *                 type: string
+ *               albumId:
+ *                 type: string
+ *                 description: Optional album ObjectId
+ *               audio:
+ *                 type: string
+ *                 format: binary
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
- *         description: A list of the artist's songs
+ *         description: Song uploaded successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Song'
+ *               $ref: '#/components/schemas/DefaultResponse'
+ */
+
+/**
+ * @swagger
+ * /api/artist/songs/{id}:
+ *   patch:
+ *     summary: Update an existing song (audio, image, title, or album)
+ *     tags: [Artist]
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Song ID to update
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               albumId:
+ *                 type: string
+ *               audio:
+ *                 type: string
+ *                 format: binary
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Song updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ */
+
+/**
+ * @swagger
+ * /api/artist/songs/{songId}:
+ *   delete:
+ *     summary: Delete a song by artist
+ *     tags: [Artist]
+ *     parameters:
+ *       - in: path
+ *         name: songId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the song to delete
+ *     responses:
+ *       200:
+ *         description: Song deleted successfully
+ *       400:
+ *         description: Bad request or unauthorized
  */

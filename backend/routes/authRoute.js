@@ -18,7 +18,7 @@ router.post("/otp/forgot/verify", authCtrl.verifyForgotOtp);
 
 /* password change */
 router.post("/change-password", authCtrl.changePassword);
-
+router.post("/check-user-exists", authCtrl.checkEmailExists);
 router.get("/google", authCtrl.googleInit); // start Google login
 router.get("/google/callback", authCtrl.googleCallback); // handle callback
 

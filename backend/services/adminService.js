@@ -1,6 +1,8 @@
 const User = require('../models/user');
+const mongoose = require('mongoose');
 const ArtistProfile = require('../models/artistProfile');
 const ArtistVerificationRequest = require('../models/artistVerification');
+const ContentVerificationRequest = require('../models/contentVerification');
 const Song = require('../models/song');
 const suspendUser = async (userId, adminId, reason) => {
   return await User.findByIdAndUpdate(
@@ -28,154 +30,154 @@ const activateUser = async (userId, adminId) => {
   );
 };
 
-const getAllUsers = async () => User.find();
+const getAllUsers = async () => {
+  return await User.find();
+};
 
-const getVerificationRequests = async () =>
-  ArtistVerificationRequest.find({ status: 'pending' })
-    .populate('userId');
+const getVerificationRequests = async () => {
+  return await ArtistVerificationRequest.find({ status: 'pending' });
+};
 
-const processVerificationRequest = async (
-  requestId,
-  decision,     // "approved" | "rejected"
-  adminId,
-  reason = null
-) => {
-  const request = await ArtistVerificationRequest.findById(requestId).populate('userId');
-  if (!request) {
-    return {
-      message: "Verification request not found",
-      error: 1,
-      data: null,
-    };
+async function processVerificationRequest(requestId, decision, adminId, reason = '') {
+  if (!mongoose.isValidObjectId(requestId)) throw new Error('Invalid request ID');
+  const req = await ArtistVerificationRequest.findById(requestId);
+  if (!req) throw new Error('Verification request not found');
+
+  req.status = decision;
+  req.processedBy = adminId;
+  req.processedAt = new Date();
+  if (decision === 'rejected') {
+    req.rejectionReason = reason;
+    req.rejectedAt = new Date();
   }
 
-  const userId = request.userId._id;
-
-  request.status = decision;
-  request.processedAt = new Date();
-  request.processedBy = adminId;
-  request.notes = reason;
-  await request.save();
-
-  const user = await User.findById(userId);
-  if (!user) {
-    return {
-      message: "User associated with this request not found",
-      error: 1,
-      data: null,
-    };
-  }
-
+  // Update user and profile
+  const user = await User.findById(req.userId);
+  if (!user) throw new Error('User not found');
   if (decision === 'approved') {
     user.isVerified = true;
     user.role = 'artist';
-
-    // Create or update artist profile
-    let profile = await ArtistProfile.findOne({ userId });
+    let profile = await ArtistProfile.findOne({ userId: user._id });
     if (!profile) {
-      profile = await ArtistProfile.create({
-        userId,
-        isVerified: true,
-        verificationRequestDate: new Date()
-      });
+      profile = await ArtistProfile.create({ userId: user._id, isVerified: true, verificationRequestDate: new Date() });
     } else {
       profile.isVerified = true;
       await profile.save();
     }
-
-    if (!user.artistProfile || !user.artistProfile.equals(profile._id)) {
-      user.artistProfile = profile._id;
-    }
-
-  } else if (decision === 'rejected') {
+    user.artistProfile = profile._id;
+  } else {
     user.isVerified = false;
     user.role = 'user';
-
-    const profile = await ArtistProfile.findOne({ userId });
+    const profile = await ArtistProfile.findOne({ userId: user._id });
     if (profile && profile.isVerified) {
       profile.isVerified = false;
       await profile.save();
     }
   }
-
   await user.save();
 
-  return {
-    message: decision === "approved"
-      ? "Artist approved successfully"
-      : "Artist verification request rejected",
-    error: 0,
-    data: {
-      ...request.toObject(),
-      userId: user.toObject(), 
-    }
-  };
-
-};
+  return await req.save();
+}
 
 /* ───────── moderation: suspend / activate ───────── */
 
 const suspendArtist = async (userId, adminId) => {
-  try {
-    const artist = await ArtistProfile.findOneAndUpdate(
-      { userId },
-      {
-        isBanned: true,
-        bannedBy: adminId,
-        bannedAt: new Date()
-      },
-      { new: true }
-    );
-    return artist;
-  } catch (err) {
-    throw err;
-  }
+  const artist = await ArtistProfile.findOneAndUpdate(
+    { userId },
+    {
+      isBanned: true,
+      bannedBy: adminId,
+      bannedAt: new Date()
+    },
+    { new: true }
+  );
+  if (!artist) throw new Error("Artist profile not found");
+  return artist;
 };
 
 const activateArtist = async (userId, adminId) => {
-  try {
-    const artist = await ArtistProfile.findOneAndUpdate(
-      { userId },
-      {
-        isBanned: false,
-        bannedBy: null,
-        bannedAt: null
-      },
-      { new: true }
-    );
-    return artist;
-  } catch (err) {
-    throw err;
-  }
+  const artist = await ArtistProfile.findOneAndUpdate(
+    { userId },
+    {
+      isBanned: false,
+      bannedBy: null,
+      bannedAt: null
+    },
+    { new: true }
+  );
+  if (!artist) throw new Error("Artist profile not found");
+  return artist;
 };
 
+async function getAllSongs() {
+  return await Song.find().sort({ createdAt: -1 });
+}
+
 async function approveSong(songId, adminId) {
+  if (!mongoose.isValidObjectId(songId)) throw new Error('Invalid song ID');
   const song = await Song.findById(songId);
   if (!song) throw new Error('Song not found');
   song.isApproved = true;
-  // song.approvedAt = new Date();
-  // song.approvedBy = adminId;
+  song.approvedBy = adminId;
+  song.approvedAt = new Date();
   return await song.save();
 }
 
 async function rejectSong(songId, adminId, reason = '') {
+  if (!mongoose.isValidObjectId(songId)) throw new Error('Invalid song ID');
   const song = await Song.findById(songId);
   if (!song) throw new Error('Song not found');
   song.isApproved = false;
-  // song.rejectionReason = reason;
-  // song.rejectedAt = new Date();
-  // song.rejectedBy = adminId;
+  song.rejectedBy = adminId;
+  song.rejectionReason = reason;
+  song.rejectedAt = new Date();
   return await song.save();
 }
 
+async function getContentVerificationRequests(statusFilter) {
+  const filter = {};
+  if (statusFilter) filter.status = statusFilter;
+  return await ContentVerificationRequest.find(filter)
+    .select('objectId artistId type status submittedAt processedAt processedBy rejectionReason rejectedAt')
+    .populate({ path: 'artistId', model: 'User', select: 'username email' })
+    .populate({ path: 'processedBy', model: 'User', select: 'username email' });
+}
+
+async function approveContentVerification(requestId, adminId) {
+  if (!mongoose.isValidObjectId(requestId)) throw new Error('Invalid request ID');
+  const req = await ContentVerificationRequest.findById(requestId);
+  if (!req) throw new Error('Verification request not found');
+  req.status = 'approved';
+  req.processedBy = adminId;
+  req.processedAt = new Date();
+  return await req.save();
+}
+
+async function rejectContentVerification(requestId, adminId, notes = '') {
+  if (!mongoose.isValidObjectId(requestId)) throw new Error('Invalid request ID');
+  const req = await ContentVerificationRequest.findById(requestId);
+  if (!req) throw new Error('Verification request not found');
+  req.status = 'rejected';
+  req.processedBy = adminId;
+  req.processedAt = new Date();
+  req.rejectionReason = notes;
+  req.rejectedAt = new Date();
+  return await req.save();
+}
+
 module.exports = {
+  suspendUser,
+  activateUser,
   getAllUsers,
   getVerificationRequests,
   processVerificationRequest,
   suspendArtist,
   activateArtist,
-  suspendUser,
-  activateUser,
+  getAllSongs,
   approveSong,
-  rejectSong
+  rejectSong,
+  getContentVerificationRequests,
+  approveContentVerification,
+  rejectContentVerification,
 };
+

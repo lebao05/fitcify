@@ -1,5 +1,4 @@
 const adminService = require("../services/adminService");
-const ArtistVerificationRequest = require('../models/artistVerification');
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await adminService.getAllUsers();
@@ -123,6 +122,20 @@ const activateUser = async (req, res, next) => {
     next(err);
   }
 };
+
+async function getAllSongs(req, res, next) {
+  try {
+    const songs = await adminService.getAllSongs();
+    res.status(200).json({
+      Error: 0,
+      Message: 'Songs fetched successfully',
+      Data: songs
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function approveSong(req, res, next) {
   try {
     const song = await adminService.approveSong(req.params.songId, req.user._id);
@@ -142,6 +155,101 @@ async function rejectSong(req, res, next) {
   }
 }
 
+exports.getContentVerificationRequests = async (req, res, next) => {
+  try {
+    const requests = await adminService.getContentVerificationRequests();
+    res.status(200).json({
+      Error: 0,
+      Message: 'Verification requests fetched',
+      Data: requests
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.approveContentVerification = async (req, res, next) => {
+  try {
+    const { requestId } = req.params;
+    const adminId = req.user.id;
+    const updated = await adminService.approveContentVerification(requestId, adminId);
+    res.status(200).json({
+      Error: 0,
+      Message: 'Verification request approved',
+      Data: updated
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.rejectContentVerification = async (req, res, next) => {
+  try {
+    const { requestId } = req.params;
+    const adminId = req.user.id;
+    const notes = req.body.notes || '';
+    const updated = await adminService.rejectContentVerification(requestId, adminId, notes);
+    res.status(200).json({
+      Error: 0,
+      Message: 'Verification request rejected',
+      Data: updated
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+async function getContentVerificationRequests(req, res, next) {
+  try {
+    const requests = await adminService.getContentVerificationRequests();
+    res.status(200).json({
+      Error: 0,
+      Message: 'Verification requests fetched',
+      Data: requests
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function approveContentVerification(req, res, next) {
+  try {
+    const { requestId } = req.params;
+    const adminId = req.user._id;
+    const updated = await adminService.approveContentVerification(
+      requestId,
+      adminId
+    );
+    res.status(200).json({
+      Error: 0,
+      Message: 'Verification request approved',
+      Data: updated
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function rejectContentVerification(req, res, next) {
+  try {
+    const { requestId } = req.params;
+    const adminId = req.user._id;
+    const notes = req.body.notes || '';
+    const updated = await adminService.rejectContentVerification(
+      requestId,
+      adminId,
+      notes
+    );
+    res.status(200).json({
+      Error: 0,
+      Message: 'Verification request rejected',
+      Data: updated
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getAllUsers,
   getAllArtistVerificationRequests,
@@ -151,6 +259,10 @@ module.exports = {
   activateArtist,
   suspendUser,
   activateUser,
+  getAllSongs,
   approveSong,
-  rejectSong
+  rejectSong,
+  getContentVerificationRequests,
+  approveContentVerification,
+  rejectContentVerification
 };

@@ -1,12 +1,28 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { authMiddleware } = require('../middlewares/authMiddleware');
-const artistSongCtrl = require('../controllers/artistController');
+const artistController = require("../controllers/artistController");
+const { authMiddleware, isArtist } = require("../middlewares/authMiddleware");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 router.use(authMiddleware);
 
-router.post('/songs', artistSongCtrl.createSong);
+router.post("/verification-request",isArtist, artistController.submitArtistVerification);
 
-router.get('/listsongs', artistSongCtrl.listMySongs);
+router.post(
+    "/songs",
+    isArtist,
+  upload.fields([{ name: "audio", maxCount: 1 }, { name: "image", maxCount: 1 }]),
+  artistController.uploadSong
+);
+
+router.patch(
+    "/songs/:id",
+    isArtist,
+  upload.fields([{ name: "audio", maxCount: 1 }, { name: "image", maxCount: 1 }]),
+  artistController.updateSong
+);
+
+router.delete("/songs/:songId",isArtist, artistController.deleteSong);
 
 module.exports = router;

@@ -1,23 +1,95 @@
-const artistService = require('../services/artistService');
-async function createSong(req, res, next) {
+const artistService = require("../services/artistService");
+
+const submitArtistVerification = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const data = req.body;
-    const song = await artistService.createSong(userId, data);
-    res.status(201).json({ message: 'Song submitted for approval', Error: 0, data: song });
+    const result = await artistService.submitArtistVerificationRequest(
+      req.user._id,
+      req.body.notes || null
+    );
+    res.status(200).json({
+      Message: "Verification request submitted",
+      Error: 0,
+      Data: result,
+    });
   } catch (err) {
     next(err);
   }
-}
+};
 
-async function listMySongs(req, res, next) {
+const uploadSong = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const songs = await artistService.getMySongs(userId);
-    res.json({ message: 'My songs fetched', Error: 0, data: songs });
-   } catch (err) {
+    const { title, albumId } = req.body;
+    const audioPath = req.files?.audio?.[0]?.path;
+    const imagePath = req.files?.image?.[0]?.path || null;
+
+    if (!title || !audioPath) {
+      return res.status(400).json({
+        Message: "Missing required fields (title, audio)",
+        Error: 1,
+        Data: null,
+      });
+    }
+
+    const result = await artistService.uploadSong({
+      artistUserId: req.user._id,
+      title,
+      albumId,
+      audioPath,
+      imagePath,
+    });
+
+    res.status(200).json({
+      Message: "Song uploaded successfully, waiting admin verify",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
     next(err);
   }
-}
+};
 
-module.exports = { createSong, listMySongs };
+const updateSong = async (req, res, next) => {
+  try {
+    const { title, albumId } = req.body;
+    const audioPath = req.files?.audio?.[0]?.path || null;
+    const imagePath = req.files?.image?.[0]?.path || null;
+
+    const result = await artistService.updateSong(req.params.id, req.user._id, {
+      title,
+      albumId,
+      audioPath,
+      imagePath,
+    });
+
+    res.status(200).json({
+      Message: "Song updated successfully, waiting admin verify",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteSong = async (req, res, next) => {
+  try {
+    const result = await artistService.deleteSong(
+      req.params.songId,
+      req.user._id
+    );
+    res.status(200).json({
+      Message: "Song deleted successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {
+  submitArtistVerification,
+  uploadSong,
+  updateSong,
+  deleteSong,
+};

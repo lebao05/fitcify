@@ -16,13 +16,22 @@ const getRedirectUrl = (req) => {
   // if (fromQuery && !ALLOWED.includes(fromQuery)) return fallback;
   return fromQuery;
 };
-
+exports.checkEmailExists = async (req, res, next) => {
+  try {
+    const user = await authService.checkUserExists(req.body.email);
+    res.json({ Error: 0, Message: "Email exists" });
+  } catch (err) {
+    next(err);
+  }
+};
 /* ───── Email / Password ───── */
 exports.signup = async (req, res, next) => {
   try {
     const { user, token } = await authService.signUpWithEmail(req.body);
     authService.setCookie(res, "accessToken", token, cookieOpts(req));
-    res.status(201).json({ Error: 0, Message: "Signup success", Data: { user } });
+    res
+      .status(201)
+      .json({ Error: 0, Message: "Signup success", Data: { user } });
   } catch (err) {
     next(err);
   }
@@ -30,7 +39,9 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { user, accessToken } = await authService.loginWithEmailPassword(req.body);
+    const { user, accessToken } = await authService.loginWithEmailPassword(
+      req.body
+    );
     authService.setCookie(res, "accessToken", accessToken, cookieOpts(req));
     res.json({ Error: 0, Message: "Login success", Data: { user } });
   } catch (err) {
@@ -50,7 +61,10 @@ exports.sendLoginOtp = async (req, res, next) => {
 
 exports.verifyLoginOtp = async (req, res, next) => {
   try {
-    const { user, token } = await authService.verifyLoginOtp(req.body.email, req.body.otp);
+    const { user, token } = await authService.verifyLoginOtp(
+      req.body.email,
+      req.body.otp
+    );
     authService.setCookie(res, "accessToken", token, cookieOpts(req));
     res.json({ Error: 0, Message: "Logged in with OTP", Data: { user } });
   } catch (err) {
@@ -69,7 +83,10 @@ exports.sendForgotOtp = async (req, res, next) => {
 
 exports.verifyForgotOtp = async (req, res, next) => {
   try {
-    const { user, accessToken } = await authService.verifyForgotOtp(req.body.email, req.body.otp);
+    const { user, accessToken } = await authService.verifyForgotOtp(
+      req.body.email,
+      req.body.otp
+    );
     authService.setCookie(res, "accessToken", accessToken, cookieOpts(req));
     res.json({ Error: 0, Message: "OTP verified", Data: { user } });
   } catch (err) {
@@ -102,13 +119,17 @@ const buildPassportOptions = (redirectRaw) => ({
   scope: ["profile", "email"],
   accessType: "offline",
   prompt: "consent",
-  state: encodeRedirect(redirectRaw)
+  state: encodeRedirect(redirectRaw),
 });
 
 // ─── Initiate Google login ───
 exports.googleInit = (req, res, next) => {
   redirectRaw = decodeRedirect(req.query.redirect);
-  passport.authenticate("google", buildPassportOptions(redirectRaw))(req, res, next);
+  passport.authenticate("google", buildPassportOptions(redirectRaw))(
+    req,
+    res,
+    next
+  );
 };
 
 // ─── Handle Google callback ───
@@ -152,7 +173,8 @@ exports.facebookCallback = (req, res, next) => {
 /* ───── Auth Guard ───── */
 exports.requireAuth = (req, res, next) => {
   const token = req.cookies?.accessToken;
-  if (!token) return res.status(401).json({ Error: 1, Message: "Not authenticated" });
+  if (!token)
+    return res.status(401).json({ Error: 1, Message: "Not authenticated" });
 
   try {
     req.user = authService.isAuthenticated(token);

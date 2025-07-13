@@ -6,6 +6,8 @@ import HomePage from "./pages/HomePage";
 import SignupStep1 from "./pages/authentication/SignupStep1";
 import SignupStep2 from "./pages/authentication/SignupStep2";
 import LoginOtp from "./pages/authentication/LoginOtp";
+import MainPlayout from "./pages/user/MainPlayout";
+
 function App() {
   return (
     <Router>
@@ -16,6 +18,7 @@ function App() {
         <Route path="/signup-step1" element={<SignupStep1 />} />
         <Route path="/signup-step2" element={<SignupStep2 />} />
         <Route path="/" element={<HomePage />} />
+        <Route path="/*" element={<MainPlayout />}></Route>
       </Routes>
     </Router>
   );

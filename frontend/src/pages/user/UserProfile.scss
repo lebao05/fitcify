@@ -1,0 +1,61 @@
+@use "../../styles/variables";
+@use "../../styles/mixins";
+
+.user-profile-content {
+  position: absolute;
+  top: 0;
+  background: linear-gradient(135deg, #232526 0%, #181818 100%);
+}
+
+section {
+  margin: 2rem 0;
+}
+
+.profile-content {
+
+  padding: 0 1rem 0 2rem;
+  box-sizing: border-box;
+}
+
+.artist-section {
+  .artists-card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+    gap: 1rem;
+    padding-top: 0.5rem;
+    width: 100%;
+    justify-items: center;
+  }
+}
+
+.tracks-section {
+  color: white;
+  .tracks-item-container {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.playlists-section {
+  color: white;
+  .playlists-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+    gap: 0.5rem;
+    justify-items: center;
+    padding-top: 0.5rem;
+  }
+}
+
+.following-artists-section {
+  color: white;
+  .following-artists-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+    gap: 1rem;
+    padding-top: 0.5rem;
+    width: 100%;
+    justify-items: flex-start;
+  }
+}

@@ -1,0 +1,26 @@
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+.profile-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  margin: 40px 0px;
+  color: variables.$text-primary;
+
+  .profile-footer-container{
+
+  .title{
+    font-weight: variables.$text-primary;
+  }
+
+  a {
+    color: variables.$text-secondary;
+    text-emphasis: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  }
+}

@@ -1,0 +1,178 @@
+
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+.track-number{
+  width: 40px;
+  color: variables.$text-secondary;
+  font-size: 14px;
+  text-align: center;
+ 
+}
+
+
+.track-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+  transition: background 0.2s;
+
+  &.no-like-btn {
+    .track-info {
+      grid-template-columns: 40px 2fr 1.5fr 1fr;
+    }
+    .track-duration {
+      grid-column: 4 / 5;
+      justify-self: end;
+      text-align: right;
+      min-width: 40px;
+    }
+    .track-like-btn-cell {
+      display: none !important;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: #252424;
+    .track-like-btn-cell {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  .track-number {
+    width: 40px;
+    color: variables.$text-secondary;
+    font-size: 14px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .track-info {
+    display: grid;
+    grid-template-columns: 40px 2fr 1.5fr 40px 0.7fr;
+    align-items: center;
+    color: white;
+    font-size: 14px;
+    width: 100%;
+
+    .track-image {
+      width: 35px;
+      height: 35px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .track-title {
+      display: flex;
+      flex-direction: column;
+      margin-right: 1rem;
+      overflow: hidden;
+
+      .track-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 500;
+      }
+      .track-artist {
+        color: variables.$text-secondary;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .track-album {
+      color: variables.$text-secondary;
+      margin-right: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-like-btn-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 0.2s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .like-btn {
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding: 0.2rem;
+      border-radius: 50%;
+      transition: background 0.15s;
+
+      &:hover {
+        background: rgba(30,215,96,0.08);
+        .like-tooltip {
+          opacity: 1;
+          pointer-events: auto;
+        }
+      }
+
+      &.liked svg {
+        filter: drop-shadow(0 0 2px #1db954);
+      }
+    }
+
+    .like-tooltip {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      left: 110%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #222;
+      color: #fff;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: opacity 0.2s;
+      margin-left: 8px;
+    }
+
+    .track-duration {
+      color: variables.$text-secondary;
+      font-size: 14px;
+      text-align: right;
+      min-width: 40px;
+    }
+  }
+}
+
+// Highlight when playing
+.track-item.playing {
+  .track-name,
+  .track-artist,
+  .track-album,
+  .track-duration {
+    color: #1db954 !important;
+  }
+  .track-number svg {
+    color: #1db954 !important;
+    fill: #1db954 !important;
+  }
+}

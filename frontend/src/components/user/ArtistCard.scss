@@ -1,0 +1,65 @@
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+
+.artist-card {
+  color: white;
+  width: 175px;
+  height: 250px;
+  padding: 0.5rem 0rem;
+  
+  &:hover{
+    cursor: pointer;
+    background-color: #252424; 
+  }
+
+  .artist-image-container {
+    position: relative;
+    overflow: visible;
+
+    .artist-play-button {
+      position: absolute;
+      bottom: 1px;
+      right: 12px;
+      top: auto;
+      left: auto;
+      transform: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 2;
+    }
+  }
+
+  .artist-image-container:hover .artist-play-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .artist-image{
+    width: 150px;
+    object-fit: cover;
+    height: 150px;
+    border-radius: 100%;
+    z-index: 1;
+  }
+
+  .artist-info{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 50px;
+    text-align: center;
+
+    .artist-name {
+      margin-top: 0.5rem;
+      color: variables.$text-primary;
+    }
+
+    .type{
+      color: variables.$text-secondary;
+      font-size: 13px;
+    }
+  }
+}
+

@@ -1,0 +1,23 @@
+.play-button {
+  background-color: #1fdf64;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 0;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  .play-icon {
+    width: 24px;
+    height: 24px;
+  }
+}

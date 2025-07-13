@@ -1,43 +1,51 @@
 import React, { useState } from "react";
 import { Home, Search, Bell, Users } from "lucide-react";
-import "../../styles/user/HeaderBar.scss";
+import "./HeaderBar.scss";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../../redux/slices/userSlice"; // Adjust path
+
 const HeaderBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.user.user); // ✅ grab user from Redux
+  const isLoggedIn = Boolean(user); // simple check
+
   const toggleNav = () => {
     setNavOpen(!navOpen);
   };
-  const sigupButtonHandler = () => {
-    navigate("/signup");
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    window.location.href = "/"; // Adjust URL as needed
   };
-  const toggleLogin = () => {
-    setIsLoggedIn(!isLoggedIn);
+
+  const signupButtonHandler = () => {
+    window.location.href = "/signup"; // Adjust URL as needed
+  };
+
+  const loginButtonHandler = () => {
+    window.location.href = "/login"; // Adjust URL as needed
   };
 
   return (
     <div className="header-bar">
       <div className="header-content">
-        {/* Left Section - Logo */}
         <div className="left-section">
-          <div className="logo" onClick={() => (window.location.href = "/")}>
-            <img src="../../public/logo.jpg" />
+          <div className="logo" onClick={() => navigate("/")}>
+            <img src="/logo.jpg" alt="logo" />
           </div>
         </div>
 
-        {/* Center Section - Navigation and Search */}
         <div className="center-section">
-          {/* Home Button */}
-          <button
-            className="home-btn"
-            onClick={() => (window.location.href = "/")}
-          >
+          <button className="home-btn">
             <Home size={25} />
           </button>
 
-          {/* Search Bar */}
           <div className="search-feature">
             <div className="search-wrapper">
               <Search className="search-icon" size={25} />
@@ -51,17 +59,16 @@ const HeaderBar = () => {
           </div>
         </div>
 
-        {/* Right Section - Actions */}
         <div className="right-section">
           {!isLoggedIn ? (
             <>
               <button className="nav-button">Premium</button>
               <button className="nav-button">Support</button>
               <div className="divider"></div>
-              <button className="signup-button" onClick={sigupButtonHandler}>
+              <button className="signup-button" onClick={signupButtonHandler}>
                 Sign up
               </button>
-              <button className="login-button" onClick={toggleLogin}>
+              <button className="login-button" onClick={loginButtonHandler}>
                 Log in
               </button>
             </>
@@ -71,7 +78,6 @@ const HeaderBar = () => {
               <button className="nav-button">Support</button>
               <div className="divider"></div>
 
-              {/* Notifications with Bell Icon */}
               <div className="notifications">
                 <button className="icon-button">
                   <Bell size={20} />
@@ -79,25 +85,22 @@ const HeaderBar = () => {
                 </button>
               </div>
 
-              {/* Friends/Connections with Users Icon */}
               <div className="friends">
                 <button className="icon-button">
                   <Users size={20} />
                 </button>
               </div>
 
-              {/* User Profile with Border */}
               <div className="user-profile-container">
                 <button className="user-profile" onClick={toggleNav}>
-                  <span>U</span>
+                  <span>{user?.name?.[0]?.toUpperCase() || "U"}</span>
                 </button>
 
-                {/* Dropdown Menu */}
                 <div className={`navigation-bar ${navOpen ? "active" : ""}`}>
                   <button className="dropdown-item">Account</button>
                   <button
                     className="dropdown-item"
-                    onClick={() => navigate("/profile")}
+                    onClick={() => navigate("/user-profile")}
                   >
                     Profile
                   </button>
@@ -106,7 +109,7 @@ const HeaderBar = () => {
                   <button className="dropdown-item">Download</button>
                   <button className="dropdown-item">Settings</button>
                   <div className="dropdown-divider"></div>
-                  <button className="dropdown-item" onClick={toggleLogin}>
+                  <button className="dropdown-item" onClick={handleLogout}>
                     Log out
                   </button>
                 </div>

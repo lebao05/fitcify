@@ -4,6 +4,8 @@ import obfuscateEmail from "../../utils/obfuscateEmail";
 import { sendLoginOtp } from "../../services/authApi";
 import { useDispatch } from "react-redux";
 import { loginWithOtp } from "../../redux/slices/userSlice";
+import logo from "../../assets/applogo.jpg"; // Adjust path if needed
+
 export default function EmailVerification({ email }) {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
@@ -68,14 +70,13 @@ export default function EmailVerification({ email }) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
         {/* “logo” */}
-        <div className="absolute top-8 left-8">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <div className="space-y-0.5">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="w-4 h-0.5 bg-black rounded" />
-              ))}
-            </div>
-          </div>
+        <div className="absolute top-6 left-6">
+          <img
+            src={logo}
+            alt="Fitcify Logo"
+            className="w-12 h-12 rounded-full transition-all duration-300 cursor-pointer 
+             hover:scale-110 hover:drop-shadow-[0_0_10px_#1DB954]"
+          />
         </div>
 
         <div className="w-full max-w-md text-center space-y-8">

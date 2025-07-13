@@ -4,6 +4,7 @@ import "./HeaderBar.scss";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../../redux/slices/userSlice"; // Adjust path
+import appLogo from "../../assets/applogo.jpg"; // Adjust path
 
 const HeaderBar = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -36,13 +37,13 @@ const HeaderBar = () => {
     <div className="header-bar">
       <div className="header-content">
         <div className="left-section">
-          <div className="logo" onClick={() => navigate("/")}>
-            <img src="/logo.jpg" alt="logo" />
+          <div className="logo" onClick={() => (window.location.href = "/")}>
+            <img src={appLogo} alt="logo" />
           </div>
         </div>
 
         <div className="center-section">
-          <button className="home-btn">
+          <button className="home-btn" onClick={() => window.location.href = "/"}>
             <Home size={25} />
           </button>
 

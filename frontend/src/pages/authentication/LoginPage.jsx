@@ -4,6 +4,8 @@ import "./LoginPage.scss";
 import { loginWithPassword } from "../../redux/slices/userSlice";
 import { sendLoginOtp } from "../../services/authApi";
 import { useDispatch } from "react-redux";
+import logo from "../../assets/applogo.jpg"; // Adjust path as needed
+
 // Utility to read query params
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -82,6 +84,12 @@ export default function SpotifyLogin({ email, setEmail }) {
   return (
     <div className="login-page">
       <div className="login-container">
+        <img
+          src={logo}
+          alt="Fitcify Logo"
+          className="fitcify-logo"
+          onClick={() => (window.location.href = "/")}
+        />
         <div className="title">Log in to Fitcify</div>
 
         <div className="login-with">

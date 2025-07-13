@@ -25,7 +25,20 @@
       padding: 32px 24px;
       width: 100%;
     }
+    .fitcify-logo {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      margin: 0 auto 2rem;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      display: block;
 
+      &:hover {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 10px #1db954);
+        cursor: pointer;
+      }
+    }
     .spotify-logo {
       font-size: 3rem;
       margin-bottom: 32px;

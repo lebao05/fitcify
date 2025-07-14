@@ -40,11 +40,17 @@ export default function SpotifyLogin() {
   };
 
   const handleSignupWithGoogle = () => {
-    window.location.href = getGoogleOAuthUrl("http://localhost:5173");
+    window.location.href = getGoogleOAuthUrl(
+      "http://localhost:5173",
+      "http://localhost:5173/signup"
+    );
   };
 
   const handleSignupWithFacebook = () => {
-    window.location.href = getFacebookOAuthUrl("http://localhost:5173");
+    window.location.href = getFacebookOAuthUrl(
+      "http://localhost:5173",
+      "http://localhost:5173/signup"
+    );
   };
 
   const handleKeyPress = (e) => {

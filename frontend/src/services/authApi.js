@@ -51,14 +51,18 @@ export const changePassword = async (email, newPassword) => {
 };
 
 /* ───── OAuth URLs ───── */
-export const getGoogleOAuthUrl = (redirectUrl) => {
-  const encoded = encodeURIComponent(btoa(redirectUrl));
-  return `${axiosInstance.defaults.baseURL}/auth/google?redirect=${encoded}`;
+// utils/oauth.js
+
+export const getGoogleOAuthUrl = (redirectUrl, failureUrl) => {
+  const red = encodeURIComponent(btoa(redirectUrl));
+  const fail = encodeURIComponent(btoa(failureUrl));
+  return `${axiosInstance.defaults.baseURL}/auth/google?redirect=${red}&fail=${fail}`;
 };
 
-export const getFacebookOAuthUrl = (redirectUrl) => {
-  const encoded = encodeURIComponent(btoa(redirectUrl));
-  return `${axiosInstance.defaults.baseURL}/auth/facebook?redirect=${encoded}`;
+export const getFacebookOAuthUrl = (redirectUrl, failureUrl) => {
+  const red = encodeURIComponent(btoa(redirectUrl));
+  const fail = encodeURIComponent(btoa(failureUrl));
+  return `${axiosInstance.defaults.baseURL}/auth/facebook?redirect=${red}&fail=${fail}`;
 };
 
 /* ───── Protected ───── */

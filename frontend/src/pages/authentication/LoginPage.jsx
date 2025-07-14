@@ -74,11 +74,17 @@ export default function SpotifyLogin({ email, setEmail }) {
   };
 
   const handleLoginWithGoogle = () => {
-    window.location.href = getGoogleOAuthUrl("http://localhost:5173");
+    window.location.href = getGoogleOAuthUrl(
+      "http://localhost:5173",
+      "http://localhost:5173/login"
+    );
   };
 
   const handleLoginWithFacebook = () => {
-    window.location.href = getFacebookOAuthUrl("http://localhost:5173");
+    window.location.href = getFacebookOAuthUrl(
+      "http://localhost:5173",
+      "http://localhost:5173/login"
+    );
   };
 
   return (

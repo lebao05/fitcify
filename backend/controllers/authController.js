@@ -8,14 +8,19 @@ const cookieOpts = (req) => ({
   secure: process.env.NODE_ENV === "production",
 });
 
-/* ───── Helper: Determine Redirect Target ───── */
-const getRedirectUrl = (req) => {
-  const fromQuery = req.query.redirect || req.query.redirectUrl;
-  // OPTIONAL: Add security filter to allow only trusted URLs
-  // const ALLOWED = [process.env.CLIENT_URL];
-  // if (fromQuery && !ALLOWED.includes(fromQuery)) return fallback;
-  return fromQuery;
+/* ───── Base64 encode/decode helpers ───── */
+const encodeRedirect = (redirect, fail) =>
+  Buffer.from(JSON.stringify({ redirect, fail })).toString("base64");
+
+const decodeRedirect = (state) => {
+  try {
+    return JSON.parse(Buffer.from(state, "base64").toString("utf8"));
+  } catch {
+    return {};
+  }
 };
+
+/* ───── Email / Password ───── */
 exports.checkEmailExists = async (req, res, next) => {
   try {
     const user = await authService.checkUserExists(req.body.email);
@@ -24,7 +29,7 @@ exports.checkEmailExists = async (req, res, next) => {
     next(err);
   }
 };
-/* ───── Email / Password ───── */
+
 exports.signup = async (req, res, next) => {
   try {
     const { user, token } = await authService.signUpWithEmail(req.body);
@@ -61,8 +66,8 @@ exports.sendLoginOtp = async (req, res, next) => {
 
 exports.verifyLoginOtp = async (req, res, next) => {
   try {
-    const { email, otp } = req.body; // ✅ destructure clearly
-    const { user, token } = await authService.verifyLoginOtp(email, otp); // ✅ pass as strings
+    const { email, otp } = req.body;
+    const { user, token } = await authService.verifyLoginOtp(email, otp);
     authService.setCookie(res, "accessToken", token, cookieOpts(req));
     res.json({ Error: 0, Message: "Logged in with OTP", Data: { user } });
   } catch (err) {
@@ -106,73 +111,89 @@ exports.logout = (req, res) => {
   res.clearCookie("accessToken");
   req.logout(() => res.json({ Error: 0, Message: "Logged out" }));
 };
-// ─── Google OAuth helpers ───
-const encodeRedirect = (url) =>
-  url ? Buffer.from(url).toString("base64") : undefined;
 
-const decodeRedirect = (state) =>
-  state ? Buffer.from(state, "base64").toString("utf8") : null;
-
-const buildPassportOptions = (redirectRaw) => ({
-  scope: ["profile", "email"],
-  accessType: "offline",
-  prompt: "consent",
-  state: encodeRedirect(redirectRaw),
-});
-
-// ─── Initiate Google login ───
+/* ───── Google OAuth ───── */
 exports.googleInit = (req, res, next) => {
-  redirectRaw = decodeRedirect(req.query.redirect);
-  passport.authenticate("google", buildPassportOptions(redirectRaw))(
-    req,
-    res,
-    next
-  );
+  const redirect = Buffer.from(
+    decodeURIComponent(req.query.redirect || ""),
+    "base64"
+  ).toString("utf8");
+  const fail = Buffer.from(
+    decodeURIComponent(req.query.failureUrl || ""),
+    "base64"
+  ).toString("utf8");
+  const state = encodeRedirect(redirect, fail);
+
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    accessType: "offline",
+    prompt: "consent",
+    state,
+  })(req, res, next);
 };
 
-// ─── Handle Google callback ───
 exports.googleCallback = (req, res, next) => {
+  const { redirect, fail } = decodeRedirect(req.query.state);
+
   passport.authenticate("google", { session: false }, (err, user) => {
-    if (err || !user) return next(err || new Error("Google auth failed"));
+    if (err || !user) {
+      return res.redirect(fail || "http://localhost:5173/login");
+    }
+
     const token = authService.generateAccessToken({
       id: user._id,
       role: user.role,
       username: user.username,
     });
-    authService.setCookie(res, "accessToken", token, { secure: true });
 
-    const redirect = decodeRedirect(req.query.state);
-    res.redirect(redirect);
+    authService.setCookie(res, "accessToken", token, { secure: true });
+    res.redirect(redirect || "http://localhost:5173");
   })(req, res, next);
 };
 
+/* ───── Facebook OAuth ───── */
 exports.facebookInit = (req, res, next) => {
-  redirectRaw = decodeRedirect(req.query.redirect);
+  const redirect = Buffer.from(
+    decodeURIComponent(req.query.redirect || ""),
+    "base64"
+  ).toString("utf8");
+  const fail = Buffer.from(
+    decodeURIComponent(req.query.failureUrl || ""),
+    "base64"
+  ).toString("utf8");
+  const state = encodeRedirect(redirect, fail);
+
   passport.authenticate("facebook", {
-    scope: ["email", "profile"],
-    state: encodeRedirect(redirectRaw),
+    scope: ["email", "public_profile"],
+    state,
   })(req, res, next);
 };
+
 exports.facebookCallback = (req, res, next) => {
+  const { redirect, fail } = decodeRedirect(req.query.state);
+
   passport.authenticate("facebook", { session: false }, (err, user) => {
-    if (err || !user) return next(err || new Error("Facebook auth failed"));
+    if (err || !user) {
+      return res.redirect(fail || "http://localhost:5173/login");
+    }
 
     const token = authService.generateAccessToken({
       id: user._id,
       role: user.role,
       username: user.username,
     });
+
     authService.setCookie(res, "accessToken", token, { secure: true });
-    const redirect = decodeRedirect(req.query.state);
-    res.redirect(redirect);
+    res.redirect(redirect || "http://localhost:5173");
   })(req, res, next);
 };
 
 /* ───── Auth Guard ───── */
 exports.requireAuth = (req, res, next) => {
   const token = req.cookies?.accessToken;
-  if (!token)
+  if (!token) {
     return res.status(401).json({ Error: 1, Message: "Not authenticated" });
+  }
 
   try {
     req.user = authService.isAuthenticated(token);

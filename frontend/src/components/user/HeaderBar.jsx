@@ -3,13 +3,11 @@ import { Home, Search, Bell, Users } from "lucide-react";
 import "./HeaderBar.scss";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "../../redux/slices/userSlice"; // Adjust path
+import { logoutUserThunk } from "../../redux/slices/userSlice"; // Adjust path
 import appLogo from "../../assets/applogo.jpg"; // Adjust path
-
 const HeaderBar = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -21,7 +19,7 @@ const HeaderBar = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    dispatch(logoutUserThunk());
     window.location.href = "/"; // Adjust URL as needed
   };
 
@@ -43,7 +41,10 @@ const HeaderBar = () => {
         </div>
 
         <div className="center-section">
-          <button className="home-btn" onClick={() => window.location.href = "/"}>
+          <button
+            className="home-btn"
+            onClick={() => (window.location.href = "/")}
+          >
             <Home size={25} />
           </button>
 
@@ -101,7 +102,7 @@ const HeaderBar = () => {
                   <button className="dropdown-item">Account</button>
                   <button
                     className="dropdown-item"
-                    onClick={() => navigate("/user-profile")}
+                    onClick={() => navigate("/profile")}
                   >
                     Profile
                   </button>

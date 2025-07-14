@@ -1,5 +1,5 @@
-@use '../../styles/variables';
-@use '../../styles/mixins';
+@use "../../styles/variables";
+@use "../../styles/mixins";
 
 .profile-header {
   display: flex;
@@ -12,22 +12,24 @@
   margin-top: 3rem;
 
   .avatar-section {
-  position: relative;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  overflow: hidden;
-  transition: opacity 0.01s;
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: opacity 0.01s;
 
-  &:hover .profile-header__overlay {
-    opacity: 1;
-  }
+    &:hover .profile-header__overlay {
+      opacity: 1;
+    }
 
     .profile-header__avatar-img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      display: block;
+      border-radius: 50%;
+      object-fit:cover;
+      border: 3px solid #ececec;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     .profile-header__overlay {
@@ -36,13 +38,16 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5); // lớp đen mờ
-      color: white;
-      @include mixins.flex-center;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
       opacity: 0;
-      transition: opacity 0.01s;
-      font-size: 16px;
+      transition: opacity 0.2s;
+      cursor: pointer;
 
       i {
         font-size: 20px;
@@ -51,7 +56,7 @@
     }
   }
 
-  .profile-info{
+  .profile-info {
     margin-left: 1rem;
     flex: 1;
     text-align: left;
@@ -74,9 +79,8 @@
       margin: 0 8px;
     }
 
-    .following{
-
-      &:hover{
+    .following {
+      &:hover {
         cursor: pointer;
         text-decoration: underline;
       }

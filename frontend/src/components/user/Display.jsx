@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { albumsData } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import UserProfile from "../../pages/user/UserProfile";
+import DisplayPlaylist from "./DisplayPlayplist";
 
 const Display = () => {
   const displayRef = useRef();
@@ -38,12 +39,13 @@ const Display = () => {
   return (
     <div
       ref={displayRef}
-      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white"
+      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white px-2 py-2"
     >
       <Routes>
         <Route path="/" element={<DisplayHome />} />
         <Route path="/album/:id" element={<DisplayAlbum />} />
-        <Route path="/profile" element={<UserProfile/>} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/playplist/:id" element={<DisplayPlaylist />} />
       </Routes>
     </div>
   );

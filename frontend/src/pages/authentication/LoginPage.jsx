@@ -5,7 +5,7 @@ import { loginWithPassword } from "../../redux/slices/userSlice";
 import { sendLoginOtp } from "../../services/authApi";
 import { useDispatch } from "react-redux";
 import logo from "../../assets/applogo.jpg"; // Adjust path as needed
-
+import { getGoogleOAuthUrl, getFacebookOAuthUrl } from "../../services/authApi";
 // Utility to read query params
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -74,11 +74,11 @@ export default function SpotifyLogin({ email, setEmail }) {
   };
 
   const handleLoginWithGoogle = () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = getGoogleOAuthUrl("http://localhost:5173");
   };
 
   const handleLoginWithFacebook = () => {
-    window.location.href = "http://localhost:5000/api/auth/facebook";
+    window.location.href = getFacebookOAuthUrl("http://localhost:5173");
   };
 
   return (

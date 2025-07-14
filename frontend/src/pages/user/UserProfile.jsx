@@ -1,54 +1,49 @@
-// SpotifyProfile.jsx
 import React, { useState, useEffect, useRef } from "react";
-import testImg from '../../assets/test.jpg';
-import doremonImg from '../../assets/doremon.svg';
+import testImg from "../../assets/test.jpg";
+import doremonImg from "../../assets/doremon.svg";
 import ProfileHeader from "../../components/user/ProfileHeader.jsx";
-import HorizontalDots from "../../components/user/HorizontalDots.jsx";
 import SectionHeader from "../../components/user/SectionHeader.jsx";
 import ArtistCard from "../../components/user/ArtistCard.jsx";
 import TrackItem from "../../components/user/TrackItem.jsx";
 import PlaylistCard from "../../components/user/PlaylistCard.jsx";
 import ProfileFooter from "../../components/user/ProfileFooter.jsx";
+import EditProfileDialog from "../../components/user/EditProfileDialog.jsx"; // ✅ new import
 import "./UserProfile.scss";
+import { useSelector } from "react-redux";
 
 const UserProfile = () => {
   const [playingArtistId, setPlayingArtistId] = useState(null);
   const [maxVisibleArtists, setMaxVisibleArtists] = useState(0);
   const [maxVisiblePlaylists, setMaxVisiblePlaylists] = useState(0);
+  const [showEditModal, setShowEditModal] = useState(false);
   const artistContainerRef = useRef();
   const playlistContainerRef = useRef();
 
   const CARD_WIDTH = 180;
   const GAP = 16;
+  const handleToggleEditModal = () => {
+    setShowEditModal((prev) => !prev);
+  };
+  const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     const calcVisible = () => {
-    // Artist card
-    if (artistContainerRef.current) {
-      const containerWidth = artistContainerRef.current.offsetWidth;
-      const count = Math.floor((containerWidth + GAP) / (CARD_WIDTH + GAP));
-      setMaxVisibleArtists(count);
-    }
+      if (artistContainerRef.current) {
+        const containerWidth = artistContainerRef.current.offsetWidth;
+        const count = Math.floor((containerWidth + GAP) / (CARD_WIDTH + GAP));
+        setMaxVisibleArtists(count);
+      }
 
-    // Playlist card
-    if (playlistContainerRef.current) {
-      const width = playlistContainerRef.current.offsetWidth;
-      const count = Math.floor((width + GAP) / (CARD_WIDTH + GAP));
-      setMaxVisiblePlaylists(count);
-    }
+      if (playlistContainerRef.current) {
+        const width = playlistContainerRef.current.offsetWidth;
+        const count = Math.floor((width + GAP) / (CARD_WIDTH + GAP));
+        setMaxVisiblePlaylists(count);
+      }
     };
     calcVisible();
     window.addEventListener("resize", calcVisible);
     return () => window.removeEventListener("resize", calcVisible);
   }, []);
-
-  // Mock data
-  const user = {
-    name: "Ngọc Hiếu",
-    avatar: doremonImg,
-    publicPlaylists: 1,
-    following: 4,
-  };
 
   const topArtists = [
     { id: 1, name: "SOOBIN", image: testImg, type: "Artist" },
@@ -118,7 +113,6 @@ const UserProfile = () => {
     },
   ];
 
-  // Event handlers
   const handlePlay = (artistId) => {
     setPlayingArtistId(artistId);
   };
@@ -128,21 +122,26 @@ const UserProfile = () => {
   };
 
   const handlePlayTrack = (clickedTrack) => {
-  setTopTracks((prevTracks) =>
-    prevTracks.map((track) => ({
-      ...track,
-      isPlaying: track.id === clickedTrack.id,
-    }))
-  );
-};
+    setTopTracks((prevTracks) =>
+      prevTracks.map((track) => ({
+        ...track,
+        isPlaying: track.id === clickedTrack.id,
+      }))
+    );
+  };
 
   return (
     <div className="user-profile-content h-full w-[75%] overflow-y-auto">
-      <ProfileHeader user={user} />
-
+      <ProfileHeader user={user} onEditClick={handleToggleEditModal} />
+      {showEditModal && (
+        <EditProfileDialog
+          user={user}
+          open={showEditModal}
+          onClose={handleToggleEditModal}
+          onSave={(value) => console.log("Saved name:", value)}
+        />
+      )}
       <div className="profile-content">
-        <HorizontalDots user={user} />
-        {/* Top Artists */}
         <section className="artist-section">
           <SectionHeader
             title="Top artists this month"
@@ -162,7 +161,6 @@ const UserProfile = () => {
           </div>
         </section>
 
-        {/* Top Tracks */}
         <section className="tracks-section">
           <SectionHeader
             title="Top tracks this month"
@@ -182,7 +180,6 @@ const UserProfile = () => {
           </div>
         </section>
 
-        {/* Public Playlists */}
         <section className="playlists-section">
           <SectionHeader title="Public Playlists" showAll={true} />
           <div ref={playlistContainerRef} className="playlists-container">

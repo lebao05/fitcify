@@ -6,6 +6,7 @@ import { albumsData } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import UserProfile from "../../pages/user/UserProfile";
 import DisplayPlaylist from "./DisplayPlayplist";
+import SearchResult from "./SearchPage";
 
 const Display = () => {
   const displayRef = useRef();
@@ -46,6 +47,7 @@ const Display = () => {
         <Route path="/album/:id" element={<DisplayAlbum />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/playplist/:id" element={<DisplayPlaylist />} />
+        <Route path="/search/*" element={<SearchResult />} />
       </Routes>
     </div>
   );

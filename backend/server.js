@@ -10,7 +10,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const authRoute = require("./routes/authRoute");
 const adminRoute = require("./routes/adminRoute");
-const artistRoute = require("./routes/artistRoute")
+const artistRoute = require("./routes/artistRoute");
+const paymentRoute = require("./routes/paymentRoute");
 const session = require("express-session");
 const passport = require("passport");
 const cors = require("cors");
@@ -52,7 +53,7 @@ app.use(
 app.use("/api/auth", authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/artist", artistRoute);
-
+app.use("/api/payments", paymentRoute);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

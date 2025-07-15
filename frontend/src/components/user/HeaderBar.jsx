@@ -50,7 +50,13 @@ const HeaderBar = () => {
 
           <div className="search-feature">
             <div className="search-wrapper">
-              <Search className="search-icon" size={25} />
+              <Search
+                className="search-icon cursor-pointer"
+                size={25}
+                onClick={() => {
+                  navigate(`/search`);
+                }}
+              />
               <input
                 type="text"
                 placeholder="What do you want to play?"
@@ -108,8 +114,6 @@ const HeaderBar = () => {
                   </button>
                   <button className="dropdown-item">Upgrade to Premium</button>
                   <button className="dropdown-item">Support</button>
-                  <button className="dropdown-item">Download</button>
-                  <button className="dropdown-item">Settings</button>
                   <div className="dropdown-divider"></div>
                   <button className="dropdown-item" onClick={handleLogout}>
                     Log out

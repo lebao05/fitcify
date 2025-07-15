@@ -10,7 +10,8 @@ const artists = [
   {
     id: 2,
     name: "MONO",
-    image: "https://tse2.mm.bing.net/th/id/OIP.04AdKbBaHNFJ4PNuuc7NnAHaEo?rs=1&pid=ImgDetMain&o=7&rm=3",
+    image:
+      "https://tse2.mm.bing.net/th/id/OIP.04AdKbBaHNFJ4PNuuc7NnAHaEo?rs=1&pid=ImgDetMain&o=7&rm=3",
   },
   {
     id: 3,
@@ -76,20 +77,20 @@ const artists = [
 
 export default function ArtistSearchResult() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-4 px-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-2">
       {artists.map((artist) => (
         <div
           key={artist.id}
-          className="flex flex-col items-center text-center p-2 hover:bg-[#242424] rounded-lg transition cursor-pointer"
+          className="bg-[#181818] hover:bg-[#242424] transition rounded-lg cursor-pointer flex flex-col items-center text-center p-3"
         >
-          <div className="rounded-full overflow-hidden shadow-md hover:scale-105 transition-transform duration-300 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36">
+          <div className="w-full aspect-square rounded-full overflow-hidden">
             <img
               src={artist.image}
               alt={artist.name}
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="mt-2 text-white text-sm font-semibold truncate w-full">
+          <div className="mt-3 text-white text-sm font-semibold truncate w-full">
             {artist.name}
           </div>
           <div className="text-xs text-gray-400">Artist</div>

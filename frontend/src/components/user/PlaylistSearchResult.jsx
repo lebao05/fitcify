@@ -48,7 +48,6 @@ export default function PlaylistSearchResult() {
           key={playlist.id}
           className="bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition duration-200 cursor-pointer"
         >
-          {/* Square image using aspect-ratio */}
           <div className="w-full aspect-square overflow-hidden rounded">
             <img
               src={playlist.image}

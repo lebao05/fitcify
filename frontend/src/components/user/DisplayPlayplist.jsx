@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import Navbar from "./Navbar";
 import { albumsData, assets, songsData } from "../../assets/assets";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +9,6 @@ const DisplayPlaylist = () => {
   if (!albumData) nagivate("not-found");
   return (
     <div className="h-full overflow-y-auto pr-4 scroll-on-hover">
-      <Navbar />
       <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-end">
         <img className="w-48 rounded" src={albumData.image} alt="" />
         <div className="flex flex-col">

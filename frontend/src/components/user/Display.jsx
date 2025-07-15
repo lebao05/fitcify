@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import UserProfile from "../../pages/user/UserProfile";
 import DisplayPlaylist from "./DisplayPlayplist";
 import SearchResult from "./SearchPage";
+// import AudioPlayer from "./AudioPlayer";
 
 const Display = () => {
   const displayRef = useRef();
@@ -16,31 +17,20 @@ const Display = () => {
   const bgColor = albumsData[Number(albumId)]?.bgColor;
   const nagivate = useNavigate();
   useEffect(() => {
-    if (isAlbum && !albumsData[Number(albumId)]) {
-      nagivate("/not-found");
-      return;
-    }
+    // if (isAlbum && !albumsData[Number(albumId)]) {
+    //   nagivate("/not-found");
+    //   return;
+    // }
     if (isAlbum) {
       displayRef.current.style.background = `linear-gradient(${bgColor},#121212)`;
     } else {
       displayRef.current.style.background = "#121212";
     }
   });
-  //   if (!isAlbum) {
-  //     return (
-  //       <div className="text-white h-full flex flex-col items-center justify-center">
-  //         <Navbar />
-  //         <h1 className="text-3xl font-bold mt-20">Album Not Found</h1>
-  //         <p className="text-gray-400 mt-2">
-  //           The album you're looking for doesn't exist.
-  //         </p>
-  //       </div>
-  //     );
-  //   }
   return (
     <div
       ref={displayRef}
-      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white px-2 py-2"
+      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white px-2 pt-2 pb-32 mt-16"
     >
       <Routes>
         <Route path="/" element={<DisplayHome />} />
@@ -48,7 +38,10 @@ const Display = () => {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/playplist/:id" element={<DisplayPlaylist />} />
         <Route path="/search/*" element={<SearchResult />} />
-      </Routes>
+      </Routes>{" "}
+      {/* <div className="fixed bottom-0 left-0 right-0 z-50">
+        <AudioPlayer />
+      </div> */}
     </div>
   );
 };

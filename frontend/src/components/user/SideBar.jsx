@@ -1,9 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
-import LibraryItem from "./LirbraryItem.jsx";
 import PlayplistBar from "./PlayplistBar.jsx";
 import ArtistBar from "./ArtistBar.jsx";
-
 import AlbumBar from "./AlbumBar.jsx";
 import LikedTrackBar from "./LikedTrackBar.jsx";
 
@@ -12,6 +10,7 @@ const likedItem = {
   title: "Liked Songs",
   subtitle: "Playlist • 108 songs",
 };
+
 const mockLibrary = [
   {
     id: 1,
@@ -53,37 +52,26 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-[25%] h-full min-w-[250px] p-2 flex-col gap-2 text-white lg:flex overflow-hidden">
-      <div className="bg-[#121212] h-[15%] rounded flex flex-col justify-around">
-        <div
-          onClick={() => navigate("/")}
-          className="flex items-center gap-3 pl-8 cursor-pointer"
-        >
-          <img className="w-6" src={assets.home_icon} alt="" />
-          <p className="font-bold">Home</p>
-        </div>
-        <div className="flex items-center gap-3 pl-8 cursor-pointer">
-          <img className="w-6" src={assets.search_icon} alt="" />
-          <p className="font-bold">Search</p>
-        </div>
-      </div>
+    <div className="w-[25%] mt-14 min-w-[250px] h-full flex flex-col p-2 gap-2 text-white bg-black">
+      {/* Top Nav Section */}
 
-      <div className="bg-[#121212] h-[85%] rounded flex flex-col overflow-hidden">
+      {/* Library Section */}
+      <div className="bg-[#121212] flex-1 rounded flex flex-col overflow-hidden">
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img className="w-8" src={assets.stack_icon} alt="stack_icon" />
             <p className="font-semibold">Your Library</p>
           </div>
-          <img className="w-5" src={assets.plus_icon} alt="plus_icon" />
+          <img className="w-5 cursor-pointer" src={assets.plus_icon} alt="plus_icon" />
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 space-y-1">
+        <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover">
           <LikedTrackBar
             cover={likedItem.cover}
             title={likedItem.title}
             subtitle={likedItem.subtitle}
             onClick={() => console.log("Liked Songs clicked")}
-          />{" "}
+          />
           {mockLibrary.map((item) => {
             if (item.type === "playlist") {
               return (
@@ -114,9 +102,7 @@ const Sidebar = () => {
                   onClick={() => console.log("Album clicked", item.title)}
                 />
               );
-            } else {
-              return null;
-            }
+            } else return null;
           })}
         </div>
       </div>

@@ -1,16 +1,14 @@
 @import "tailwindcss";
 
-/* Set font globally */
 :root {
   font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
 }
-
-/* 🚫 Hide scrollbar globally */
+/* 🚫  Global hide (stays) */
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* ✅ Override only in .scroll-on-hover */
+/* ✅  Override only in .scroll-on-hover */
 .scroll-on-hover {
   overflow-y: hidden;
 }
@@ -18,13 +16,13 @@
   overflow-y: auto;
 }
 
-/* Turn the scrollbar back ON in scroll-on-hover */
+/* turn the scrollbar back ON */
 .scroll-on-hover::-webkit-scrollbar {
   display: block;
   width: 12px;
 }
 
-/* Custom scrollbar styles */
+/* style */
 .scroll-on-hover::-webkit-scrollbar-track {
   background: transparent;
 }

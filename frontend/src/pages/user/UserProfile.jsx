@@ -131,7 +131,7 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="user-profile-content h-full w-[75%] overflow-y-auto">
+    <div className="user-profile-content pb-10 h-full w-[75%] overflow-y-auto">
       <ProfileHeader user={user} onEditClick={handleToggleEditModal} />
       {showEditModal && (
         <EditProfileDialog

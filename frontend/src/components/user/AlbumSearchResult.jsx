@@ -6,7 +6,7 @@ const albums = [
     title: "m-tp M-TP",
     artist: "Sơn Tùng M-TP",
     year: 2017,
-    image: "/covers/mtp1.jpg",
+    image: "https://tse2.mm.bing.net/th/id/OIP.JHicrcPTxcYi-Uo-FkpPQQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
   },
   {
     id: 2,

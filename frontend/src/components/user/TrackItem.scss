@@ -20,11 +20,11 @@
 
   &.no-like-btn {
     .track-info {
-      grid-template-columns: 40px 2fr 1.5fr 1fr;
+      grid-template-columns: 40px 2fr 1.27fr 160px;
     }
     .track-duration {
       grid-column: 4 / 5;
-      justify-self: end;
+      justify-self: center;
       text-align: right;
       min-width: 40px;
     }

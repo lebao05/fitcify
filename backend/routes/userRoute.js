@@ -9,7 +9,8 @@ const upload = multer({ dest: "uploads/" });
 
 router.use(authMiddleware);
 
-router.get("/profile", userController.getProfileInfo);
+router.get("/profile/:id", userController.getProfileInfo);
+router.get("/me", userController.getMyProfile);
 
 router.get("/profile/followed-artists", userController.getFollowedArtists);
 

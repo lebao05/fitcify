@@ -1,8 +1,8 @@
 import axiosInstance from "../configs/axios";
 
 /* ───── Profile Info ───── */
-export const getProfileInfo = async () => {
-  const res = await axiosInstance.get("/user/profile");
+export const getMyProfile = async () => {
+  const res = await axiosInstance.get("/user/me");
   return res.data;
 };
 

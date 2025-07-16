@@ -5,13 +5,13 @@ import { store } from "./redux/store.js"; // make sure this file exists
 
 import "./index.css";
 import App from "./App.jsx";
-// import { PlayerProvider } from "./context/PlayerContext.jsx";
+import { PlayerProvider } from "./context/PlayerContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      {/* <PlayerProvider> */}
+      <PlayerProvider>
         <App />
-      {/* </PlayerProvider> */}
+      </PlayerProvider>
     </Provider>
   </StrictMode>
 );

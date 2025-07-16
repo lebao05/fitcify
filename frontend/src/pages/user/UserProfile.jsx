@@ -10,6 +10,7 @@ import ProfileFooter from "../../components/user/ProfileFooter.jsx";
 import EditProfileDialog from "../../components/user/EditProfileDialog.jsx"; // ✅ new import
 import "./UserProfile.scss";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const UserProfile = () => {
   const [playingArtistId, setPlayingArtistId] = useState(null);
@@ -18,6 +19,7 @@ const UserProfile = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const artistContainerRef = useRef();
   const playlistContainerRef = useRef();
+  const { id } = useParams();
 
   const CARD_WIDTH = 180;
   const GAP = 16;

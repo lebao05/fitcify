@@ -5,7 +5,7 @@ import {
   logout as logoutApi,
   verifyLoginOtp,
 } from "../../services/authApi"; // adjust if your file path is different
-import { getProfileInfo, updateProfileInfo } from "../../services/userApi"; // Import user profile service
+import { getMyProfile, updateProfileInfo } from "../../services/userApi"; // Import user profile service
 // ───── REGISTER ─────
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -24,7 +24,7 @@ export const fetchUserFromCookie = createAsyncThunk(
   "user/fetchUserFromCookie",
   async (_, thunkAPI) => {
     try {
-      const res = await getProfileInfo(); // must return { Data: { user } }
+      const res = await getMyProfile(); // must return { Data: { user } }
       console.log("Fetched user from cookie:", res);
       return res.Data;
     } catch (err) {

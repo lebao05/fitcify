@@ -1,10 +1,15 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import "./SignupStep1.scss";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setPassword as setPasswordAction } from "../../redux/slices/signupSlice";
+
 export default function SignupStep1() {
-  const [password, setPassword] = useState("");
+  const password = useSelector((state) => state.signup.password);
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   // Password validation
   const hasLetter = /[a-zA-Z]/.test(password);
@@ -12,7 +17,6 @@ export default function SignupStep1() {
     password
   );
   const hasMinLength = password.length >= 10;
-  const navigate = useNavigate();
   const isValid = hasLetter && hasNumberOrSpecial && hasMinLength;
 
   return (
@@ -55,12 +59,12 @@ export default function SignupStep1() {
           <label htmlFor="password" className="block text-sm font-medium mb-2">
             Password
           </label>
-          <div className="email-container">
+          <div className="email-container relative">
             <input
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => dispatch(setPasswordAction(e.target.value))}
               placeholder="Enter your password"
               className="password-input"
             />
@@ -122,7 +126,7 @@ export default function SignupStep1() {
                   hasNumberOrSpecial ? "text-[#1DB954]" : "text-gray-400"
                 }`}
               >
-                {"1 number or special character (example: # ? ! &)"}
+                1 number or special character (example: # ? ! &)
               </span>
             </div>
 
@@ -157,6 +161,11 @@ export default function SignupStep1() {
               : "bg-gray-600 cursor-not-allowed"
           }`}
           disabled={!isValid}
+          onClick={() => {
+            if (isValid) {
+              navigate("/signup-step2");
+            }
+          }}
         >
           Next
         </button>

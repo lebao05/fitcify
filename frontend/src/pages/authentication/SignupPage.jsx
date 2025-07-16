@@ -1,119 +1,129 @@
 import React, { useState } from "react";
 import "./SignupPage.scss";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setEmail } from "../../redux/slices/signupSlice"; // adjust path
 
 export default function SpotifyLogin() {
-    const [email, setEmail] = useState("");
-    const [showError, setShowError] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const nagivate = useNavigate();
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value);
-        if (showError && e.target.value.trim()) {
-            setShowError(false);
-        }
-    };
+  // Redux state
+  const email = useSelector((state) => state.signup.email);
 
-    const handleContinue = async () => {
-        if (!email.trim()) {
-            setShowError(true);
-            return;
-        }
+  // Local state
+  const [showError, setShowError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-        if (!validateEmail(email)) {
-            setShowError(true);
-            return;
-        }
-        nagivate("/signup-step1");
-    };
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
-    const handleSignupWithGoogle = () => {
-        window.location.href = "http://localhost:5000/api/auth/google"; // Adjust the URL to your backend endpoint
-    };
-    const handleSignupWithFacebook = () => {
-        window.location.href = "http://localhost:5000/api/auth/facebook";
+  const handleEmailChange = (e) => {
+    dispatch(setEmail(e.target.value));
+    console.log("Email changed:", e.target.value);
+    if (showError && e.target.value.trim()) {
+        setShowError(false);
     }
-    const handleKeyPress = (e) => {
-        if (e.key === "Enter") {
-            handleContinue();
-        }
-    };
+};
 
-    return (
-        <div className="signup-page">
-            <div className="signup-container">
-                <div className="title">Sign up to start listening</div>
-                <div className="login-with">
-                    <div
-                        className="login-option google"
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleSignupWithGoogle()}
-                    >
-                        Continue with Google
-                    </div>
+const handleContinue = () => {
+    if (!email.trim() || !validateEmail(email)) {
+        setShowError(true);
+        return;
+    }
 
-                    <div
-                        className="login-option facebook"
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleSignupWithFacebook()}
-                    >
-                        Continue with Facebook
-                    </div>
-                </div>
+    navigate("/signup-step1");
+  };
 
-                <div className="horizontal-line">
-                    <span>or</span>
-                </div>
-                <div className="email-container">
-                    <div className="email-input-container">
-                        <label htmlFor="email-input" className="email-label">
-                            Email or username
-                        </label>
-                        <input
-                            id="email-input"
-                            type="email"
-                            placeholder="Email or username"
-                            value={email}
-                            onChange={handleEmailChange}
-                            onKeyPress={handleKeyPress}
-                            className={`email-input ${showError ? "error" : ""}`}
-                            disabled={isLoading}
-                            autoComplete="email"
-                        />
-                        {showError && (
-                            <div className="error-message">
-                                {!email.trim()
-                                    ? "Please enter your email or username."
-                                    : "Please enter a valid email address."}
-                            </div>
-                        )}
-                    </div>
+  const handleSignupWithGoogle = () => {
+    window.location.href = "http://localhost:5000/api/auth/google";
+  };
 
-                    <div className="continue-button">
-                        <button onClick={handleContinue}>Next</button>
-                    </div>
-                </div>
-                <div className="further-options">
-                    <div className="no-account-registered">
-                        Already have an account?{" "}
-                        <span
-                            className="link"
-                            onClick={() => nagivate("/login")}
-                            role="button"
-                            tabIndex={0}
-                        >
-                            Log in here.
-                        </span>
-                    </div>
-                </div>
-            </div>
+  const handleSignupWithFacebook = () => {
+    window.location.href = "http://localhost:5000/api/auth/facebook";
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleContinue();
+    }
+  };
+
+  return (
+    <div className="signup-page">
+      <div className="signup-container">
+        <div className="title">Sign up to start listening</div>
+
+        <div className="login-with">
+          <div
+            className="login-option google"
+            role="button"
+            tabIndex={0}
+            onClick={handleSignupWithGoogle}
+          >
+            Continue with Google
+          </div>
+
+          <div
+            className="login-option facebook"
+            role="button"
+            tabIndex={0}
+            onClick={handleSignupWithFacebook}
+          >
+            Continue with Facebook
+          </div>
         </div>
-    );
+
+        <div className="horizontal-line">
+          <span>or</span>
+        </div>
+
+        <div className="email-container">
+          <div className="email-input-container">
+            <label htmlFor="email-input" className="email-label">
+              Email or username
+            </label>
+            <input
+              id="email-input"
+              type="email"
+              placeholder="Email or username"
+              value={email}
+              onChange={handleEmailChange}
+              onKeyPress={handleKeyPress}
+              className={`email-input ${showError ? "error" : ""}`}
+              disabled={isLoading}
+              autoComplete="email"
+            />
+            {showError && (
+              <div className="error-message">
+                {!email.trim()
+                  ? "Please enter your email or username."
+                  : "Please enter a valid email address."}
+              </div>
+            )}
+          </div>
+
+          <div className="continue-button">
+            <button onClick={handleContinue}>Next</button>
+          </div>
+        </div>
+
+        <div className="further-options">
+          <div className="no-account-registered">
+            Already have an account?{" "}
+            <span
+              className="link"
+              onClick={() => window.location.href = "/login"}
+              role="button"
+              tabIndex={0}
+            >
+              Log in here.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

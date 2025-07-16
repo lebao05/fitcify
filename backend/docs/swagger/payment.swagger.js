@@ -1,10 +1,10 @@
 /**
  * @swagger
- * /api/payments/subscriptions:
+ * /api/payment/subscribe-create:
  *   post:
  *     tags:
  *       - Payment
- *     summary: Create a subscription and generate a payment link
+ *     summary: Create a subscription and generate a PayOS payment link
  *     security:
  *       - cookieAuth: []
  *     requestBody:
@@ -21,11 +21,6 @@
  *                 enum: [premium, family]
  *                 description: Type of subscription plan
  *                 example: premium
- *               paymentMethod:
- *                 type: string
- *                 enum: [PayOS, ZaloPay, CreditCard]
- *                 description: Payment method to use
- *                 example: PayOS
  *     responses:
  *       200:
  *         description: Payment link successfully created
@@ -36,41 +31,46 @@
  *               properties:
  *                 message:
  *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     checkoutUrl:
- *                       type: string
- *                     paymentMethod:
- *                       type: string
- *                     orderCode:
- *                       type: number
- *                     subscriptionId:
- *                       type: string
- *                     paymentId:
- *                       type: string
+ *                   example: Payment link created successfully
+ *                 checkoutUrl:
+ *                   type: string
+ *                 paymentMethod:
+ *                   type: string
+ *                   example: PayOS
+ *                 orderCode:
+ *                   type: number
+ *                 subscriptionId:
+ *                   type: string
+ *                 paymentId:
+ *                   type: string
  *       400:
- *         description: Invalid request or plan type
+ *         description: Invalid request
  *       401:
  *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
  */
-
 /**
  * @swagger
- * /api/payments/subscriptions/{subscriptionId}:
- *   delete:
+ * /api/payment/subscribe-cancel:
+ *   post:
  *     tags:
  *       - Payment
- *     summary: Cancel a subscription and update user status
+ *     summary: Cancel a subscription and downgrade user
  *     security:
  *       - cookieAuth: []
- *     parameters:
- *       - in: path
- *         name: subscriptionId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the subscription to cancel
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - subscriptionId
+ *             properties:
+ *               subscriptionId:
+ *                 type: string
+ *                 description: ID of the subscription to cancel
  *     responses:
  *       200:
  *         description: Subscription cancelled successfully
@@ -81,53 +81,19 @@
  *               properties:
  *                 message:
  *                   type: string
- *       400:
- *         description: Invalid subscriptionId
- *       401:
- *         description: Unauthorized
- */
-
-/**
- * @swagger
- * /api/payments/success:
- *   get:
- *     tags:
- *       - Payment
- *     summary: Confirm successful payment and activate subscription
- *     security:
- *       - cookieAuth: []
- *     parameters:
- *       - in: query
- *         name: orderCode
- *         required: true
- *         schema:
- *           type: number
- *         description: Order code provided by PayOS
- *     responses:
- *       200:
- *         description: Subscription activated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *       400:
- *         description: Missing or invalid orderCode
- *       401:
- *         description: Unauthorized
+ *                   example: ✅ Subscription cancelled successfully.
+ *       404:
+ *         description: Subscription or user not found
  *       500:
  *         description: Internal server error
  */
-
 /**
  * @swagger
- * /api/payments/cancel:
+ * /api/payment/payment-success:
  *   get:
  *     tags:
  *       - Payment
- *     summary: Cancel payment and remove related data
+ *     summary: Confirm payment success and activate subscription
  *     security:
  *       - cookieAuth: []
  *     parameters:
@@ -136,10 +102,10 @@
  *         required: true
  *         schema:
  *           type: number
- *         description: Order code of the cancelled payment
+ *         description: Order code returned from PayOS
  *     responses:
  *       200:
- *         description: Payment cancelled and data removed
+ *         description: Subscription activated
  *         content:
  *           application/json:
  *             schema:
@@ -147,10 +113,44 @@
  *               properties:
  *                 message:
  *                   type: string
- *       400:
- *         description: Missing or invalid orderCode
- *       401:
- *         description: Unauthorized
+ *                   example: ✅ Subscription activated!
+ *       404:
+ *         description: Payment not found
+ *       409:
+ *         description: Payment already completed
  *       500:
- *         description: Failed to cancel payment or cleanup
+ *         description: Internal server error
+ */
+/**
+ * @swagger
+ * /api/payment/payment-cancel:
+ *   get:
+ *     tags:
+ *       - Payment
+ *     summary: Cancel payment and remove pending subscription
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: orderCode
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Order code to cancel
+ *     responses:
+ *       200:
+ *         description: Payment cancelled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: ❌ Payment was cancelled.
+ *       404:
+ *         description: Payment not found
+ *       409:
+ *         description: Payment already completed
+ *       410:
+ *         description: Payment already cancelled
+ *       500:
+ *         description: Internal server error
  */

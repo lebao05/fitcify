@@ -3,10 +3,10 @@ const router = express.Router();
 const paymentController = require('../controllers/paymentController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
-// RESTful routes
-router.post('/subscriptions', authMiddleware, paymentController.createSubscription);
-router.delete('/subscriptions/:subscriptionId', authMiddleware, paymentController.cancelSubscription);
-router.get('/success', authMiddleware, paymentController.paymentSuccess);
-router.get('/cancel', authMiddleware, paymentController.paymentFailure);
+router.post('/subscribe-create', authMiddleware, paymentController.createSubscription);
+router.post('/subscribe-cancel', authMiddleware, paymentController.cancelSubscription);
+router.get('/payment-success', authMiddleware,paymentController.paymentSuccess);
+router.get('/payment-cancel', authMiddleware, paymentController.paymentFailure);
 
 module.exports = router;
+

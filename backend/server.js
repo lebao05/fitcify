@@ -53,7 +53,7 @@ app.use(
 app.use("/api/auth", authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/artist", artistRoute);
-app.use("/api/payments", paymentRoute);
+app.use("/api/payment", paymentRoute);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

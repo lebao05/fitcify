@@ -1,201 +1,230 @@
 const PayOS = require("@payos/node");
-const Subscription = require("../models/subscription");
+const Subscription = require("../models/Subscription");
 const Payment = require("../models/payment");
 const User = require("../models/user");
 const dayjs = require("dayjs");
-const ShortUniqueId = require("short-unique-id");
 
 const payos = new PayOS(
   process.env.client_id,
   process.env.api_key,
   process.env.checksum_key
 );
-const uid = new ShortUniqueId({ length: 15, dictionary: "number" }).randomUUID;
 
-async function createSubscription(userId, planType, paymentMethod = "PayOS") {
-  const validPlans = {
-    premium: { amount: 2000, currency: "VND", durationInDays: 30 },
-    family: { amount: 3000, currency: "VND", durationInDays: 30 },
-  };
+async function createSubscription(userId, planType) {
+  try {
+    const validPlans = {
+      premium: { amount: Number(process.env.premium_cost), currency: "VND", durationInDays: 30 },
+      family: { amount: Number(process.env.family_cost), currency: "VND", durationInDays: 30 },
+    };
 
-  const plan = validPlans[planType];
-  if (!plan) throw new Error("Invalid plan type");
+    const plan = validPlans[planType];
+    if (!plan) throw new Error("Invalid plan type");
 
-  const now = new Date();
-  const endDate = dayjs(now).add(plan.durationInDays, "day").toDate();
-  const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
-  const subscription = new Subscription({
-    userId,
-    planType,
-    status: "pending",
-    startDate: now,
-    endDate,
-    paymentMethod,
-    amount: plan.amount,
-    currency: plan.currency,
-    autoRenew: false,
-    orderCode,
-  });
-  await subscription.save();
+    const now = new Date();
+    const endDate = dayjs(now).add(plan.durationInDays, "day").toDate();
+    const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+    const subscription = new Subscription({
+      userId,
+      planType,
+      status: "pending",
+      startDate: now,
+      endDate,
+      paymentMethod: "PayOS",
+      amount: plan.amount,
+      currency: plan.currency,
+      autoRenew: false,
+    });
+    await subscription.save();
 
-  const payment = new Payment({
-    userId,
-    subscriptionId: subscription._id,
-    amount: plan.amount,
-    currency: plan.currency,
-    status: "pending",
-    paymentMethod,
-    transactionId: "",
-    processedAt: null,
-    orderCode,
-  });
-  await payment.save();
+    const payment = new Payment({
+      userId,
+      subscriptionId: subscription._id,
+      amount: plan.amount,
+      currency: plan.currency,
+      status: "pending",
+      paymentMethod: "PayOS",
+      transactionId: "",
+      processedAt: null,
+      orderCode,
+    });
+    await payment.save();
 
-  const paymentResponse = await processPayment(
-    userId,
-    plan.amount,
-    paymentMethod
-  );
+    const description = `Dang ki ${planType}`;
+    const returnUrl = `${process.env.DOMAIN}/api/payment/payment-success?orderCode=${orderCode}`;
+    const cancelUrl = `${process.env.DOMAIN}/api/payment/payment-cancel?orderCode=${orderCode}`;
 
-  return {
-    checkoutUrl: paymentResponse.checkoutUrl,
-    paymentMethod,
-    orderCode,
-    subscriptionId: subscription._id,
-    paymentId: payment._id,
-  };
-}
+    console.log("🟢 orderCode:", orderCode);
+    console.log("🟢 amount:", plan.amount);
+    console.log("🟢 description:", description);
+    console.log("🟢 returnUrl:", returnUrl);
+    console.log("🟢 cancelUrl:", cancelUrl);
 
-async function processPayment(userId, amount, paymentMethod) {
-  const payment = await Payment.findOne({
-    userId,
-    amount,
-    paymentMethod,
-    status: "pending",
-  }).sort({ createdAt: -1 });
+    const paymentLinkRes = await payos.createPaymentLink({
+      orderCode,
+      amount: plan.amount,
+      description,
+      returnUrl,
+      cancelUrl,
+      expiredAt: Math.floor(Date.now() / 1000) + 15 * 60,
+    });
 
-  if (!payment) throw new Error("Payment not found.");
-
-  const subscription = await Subscription.findById(payment.subscriptionId);
-  if (!subscription) throw new Error("Subscription not found.");
-
-  const { planType, _id: subscriptionId } = subscription;
-  const orderCode = payment.orderCode;
-  switch (paymentMethod) {
-    case "PayOS": {
-      const description = `Đăng ký ${planType}`;
-      const returnUrl = `${process.env.DOMAIN}/api/payment/payment-success?orderCode=${orderCode}`;
-      const cancelUrl = `${process.env.DOMAIN}/api/payment/payment-cancel?orderCode=${orderCode}`;
-      console.log("🔍 DEBUG PayOS call:", {
-        orderCode,
-        amount,
-        description,
-        returnUrl,
-        cancelUrl,
-        expiredAt,
-      });
-
-      const paymentLinkRes = await payos.createPaymentLink({
-        orderCode: orderCode,
-        amount,
-        description,
-        returnUrl,
-        cancelUrl,
-        expiredAt: Math.floor(Date.now() / 1000) + 15 * 60,
-      });
-
-      return {
-        checkoutUrl: paymentLinkRes.checkoutUrl,
-        orderCode,
-      };
-    }
-
-    case "ZaloPay":
-      return {
-        checkoutUrl: "https://zalopay.dev/mock-url",
-        orderCode,
-      };
-
-    case "CreditCard":
-      return {
-        message: "Thẻ đã thanh toán thành công (mock)",
-        orderCode,
-      };
-
-    default:
-      throw new Error(`Unsupported payment method: ${paymentMethod}`);
+    return {
+      checkoutUrl: paymentLinkRes.checkoutUrl,
+      paymentId: payment._id,
+      subscriptionId: subscription._id,
+      orderCode,
+    };
+  } catch (err) {
+    console.error("[createSubscription] error:", err);
+    throw err;
   }
 }
 
 async function cancelPayment(orderCode) {
-  const payment = await Payment.findOne({ orderCode });
-  if (!payment) throw new Error("Payment not found");
+  try {
+    const payment = await Payment.findOne({ orderCode });
 
-  if (payment.status === "completed")
-    throw new Error("Payment was already completed. Cannot cancel.");
+    if (!payment) {
+      return { status: 404, message: "❌ Payment not found." };
+    }
 
-  if (payment.status === "pending") {
-    payment.status = "failed";
-    await payment.save();
-    await Subscription.deleteOne({ _id: payment.subscriptionId });
-    return { message: "Payment was cancelled." };
+    if (payment.status === "completed")
+      return {
+        status: 409,
+        message: "⚠️ Payment was already completed. Cannot cancel.",
+      };
+
+    if (payment.status === "pending") {
+      payment.status = "failed";
+      await payment.save();
+
+      await Subscription.deleteOne({ _id: payment.subscriptionId });
+
+      return { status: 200, message: "❌ Payment was cancelled." };
+    }
+
+    if (payment.status === "failed") {
+      return {
+        status: 410,
+        message: "❌ Payment was already cancelled before.",
+      };
+    }
+  } catch (err) {
+    console.error("[cancelPayment] error:", err);
+    return { status: 500, message: "❌ Internal server error." };
   }
-
-  throw new Error("Payment already cancelled.");
 }
 
 async function confirmPayment(orderCode) {
-  const statusRes = await payos.getPaymentLinkInformation(orderCode);
+  try {
+    let statusRes;
+    try {
+      statusRes = await payos.getPaymentLinkInformation(orderCode);
+    } catch (err) {
+      console.error("[getPaymentLinkInformation] error:", err.message);
+      return {
+        status: 404,
+        message: "❌ Payment not found in PayOS.",
+      };
+    }
 
-  const payment = await Payment.findOne({ orderCode: Number(orderCode) });
-  if (!payment) throw new Error("Payment not found.");
+    // cmt để test không cần chuyển khoản nếu muốn chuyển khoản thì tắt cmt
+    // if (statusRes.status !== 'PAID') {
+    //   return {
+    //     status: 202,
+    //     message: '⏳ Payment not completed yet.',
+    //   };
+    // }
 
-  if (payment.status === "completed")
-    return { message: "Payment already completed." };
+    const payment = await Payment.findOne({ orderCode: Number(orderCode) });
+    if (!payment) {
+      return {
+        status: 404,
+        message: "❌ Payment not found.",
+      };
+    }
 
-  payment.status = "completed";
-  payment.transactionId = statusRes.transactionId;
-  payment.processedAt = new Date();
-  await payment.save();
+    if (payment.status === "completed") {
+      return {
+        status: 409,
+        message: "⚠️ Payment already completed before.",
+      };
+    }
 
-  const subscription = await Subscription.findById(payment.subscriptionId);
-  if (subscription) {
-    subscription.status = "active";
-    subscription.startDate = new Date();
-    subscription.endDate = dayjs().add(30, "day").toDate();
-    await subscription.save();
+    payment.status = "completed";
+    payment.transactionId = statusRes.transactionId;
+    payment.processedAt = new Date();
+    await payment.save();
+
+    const subscription = await Subscription.findById(payment.subscriptionId);
+    if (subscription) {
+      subscription.status = "active";
+      subscription.startDate = new Date();
+      subscription.endDate = dayjs().add(30, "day").toDate();
+      await subscription.save();
+    }
+
+    const user = await User.findById(payment.userId);
+    if (user) {
+      user.isPremium = true;
+      user.subscribedUntil = subscription.endDate;
+      await user.save();
+    }
+
+    return {
+      status: 200,
+      message: "✅ Subscription activated!",
+    };
+  } catch (err) {
+    console.error("[confirmPayment] error:", err);
+    return {
+      status: 500,
+      message: "❌ Internal server error.",
+    };
   }
-
-  const user = await User.findById(payment.userId);
-  if (user) {
-    user.isPremium = true;
-    user.subscribedUntil = subscription.endDate;
-    await user.save();
-  }
-
-  return { message: "Subscription activated!" };
 }
 
 async function cancelSubscription(subscriptionId) {
-  const subscription = await Subscription.findById(subscriptionId);
-  if (!subscription) throw new Error("Subscription not found.");
+  try {
+    const subscription = await Subscription.findById(subscriptionId);
+    if (!subscription) {
+      console.error(
+        "[cancelSubscription] ❌ Subscription not found:",
+        subscriptionId
+      );
+      return { status: 404, message: "❌ Subscription not found." };
+    }
 
-  subscription.status = "cancelled";
-  await subscription.save();
+    subscription.status = "cancelled";
+    await subscription.save();
+    console.log(
+      "[cancelSubscription] ✅ Subscription cancelled:",
+      subscriptionId
+    );
 
-  const user = await User.findById(subscription.userId);
-  if (user) {
+    const user = await User.findById(subscription.userId);
+    if (!user) {
+      console.error(
+        "[cancelSubscription] ❌ User not found:",
+        subscription.userId
+      );
+      return { status: 404, message: "❌ User not found." };
+    }
+
     user.isPremium = false;
     user.subscribedUntil = null;
     await user.save();
-  }
+    console.log("[cancelSubscription] ✅ User downgraded:", user._id);
 
-  return { message: "Subscription cancelled successfully." };
+    return { status: 200, message: "✅ Subscription cancelled successfully." };
+  } catch (err) {
+    console.error("[cancelSubscription] 🔥 Internal error:", err);
+    return { status: 500, message: "❌ Failed to cancel subscription." };
+  }
 }
 
 module.exports = {
   createSubscription,
-  processPayment,
   cancelPayment,
   confirmPayment,
   cancelSubscription,

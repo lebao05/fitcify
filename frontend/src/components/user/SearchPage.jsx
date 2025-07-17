@@ -5,7 +5,7 @@ import AlbumSearchResult from "./AlbumSearchResult";
 import ArtistSearchResult from "./ArtistSearchResult";
 import PlaylistSearchResult from "./PlaylistSearchResult";
 import ProfileSearchResult from "./ProfileSearchResult";
-
+import AllSearchResult from "./AllSearchResult";
 export default function SearchPage() {
   return (
     <div className="text-white px-6 py-4">
@@ -14,6 +14,7 @@ export default function SearchPage() {
 
       <Routes>
         <Route path="/" element={<Navigate to="songs" />} />
+        <Route path="all" element={<AllSearchResult />} />
         <Route path="albums" element={<AlbumSearchResult />} />
         <Route path="songs" element={<SongSearchResult />} />
         <Route path="artists" element={<ArtistSearchResult />} />

@@ -81,6 +81,7 @@ const ArtistSong = ({ songs }) => {
                     image: song.image || "/test.jpg",
                   }}
                   index={idx}
+                  showLikeButton={false}
                 />
               ))}
             </div>

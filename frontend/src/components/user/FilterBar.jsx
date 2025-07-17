@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-const filters = ["songs", "albums", "artists", "playlists", "profiles"];
+const filters = ["all","songs", "albums", "artists", "playlists", "profiles"];
 
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 

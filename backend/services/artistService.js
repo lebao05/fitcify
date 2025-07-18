@@ -41,7 +41,7 @@ async function uploadSong({ artistUserId, title, audioPath, imagePath = null, al
   }
 
   const validAlbumId = mongoose.Types.ObjectId.isValid(albumId) ? albumId : null;
-
+  
   const song = await Song.create({
     title,
     duration,
@@ -49,7 +49,7 @@ async function uploadSong({ artistUserId, title, audioPath, imagePath = null, al
     albumId: validAlbumId,
     audioUrl: audioRes.secure_url,
     imageUrl,
-    isApproved: false,
+    isApproved: true,
   });
 
   await ArtistProfile.findOneAndUpdate(
@@ -57,13 +57,6 @@ async function uploadSong({ artistUserId, title, audioPath, imagePath = null, al
     { $push: { songs: song._id } },
     { new: true, upsert: true }
   );
-
-  await ContentVerificationRequest.create({
-    objectId: song._id,
-    artistId: artistUserId,
-    type: "Song",
-    status: "pending",
-  });
 
   return song;
 }
@@ -81,19 +74,9 @@ async function updateSong(songId, artistUserId, { title, albumId = null, audioPa
   if (!song) throw new Error("Song not found");
   if (!song.artistId.equals(artistUserId)) throw new Error("You do not have permission to modify this song");
 
-  const existingPending = await ContentVerificationRequest.findOne({
-    objectId: song._id.toString(),
-    type: "Song",
-    status: "pending",
-  }).lean();
-
-  if (existingPending) throw new Error("This song is already under review. You can't update it until approved or rejected.");
-
   const updates = {};
   if (title) updates.title = title;
   if (albumId && mongoose.Types.ObjectId.isValid(albumId)) updates.albumId = albumId;
-
-  let assetReplaced = false;
 
   if (audioPath) {
     const oldAudioId = extractCloudinaryPublicId(song.audioUrl);
@@ -113,17 +96,6 @@ async function updateSong(songId, artistUserId, { title, albumId = null, audioPa
     const imgRes = await uploadToCloudinary(imagePath, "fitcify/song-covers", { resource_type: "image" });
     updates.imageUrl = imgRes.secure_url;
     assetReplaced = true;
-  }
-
-  if (assetReplaced) {
-    updates.isApproved = false;
-
-    await ContentVerificationRequest.create({
-      objectId: song._id,
-      artistId: artistUserId,
-      type: "Song",
-      status: "pending",
-    });
   }
 
   const updatedSong = await Song.findByIdAndUpdate(songId, updates, { new: true });
@@ -148,11 +120,6 @@ async function deleteSong(songId, artistUserId) {
     { userId: artistUserId },
     { $pull: { songs: song._id } }
   );
-
-  await ContentVerificationRequest.deleteMany({
-    objectId: song._id,
-    type: "Song",
-  });
 
   await Song.findByIdAndDelete(song._id);
   return { deletedSongId: song._id };

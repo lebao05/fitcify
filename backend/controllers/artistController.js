@@ -39,7 +39,7 @@ const uploadSong = async (req, res, next) => {
     });
 
     res.status(200).json({
-      Message: "Song uploaded successfully, waiting admin verify",
+      Message: "Song uploaded successfully",
       Error: 0,
       Data: result,
     });
@@ -62,7 +62,7 @@ const updateSong = async (req, res, next) => {
     });
 
     res.status(200).json({
-      Message: "Song updated successfully, waiting admin verify",
+      Message: "Song updated successfully",
       Error: 0,
       Data: result,
     });

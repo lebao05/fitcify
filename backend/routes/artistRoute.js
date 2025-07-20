@@ -23,6 +23,40 @@ router.patch(
   artistController.updateSong
 );
 
+router.get("/albums/me", isArtist, artistController.getAlbumsByArtist);
+
+router.post(
+  "/albums",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.createAlbum
+);
+
+router.patch(
+  "/albums/:albumId",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.updateAlbumMetadata
+);
+
+router.get("/playlists/me", isArtist, artistController.getPlaylistsByArtist);
+
+router.post(
+  "/playlists",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.createPlaylist
+);
+
+router.patch(
+  "/playlists/:playlistId",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.updatePlaylistMetadata
+);
+
 router.delete("/songs/:songId",isArtist, artistController.deleteSong);
+router.delete("/albums/:albumId", isArtist, artistController.deleteAlbum);
+router.delete("/playlists/:playlistId", isArtist, artistController.deletePlaylist);
 
 module.exports = router;

@@ -24,5 +24,7 @@ router.patch(
 );
 
 router.delete("/songs/:songId",isArtist, artistController.deleteSong);
+router.get("/songs", isArtist, artistController.getAllSongs);
+router.get("/songs/:id", isArtist, artistController.getSongById);
 
 module.exports = router;

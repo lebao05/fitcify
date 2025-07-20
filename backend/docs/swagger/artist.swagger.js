@@ -111,6 +111,39 @@
 
 /**
  * @swagger
+ * /api/artist/songs:
+ *   get:
+ *     summary: Get all songs by the artist
+ *     tags: [Artist]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of songs by the artist
+ */
+
+/**
+ * @swagger
+ * /api/artist/songs/{id}:
+ *   get:
+ *     summary: Get a specific song by ID
+ *     tags: [Artist]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Song ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Song details
+ */
+
+/**
+ * @swagger
  * /api/artist/songs/{songId}:
  *   delete:
  *     summary: Delete a song by artist

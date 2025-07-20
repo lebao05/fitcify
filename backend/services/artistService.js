@@ -3,7 +3,6 @@ const User = require("../models/user");
 const ArtistProfile = require("../models/artistProfile");
 const ArtistVerificationRequest = require("../models/artistVerification");
 const Song = require("../models/song");
-const Album = require('../models/album'); 
 const ContentVerificationRequest = require("../models/contentVerification");
 const { uploadToCloudinary } = require("../services/cloudinaryService");
 const cloudinary = require("../configs/cloudinary");
@@ -126,6 +125,26 @@ async function deleteSong(songId, artistUserId) {
   return { deletedSongId: song._id };
 }
 
+async function getSongById(songId, artistUserId) {
+  const artist = await User.findById(artistUserId);
+  if (!artist || !artist.isVerified || artist.role !== "artist") throw new Error("Only verified artists can delete songs");
+
+  const song = await Song.findById(songId);
+  if (!song) throw new Error("Song not found");
+
+  if (!song.artistId.equals(artistUserId)) throw new Error("This is not your song");
+  
+  return song
+}
+
+async function getAllSongs(artistUserId) {
+  const artist = await User.findById(artistUserId);
+  if (!artist || !artist.isVerified || artist.role !== "artist") {
+    throw new Error("Only verified artists can view their songs");
+  }
+  return await Song.find({ artistId: artistUserId });
+}
+
 async function getArtistProfileById(userId) {
   if (!mongoose.isValidObjectId(userId)) {
     throw new Error('Invalid user ID');
@@ -168,6 +187,8 @@ module.exports = {
   uploadSong,
   updateSong,
   deleteSong,
+  getSongById,
+  getAllSongs,
   getArtistProfileById,
-  updateArtistProfile
+  updateArtistProfile,
 };

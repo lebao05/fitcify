@@ -107,6 +107,32 @@ async function editMyProfile(req, res, next) {
     next(err);
   }
 }
+const getSongById = async (req, res, next) => {
+  try {
+    const result = await artistService.getSongById(req.params.id, req.user._id);
+    res.status(200).json({
+      Message: "Song fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getAllSongs = async (req, res, next) => {
+  try {
+    const result = await artistService.getAllSongs(req.user._id);
+    res.status(200).json({
+      Message: "All songs fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 module.exports = {
   submitArtistVerification,
@@ -114,5 +140,7 @@ module.exports = {
   updateSong,
   deleteSong,
   getMyProfileById,
-  editMyProfile
+  editMyProfile,
+  getSongById,
+  getAllSongs
 };

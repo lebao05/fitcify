@@ -3,6 +3,7 @@ const User = require("../models/user");
 const ArtistProfile = require("../models/artistProfile");
 const ArtistVerificationRequest = require("../models/artistVerification");
 const Song = require("../models/song");
+const Album = require('../models/album'); 
 const ContentVerificationRequest = require("../models/contentVerification");
 const { uploadToCloudinary } = require("../services/cloudinaryService");
 const cloudinary = require("../configs/cloudinary");
@@ -125,9 +126,48 @@ async function deleteSong(songId, artistUserId) {
   return { deletedSongId: song._id };
 }
 
+async function getArtistProfileById(userId) {
+  if (!mongoose.isValidObjectId(userId)) {
+    throw new Error('Invalid user ID');
+  }
+  const profile = await ArtistProfile.findOne({ userId })
+    .populate('userId', 'name email')
+    .populate('albums', 'title imageUrl')
+    .populate('songs', 'title audioUrl imageUrl duration');
+
+  if (!profile) {
+    throw new Error('Artist profile not found');
+  }
+  return profile;
+}
+
+async function updateArtistProfile(userId, data) {
+  if (!mongoose.isValidObjectId(userId)) {
+    throw new Error('Invalid user ID');
+  }
+  const allowed = ['bio', 'socialLinks.spotify', 'socialLinks.instagram', 'socialLinks.twitter', 'socialLinks.website'];
+  const updates = {};
+  Object.keys(data).forEach(key => {
+    if (allowed.includes(key)) {
+      updates[key] = data[key];
+    }
+  });
+  const updated = await ArtistProfile.findOneAndUpdate(
+    { userId },
+    { $set: updates },
+    { new: true }
+  );
+  if (!updated) {
+    throw new Error('Artist profile not found');
+  }
+  return updated;
+}
+
 module.exports = {
   submitArtistVerificationRequest,
   uploadSong,
   updateSong,
   deleteSong,
+  getArtistProfileById,
+  updateArtistProfile
 };

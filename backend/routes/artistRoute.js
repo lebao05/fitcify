@@ -25,4 +25,9 @@ router.patch(
 
 router.delete("/songs/:songId",isArtist, artistController.deleteSong);
 
+// View own profile
+router.get('/profile', isArtist, artistController.getMyProfileById);
+// Edit own profile
+router.put('/profile', isArtist, artistController.editMyProfile);
+
 module.exports = router;

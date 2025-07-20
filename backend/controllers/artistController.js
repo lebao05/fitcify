@@ -87,9 +87,32 @@ const deleteSong = async (req, res, next) => {
   }
 };
 
+async function getMyProfileById(req, res, next) {
+  try {
+    const profile = await artistService.getArtistProfileById(req.user._id);
+    res.status(200).json({ Error: 0, Message: 'Profile fetched', Data: profile });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function editMyProfile(req, res, next) {
+  try {
+    const payload = {};
+    if (req.body.bio !== undefined) payload.bio = req.body.bio;
+    if (req.body.socialLinks !== undefined) payload['socialLinks'] = req.body.socialLinks;
+    const updated = await artistService.updateArtistProfile(req.user._id, payload);
+    res.status(200).json({ Error: 0, Message: 'Profile updated', Data: updated });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   submitArtistVerification,
   uploadSong,
   updateSong,
   deleteSong,
+  getMyProfileById,
+  editMyProfile
 };

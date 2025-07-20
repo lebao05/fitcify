@@ -9,7 +9,10 @@ const songSchema = new mongoose.Schema(
         audioUrl: { type: String, required: true },
         imageUrl: { type: String, default: '' },
         playCount: { type: Number, default: 0 },
-        likes: { type: mongoose.Schema.Types.ObjectId },
+        likes: {
+            type: [mongoose.Schema.Types.ObjectId],
+            default: []
+        },
         uploadedAt: { type: Date, default: Date.now },
     },
     { timestamps: false }

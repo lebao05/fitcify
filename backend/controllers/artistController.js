@@ -87,9 +87,38 @@ const deleteSong = async (req, res, next) => {
   }
 };
 
+const getSongById = async (req, res, next) => {
+  try {
+    const result = await artistService.getSongById(req.params.id, req.user._id);
+    res.status(200).json({
+      Message: "Song fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getAllSongs = async (req, res, next) => {
+  try {
+    const result = await artistService.getAllSongs(req.user._id);
+    res.status(200).json({
+      Message: "All songs fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 module.exports = {
   submitArtistVerification,
   uploadSong,
   updateSong,
   deleteSong,
+  getSongById,
+  getAllSongs
 };

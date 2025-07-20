@@ -125,9 +125,31 @@ async function deleteSong(songId, artistUserId) {
   return { deletedSongId: song._id };
 }
 
+async function getSongById(songId, artistUserId) {
+  const artist = await User.findById(artistUserId);
+  if (!artist || !artist.isVerified || artist.role !== "artist") throw new Error("Only verified artists can delete songs");
+
+  const song = await Song.findById(songId);
+  if (!song) throw new Error("Song not found");
+
+  if (!song.artistId.equals(artistUserId)) throw new Error("This is not your song");
+  
+  return song
+}
+
+async function getAllSongs(artistUserId) {
+  const artist = await User.findById(artistUserId);
+  if (!artist || !artist.isVerified || artist.role !== "artist") {
+    throw new Error("Only verified artists can view their songs");
+  }
+  return await Song.find({ artistId: artistUserId });
+}
+
 module.exports = {
   submitArtistVerificationRequest,
   uploadSong,
   updateSong,
   deleteSong,
+  getSongById,
+  getAllSongs
 };

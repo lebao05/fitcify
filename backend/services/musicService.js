@@ -1,3 +1,4 @@
+
 const https = require("https");
 const Song = require("../models/song");
 const mongoose = require('mongoose');
@@ -48,6 +49,23 @@ const toggleSongLike = async (userId, songId) => {
   }
 };
 
+// Lấy danh sách bài hát đã like của user
+const getLikedTracks = async (userId) => {
+  if (!userId) {
+    const err = new Error("Unauthorized: User must be logged in");
+    err.status = 401;
+    throw err;
+  }
+  try {
+    const likedSongs = await Song.find({ likes: userId });
+    return likedSongs;
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
-  toggleSongLike, getStream
+  toggleSongLike,
+  getStream,
+  getLikedTracks,
 };

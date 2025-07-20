@@ -49,4 +49,19 @@ const toggleSongLikeController = async (req, res) => {
   }
 };
 
-module.exports = { streamingAudio, toggleSongLikeController };
+// Lấy danh sách bài hát đã like của user
+const getLikedTracksController = async (req, res) => {
+  const userId = req.user && req.user._id;
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  try {
+    const likedTracks = await musicService.getLikedTracks(userId);
+    res.status(200).json({ likedTracks });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({ message: error.message || 'Internal Server Error' });
+  }
+};
+
+module.exports = { streamingAudio, toggleSongLikeController, getLikedTracksController };

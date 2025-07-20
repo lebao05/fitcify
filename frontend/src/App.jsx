@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserFromCookie } from "./redux/slices/userSlice";
 import UserProfile from "./pages/user/UserProfile";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
 
 function App() {
   const dispatch = useDispatch();
@@ -51,6 +52,7 @@ function App() {
         <Route path="/signup" element={<Signuppage />} />
         <Route path="/signup-step1" element={<SignupStep1 />} />
         <Route path="/signup-step2" element={<SignupStep2 />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/artist" element={<ArtistLayout />}>
           <Route path="profile" element={<ArtistProfile isOwner={true} />} />
           {/* <Route index element={<Navigate to="dashboard" replace />} /> */}

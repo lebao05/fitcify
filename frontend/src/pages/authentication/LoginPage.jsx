@@ -198,7 +198,7 @@ export default function SpotifyLogin({ email, setEmail }) {
 
           <div
             className="forgot-password"
-            onClick={() => console.log("Navigate to forgot password")}
+            onClick={() => navigate("/forgot-password")}
             role="button"
             tabIndex={0}
           >

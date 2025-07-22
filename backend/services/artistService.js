@@ -186,6 +186,43 @@ async function getAllSongs(artistUserId) {
   );
 }
 
+async function getArtistProfileById(userId) {
+  if (!mongoose.isValidObjectId(userId)) {
+    throw new Error('Invalid user ID');
+  }
+  const profile = await ArtistProfile.findOne({ userId })
+    .populate('userId', 'name email')
+    .populate('albums', 'title imageUrl')
+    .populate('songs', 'title audioUrl imageUrl duration');
+
+  if (!profile) {
+    throw new Error('Artist profile not found');
+  }
+  return profile;
+}
+
+async function updateArtistProfile(userId, data) {
+  if (!mongoose.isValidObjectId(userId)) {
+    throw new Error('Invalid user ID');
+  }
+  const allowed = ['bio', 'socialLinks.spotify', 'socialLinks.instagram', 'socialLinks.twitter', 'socialLinks.website'];
+  const updates = {};
+  Object.keys(data).forEach(key => {
+    if (allowed.includes(key)) {
+      updates[key] = data[key];
+    }
+  });
+  const updated = await ArtistProfile.findOneAndUpdate(
+    { userId },
+    { $set: updates },
+    { new: true }
+  );
+  if (!updated) {
+    throw new Error('Artist profile not found');
+  }
+  return updated;
+}
+
 module.exports = {
   submitArtistVerificationRequest,
   uploadSong,
@@ -193,4 +230,6 @@ module.exports = {
   deleteSong,
   getSongById,
   getAllSongs,
+  getArtistProfileById,
+  updateArtistProfile,
 };

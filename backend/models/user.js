@@ -72,6 +72,7 @@ const userSchema = new mongoose.Schema(
     subscribedUntil: { type: Date, default: null },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     followees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likedSongs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
 
     /* ───────── admin flags ───────── */
     isBlocked: { type: Boolean, default: false },

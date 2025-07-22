@@ -14,9 +14,21 @@ const getProfileInfo = async (req, res, next) => {
     next(err);
   }
 };
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await userService.getAllUsers();
+    res.status(200).json({
+      Message: "Users fetched",
+      Error: 0,
+      Data: users,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 const getMyProfile = async (req, res, next) => {
   try {
-    const id = req.user._id; // Extract user ID from route parameter
+    const id = req.user._id; 
     const data = await userService.getProfileInfo(id);
     res.status(200).json({
       Message: "Profile fetched",
@@ -82,6 +94,7 @@ const updateAccountInfo = async (req, res, next) => {
 };
 
 module.exports = {
+  getAllUsers,
   getProfileInfo,
   getFollowedArtists,
   updateProfileInfo,

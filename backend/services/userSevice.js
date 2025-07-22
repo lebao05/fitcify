@@ -6,20 +6,19 @@ const extractCloudinaryPublicId = require("../helpers/extractPublicId");
 /** ------------------------- PUBLIC API ------------------------- **/
 
 async function getProfileInfo(userId) {
-  const me = await User.findById(userId).lean();
-  if (!me) throw new Error("USER_NOT_FOUND");
+  const user = await User.findById(userId).lean();
+  if (!user) throw new Error("User not found");
 
-  const followedArtistCount = await User.countDocuments({
-    _id: { $in: me.followees },
-    role: "artist",
-  });
-
-  return {
-    username: me.username,
-    avatarUrl: me.avatarUrl,
-    followedArtistCount,
-  };
+  return user;
 }
+const getAllUsers = async () => {
+  try {
+    const users = await User.find().lean();
+    return users;
+  } catch (error) {
+    throw new Error("Failed to fetch users");
+  }
+};
 
 async function getFollowedArtists(userId) {
   const me = await User.findById(userId).select("followees");
@@ -71,20 +70,16 @@ async function updateProfileInfo(userId, { username }, file) {
   const me = await User.findByIdAndUpdate(userId, updates, {
     new: true,
     runValidators: true,
-    select: "username avatarUrl",
   });
 
-  if (!me) throw new Error("USER_NOT_FOUND");
+  if (!me) throw new Error("Use not found");
 
-  return {
-    username: me.username,
-    avatarUrl: me.avatarUrl,
-  };
+  return me;
 }
 
 async function deleteProfileAvatar(userId) {
   const user = await User.findById(userId).select("avatarUrl");
-  if (!user) throw new Error("USER_NOT_FOUND");
+  if (!user) throw new Error("Use not found");
 
   if (user.avatarUrl) {
     const id = extractCloudinaryPublicId(user.avatarUrl);
@@ -99,7 +94,7 @@ async function getAccountInfo(userId) {
   const me = await User.findById(userId).select(
     "username email gender dateOfBirth"
   );
-  if (!me) throw new Error("USER_NOT_FOUND");
+  if (!me) throw new Error("Use not found");
   return me;
 }
 
@@ -118,7 +113,7 @@ async function updateAccountInfo(userId, payload) {
       runValidators: true,
       select: "username email gender dateOfBirth",
     });
-    if (!me) throw new Error("USER_NOT_FOUND");
+    if (!me) throw new Error("Use not found");
     return me;
   } catch (err) {
     if (err.code === 11000) throw new Error("EMAIL_DUPLICATE");
@@ -127,6 +122,7 @@ async function updateAccountInfo(userId, payload) {
 }
 
 module.exports = {
+  getAllUsers,
   getProfileInfo,
   getFollowedArtists,
   updateProfileInfo,

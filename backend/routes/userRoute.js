@@ -8,7 +8,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 router.use(authMiddleware);
-
+router.get("/profile/all", userController.getAllUsers);
 router.get("/profile/:id", userController.getProfileInfo);
 router.get("/me", userController.getMyProfile);
 

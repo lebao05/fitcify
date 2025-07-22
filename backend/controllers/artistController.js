@@ -87,6 +87,20 @@ const deleteSong = async (req, res, next) => {
   }
 };
 
+const getAlbumById = async (req, res, next) => {
+  try {
+    const { albumId } = req.params;
+    const album = await artistService.getAlbumById(albumId);
+    res.status(200).json({
+      Message: "Get album by id successfully",
+      Error: 0,
+      Data: album,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getAlbumsByArtist = async (req, res, next) => {
   try {
     const artistUserId = req.user._id;
@@ -154,6 +168,20 @@ const updateAlbumMetadata = async (req, res, next) => {
       Message: "Album metadata updated successfully",
       Error: 0,
       Data: updated,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getPlaylistById = async (req, res, next) => {
+  try {
+    const { playlistId } = req.params;
+    const playlist = await artistService.getPlaylistById(playlistId);
+    res.status(200).json({
+      Message: "Get playlist by id successfully",
+      Error: 0,
+      Data: playlist,
     });
   } catch (err) {
     next(err);
@@ -245,8 +273,10 @@ module.exports = {
   deleteAlbum,
   updateAlbumMetadata,
   getAlbumsByArtist,
+  getAlbumById,
   getPlaylistsByArtist,
   createPlaylist,
   deletePlaylist,
   updatePlaylistMetadata,
+  getPlaylistById,
 };

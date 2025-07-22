@@ -24,6 +24,7 @@ router.patch(
 );
 
 router.get("/albums/me", isArtist, artistController.getAlbumsByArtist);
+router.get("/albums/:albumId", isArtist, artistController.getAlbumById);
 
 router.post(
   "/albums",
@@ -40,6 +41,7 @@ router.patch(
 );
 
 router.get("/playlists/me", isArtist, artistController.getPlaylistsByArtist);
+router.get("/playlists/:playlistId", isArtist, artistController.getPlaylistById);
 
 router.post(
   "/playlists",

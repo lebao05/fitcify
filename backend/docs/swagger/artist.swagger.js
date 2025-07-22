@@ -1,3 +1,35 @@
+/**
+ * @swagger
+ * /api/artist/playlists/{playlistId}:
+ *   get:
+ *     summary: Get playlist by id
+ *     tags: [Artist]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: playlistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Playlist id
+ *     responses:
+ *       200:
+ *         description: Playlist info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                 Error:
+ *                   type: integer
+ *                 Data:
+ *                   $ref: '#/components/schemas/Playlist'
+ *       404:
+ *         description: Playlist not found
+ */
   /**
    * @swagger
    * /api/artist/playlists/me:
@@ -145,6 +177,40 @@
    *       400:
    *         description: Bad request or unauthorized
    */
+
+/**
+ * @swagger
+ * /api/artist/albums/{albumId}:
+ *   get:
+ *     summary: Get album by id
+ *     tags: [Artist]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: albumId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Album id
+ *     responses:
+ *       200:
+ *         description: Album info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                 Error:
+ *                   type: integer
+ *                 Data:
+ *                   $ref: '#/components/schemas/Album'
+ *       404:
+ *         description: Album not found
+ */
+
  /**
  * @swagger
  * /api/artist/albums/me:

@@ -1,84 +1,109 @@
 import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
-import LibraryItem from "./LirbraryItem.jsx";
-const mockData = [
+import PlayplistBar from "./PlayplistBar.jsx";
+import ArtistBar from "./ArtistBar.jsx";
+import AlbumBar from "./AlbumBar.jsx";
+import LikedTrackBar from "./LikedTrackBar.jsx";
+
+const likedItem = {
+  cover: assets.liked_icon,
+  title: "Liked Songs",
+  subtitle: "Playlist • 108 songs",
+};
+
+const mockLibrary = [
   {
     id: 1,
-    cover: assets.liked_icon, // or any img URL
+    type: "playlist",
     title: "Liked Songs",
     subtitle: "Playlist • 108 songs",
+    cover: assets.liked_icon,
   },
   {
     id: 2,
+    type: "album",
+    title: "m-tp M-TP",
+    artist: "Sơn Tùng M‑TP",
     cover: "https://placehold.co/64x64",
-    title: "m‑tp M‑TP",
-    subtitle: "Album • Sơn Tùng M‑TP",
   },
   {
     id: 3,
-    cover: "", // empty = fallback icon
+    type: "playlist",
     title: "My Playlist #9",
     subtitle: "Playlist • Giabaoap",
+    cover: "",
   },
-  // …more items
+  {
+    id: 4,
+    type: "artist",
+    name: "SOOBIN",
+    avatar: "https://link-to-artist-avatar.jpg",
+  },
+  {
+    id: 5,
+    type: "artist",
+    name: "Sơn Tùng M‑TP",
+    avatar:
+      "https://pm1.narvii.com/6377/305a5e5165217c3b232c973a53bd1e057aea6855_hq.jpg",
+  },
 ];
+
 const Sidebar = () => {
   const navigate = useNavigate();
+
   return (
-    <div className="w-[25%] h-full min-w-[250px] p-2 flex-col gap-2 text-white lg:flex">
-      <div className="bg-[#121212] h-[15%] rounded flex flex-col justify-around">
-        <div
-          onClick={() => navigate("/")}
-          className="flex items-center gap-3 pl-8 cursor-pointer"
-        >
-          <img className="w-6" src={assets.home_icon} alt="" />
-          <p className="font-b old">Home</p>
-        </div>
-        <div className="flex items-center gap-3 pl-8 cursor-pointer">
-          <img className="w-6" src={assets.search_icon} alt="" />
-          <p className="font-b old">Search</p>
-        </div>
-      </div>
-      <div className="bg-[#121212] h-[85%] rounded">
+    <div className="w-[25%] mt-14 min-w-[250px] h-full flex flex-col p-2 gap-2 text-white bg-black">
+      {/* Top Nav Section */}
+
+      {/* Library Section */}
+      <div className="bg-[#121212] flex-1 rounded flex flex-col overflow-hidden">
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img className="w-8" src={assets.stack_icon} alt="stack_icon" />
-            <p className="font-semibold">Your Libary</p>
+            <p className="font-semibold">Your Library</p>
           </div>
-          <div className="flex items-center gap-3">
-            <img className="w-5" src={assets.plus_icon} alt="plus_icon" />
-          </div>
-        </div>{" "}
-        {mockData.length === 0 && (
-          <>
-            <div className="p-4 bg-[#242424] m-2 rounded font-semibold flex flex-col items-start justify-start gap-1 pl-4">
-              <h1>Create Your first playlist</h1>
-              <p className="font-light">it's easy we will help you</p>
-              <button className="px-4 py-1.5 bg-white text-[15px] text-black rounded-full mt-4">
-                Create Playlist
-              </button>
-            </div>
-            <div className="p-4 bg-[#242424] m-2 rounded font-semibold flex flex-col items-start justify-start gap-1 pl-4 mt-4">
-              <h1>Let's find some podcasts to follow</h1>
-              <p className="font-light">
-                We'll keep you updated on new episodes
-              </p>
-              <button className="px-4 py-1.5 bg-white text-[15px] text-black rounded-full mt-4">
-                Browse podcasts
-              </button>
-            </div>
-          </>
-        )}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-1">
-          {mockData.map((item) => (
-            <LibraryItem
-              key={item.id}
-              cover={item.cover}
-              title={item.title}
-              subtitle={item.subtitle}
-              onClick={() => console.log("clicked", item.title)}
-            />
-          ))}
+          <img className="w-5 cursor-pointer" src={assets.plus_icon} alt="plus_icon" />
+        </div>
+
+        <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover">
+          <LikedTrackBar
+            cover={likedItem.cover}
+            title={likedItem.title}
+            subtitle={likedItem.subtitle}
+            onClick={() => console.log("Liked Songs clicked")}
+          />
+          {mockLibrary.map((item) => {
+            if (item.type === "playlist") {
+              return (
+                <PlayplistBar
+                  key={item.id}
+                  cover={item.cover}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  onClick={() => console.log("Playlist clicked", item.title)}
+                />
+              );
+            } else if (item.type === "artist") {
+              return (
+                <ArtistBar
+                  key={item.id}
+                  avatar={item.avatar}
+                  name={item.name}
+                  onClick={() => console.log("Artist clicked", item.name)}
+                />
+              );
+            } else if (item.type === "album") {
+              return (
+                <AlbumBar
+                  key={item.id}
+                  cover={item.cover}
+                  title={item.title}
+                  artist={item.artist}
+                  onClick={() => console.log("Album clicked", item.title)}
+                />
+              );
+            } else return null;
+          })}
         </div>
       </div>
     </div>

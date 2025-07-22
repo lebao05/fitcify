@@ -4,6 +4,8 @@ import "./LoginPage.scss";
 import { loginWithPassword } from "../../redux/slices/userSlice";
 import { sendLoginOtp } from "../../services/authApi";
 import { useDispatch } from "react-redux";
+import logo from "../../assets/applogo.jpg"; // Adjust path as needed
+import { getGoogleOAuthUrl, getFacebookOAuthUrl } from "../../services/authApi";
 // Utility to read query params
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -72,16 +74,28 @@ export default function SpotifyLogin({ email, setEmail }) {
   };
 
   const handleLoginWithGoogle = () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = getGoogleOAuthUrl(
+      "http://localhost:5173",
+      "http://localhost:5173/login"
+    );
   };
 
   const handleLoginWithFacebook = () => {
-    window.location.href = "http://localhost:5000/api/auth/facebook";
+    window.location.href = getFacebookOAuthUrl(
+      "http://localhost:5173",
+      "http://localhost:5173/login"
+    );
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
+        <img
+          src={logo}
+          alt="Fitcify Logo"
+          className="fitcify-logo"
+          onClick={() => (window.location.href = "/")}
+        />
         <div className="title">Log in to Fitcify</div>
 
         <div className="login-with">
@@ -184,7 +198,7 @@ export default function SpotifyLogin({ email, setEmail }) {
 
           <div
             className="forgot-password"
-            onClick={() => console.log("Navigate to forgot password")}
+            onClick={() => navigate("/forgot-password")}
             role="button"
             tabIndex={0}
           >

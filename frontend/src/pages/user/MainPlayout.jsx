@@ -12,7 +12,7 @@ const MainPlayout = () => {
           <Sidebar />
           <Display></Display>
         </div>
-      </div>
+      </div>{" "}
     </div>
   );
 };

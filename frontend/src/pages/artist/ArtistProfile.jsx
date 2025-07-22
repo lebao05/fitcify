@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import testImg from '../../assets/test.jpg';
-import edImg from '../../assets/edsheeran.jpg';
+import testImg from "../../assets/test.jpg";
+import edImg from "../../assets/edsheeran.jpg";
 import PlayButton from "../../components/user/PlayButton";
 import TrackItem from "../../components/user/TrackItem";
 import SectionHeader from "../../components/user/SectionHeader";
@@ -114,7 +114,6 @@ const playlists = [
   },
 ];
 
-
 const discographyTabs = [
   { label: "Popular releases", value: "popular" },
   { label: "Albums", value: "album" },
@@ -129,7 +128,7 @@ const ArtistProfile = ({ artist, isOwner }) => {
       <div className="artist-profile-header">
         <img
           className="artist-profile-header__bg"
-          src= {edImg}
+          src={edImg}
           alt="Artist background"
         />
         <div className="artist-profile-header__content">
@@ -154,7 +153,7 @@ const ArtistProfile = ({ artist, isOwner }) => {
       </div>
       <div className="artist-profile-actions">
         {isOwner ? (
-          <ArtistHorizontalDots artist={artist}/>
+          <ArtistHorizontalDots artist={artist} />
         ) : (
           <>
             <PlayButton onClick={() => {}} />
@@ -178,7 +177,11 @@ const ArtistProfile = ({ artist, isOwner }) => {
           {discographyTabs.map((tab) => (
             <button
               key={tab.value}
-              className={`artist-profile-discography__tab${activeTab === tab.value ? " artist-profile-discography__tab--active" : ""}`}
+              className={`artist-profile-discography__tab${
+                activeTab === tab.value
+                  ? " artist-profile-discography__tab--active"
+                  : ""
+              }`}
               onClick={() => setActiveTab(tab.value)}
               type="button"
             >
@@ -187,26 +190,25 @@ const ArtistProfile = ({ artist, isOwner }) => {
           ))}
         </div>
         <div className="artist-profile-discography__grid">
-          {activeTab === "popular" && [
-            ...playlists.map((p) => ({ ...p, isPlaylist: true })),
-            ...albums.map((a) => ({ ...a, isPlaylist: false })),
-          ].map((item) =>
-            item.isPlaylist ? (
-              <PlaylistCard key={item.name} playlist={item} />
-            ) : (
-              <AlbumCard key={item.name} album={item} />
-            )
-          )}
-          {activeTab === "album" && albums
-            .filter((a) => a.type === "Album")
-            .map((item) => (
-              <AlbumCard key={item.name} album={item} />
-            ))}
-          {activeTab === "single" && albums
-            .filter((a) => a.type === "Single")
-            .map((item) => (
-              <AlbumCard key={item.name} album={item} />
-            ))}
+          {activeTab === "popular" &&
+            [
+              ...playlists.map((p) => ({ ...p, isPlaylist: true })),
+              ...albums.map((a) => ({ ...a, isPlaylist: false })),
+            ].map((item) =>
+              item.isPlaylist ? (
+                <PlaylistCard key={item.name} playlist={item} />
+              ) : (
+                <AlbumCard key={item.name} album={item} />
+              )
+            )}
+          {activeTab === "album" &&
+            albums
+              .filter((a) => a.type === "Album")
+              .map((item) => <AlbumCard key={item.name} album={item} />)}
+          {activeTab === "single" &&
+            albums
+              .filter((a) => a.type === "Single")
+              .map((item) => <AlbumCard key={item.name} album={item} />)}
         </div>
       </div>
 
@@ -221,14 +223,20 @@ const ArtistProfile = ({ artist, isOwner }) => {
           />
           <div className="artist-profile-about__badge">
             <span className="artist-profile-about__badge-rank">#4</span>
-            <span className="artist-profile-about__badge-label">in the world</span>
+            <span className="artist-profile-about__badge-label">
+              in the world
+            </span>
           </div>
           <div className="artist-profile-about__info">
             <div className="artist-profile-about__listeners">
               <b>98,762,221 monthly listeners</b>
             </div>
             <div className="artist-profile-about__desc">
-              Idiosyncratic pop singer Ed Sheeran borrows from any style that crosses his path, molding genres to fit a musical character all his own that's charming, personable, and popular on a global scale. Elements of folk, hip-hop, pop, dance, soul, and rock shape his music.
+              Idiosyncratic pop singer Ed Sheeran borrows from any style that
+              crosses his path, molding genres to fit a musical character all
+              his own that's charming, personable, and popular on a global
+              scale. Elements of folk, hip-hop, pop, dance, soul, and rock shape
+              his music.
             </div>
           </div>
         </div>

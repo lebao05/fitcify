@@ -51,15 +51,19 @@ export const changePassword = async (email, newPassword) => {
 };
 
 /* ───── OAuth URLs ───── */
-export const getGoogleOAuthUrl = (redirectUrl) =>
-  `${axiosInstance.defaults.baseURL}/auth/google?redirect=${encodeURIComponent(
-    redirectUrl
-  )}`;
+// utils/oauth.js
 
-export const getFacebookOAuthUrl = (redirectUrl) =>
-  `${
-    axiosInstance.defaults.baseURL
-  }/auth/facebook?redirect=${encodeURIComponent(redirectUrl)}`;
+export const getGoogleOAuthUrl = (redirectUrl, failureUrl) => {
+  const red = encodeURIComponent(btoa(redirectUrl));
+  const fail = encodeURIComponent(btoa(failureUrl));
+  return `${axiosInstance.defaults.baseURL}/auth/google?redirect=${red}&fail=${fail}`;
+};
+
+export const getFacebookOAuthUrl = (redirectUrl, failureUrl) => {
+  const red = encodeURIComponent(btoa(redirectUrl));
+  const fail = encodeURIComponent(btoa(failureUrl));
+  return `${axiosInstance.defaults.baseURL}/auth/facebook?redirect=${red}&fail=${fail}`;
+};
 
 /* ───── Protected ───── */
 export const getMe = async () => {

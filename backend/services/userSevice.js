@@ -6,22 +6,19 @@ const extractCloudinaryPublicId = require("../helpers/extractPublicId");
 /** ------------------------- PUBLIC API ------------------------- **/
 
 async function getProfileInfo(userId) {
-  const me = await User.findById(userId)
-    .select("username avatarUrl followees")
-    .lean();
-  if (!me) throw new Error("USER_NOT_FOUND");
+  const user = await User.findById(userId).lean();
+  if (!user) throw new Error("User not found");
 
-  const followedArtistCount = await User.countDocuments({
-    _id: { $in: me.followees },
-    role: "artist",
-  });
-
-  return {
-    username: me.username,
-    avatarUrl: me.avatarUrl,
-    followedArtistCount,
-  };
+  return user;
 }
+const getAllUsers = async () => {
+  try {
+    const users = await User.find().lean();
+    return users;
+  } catch (error) {
+    throw new Error("Failed to fetch users");
+  }
+};
 
 async function getFollowedArtists(userId) {
   const me = await User.findById(userId).select("followees");
@@ -35,43 +32,54 @@ async function getFollowedArtists(userId) {
 
 async function updateProfileInfo(userId, { username }, file) {
   const updates = {};
+
   if (username?.trim()) updates.username = username.trim();
 
   /* ---------- avatar upload logic ---------- */
   if (file) {
-    // 1️⃣ Upload to Cloudinary – the helper already deletes the temp file.
+    // Fetch the old avatar URL first before uploading
+    const user = await User.findById(userId).select("avatarUrl");
+    const oldUrl = user?.avatarUrl;
+
+    // Upload new avatar to Cloudinary
     const { secure_url, public_id } = await uploadToCloudinary(
       file.path,
       "avatars"
     );
 
-    // 2️⃣ Delete the previous avatar in Cloudinary (if any).
-    const { avatarUrl: oldUrl } = await User.findById(userId).select(
-      "avatarUrl"
-    );
+    // Delete old image from Cloudinary if it exists and is different
     if (oldUrl) {
       const oldId = extractCloudinaryPublicId(oldUrl);
-      if (oldId && oldId !== public_id)
-        await cloudinary.uploader.destroy(oldId, { invalidate: true });
+      if (oldId && oldId !== public_id) {
+        try {
+          await cloudinary.uploader.destroy(oldId, { invalidate: true });
+        } catch (error) {
+          console.warn(
+            "⚠️ Failed to destroy old avatar:",
+            oldId,
+            error.message
+          );
+        }
+      }
     }
 
     updates.avatarUrl = secure_url;
   }
 
-  /* ---------- save ---------- */
+  /* ---------- update user ---------- */
   const me = await User.findByIdAndUpdate(userId, updates, {
     new: true,
     runValidators: true,
-    select: "username avatarUrl",
   });
-  if (!me) throw new Error("USER_NOT_FOUND");
 
-  return { username: me.username, avatarUrl: me.avatarUrl };
+  if (!me) throw new Error("Use not found");
+
+  return me;
 }
 
 async function deleteProfileAvatar(userId) {
   const user = await User.findById(userId).select("avatarUrl");
-  if (!user) throw new Error("USER_NOT_FOUND");
+  if (!user) throw new Error("Use not found");
 
   if (user.avatarUrl) {
     const id = extractCloudinaryPublicId(user.avatarUrl);
@@ -86,7 +94,7 @@ async function getAccountInfo(userId) {
   const me = await User.findById(userId).select(
     "username email gender dateOfBirth"
   );
-  if (!me) throw new Error("USER_NOT_FOUND");
+  if (!me) throw new Error("Use not found");
   return me;
 }
 
@@ -105,7 +113,7 @@ async function updateAccountInfo(userId, payload) {
       runValidators: true,
       select: "username email gender dateOfBirth",
     });
-    if (!me) throw new Error("USER_NOT_FOUND");
+    if (!me) throw new Error("Use not found");
     return me;
   } catch (err) {
     if (err.code === 11000) throw new Error("EMAIL_DUPLICATE");
@@ -114,6 +122,7 @@ async function updateAccountInfo(userId, payload) {
 }
 
 module.exports = {
+  getAllUsers,
   getProfileInfo,
   getFollowedArtists,
   updateProfileInfo,

@@ -252,10 +252,8 @@ $hover-scale: 1.04;
         border-radius: 50%;
         @include flex-center;
         color: $white;
-        font-size: 12px;
-        font-weight: 600;
         transition: all 0.2s ease;
-
+        
         &:hover {
           background-color: $light-gray;
         }

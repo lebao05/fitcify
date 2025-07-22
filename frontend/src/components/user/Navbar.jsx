@@ -5,7 +5,7 @@ const Navbar = () => {
   const naviagte = useNavigate();
   return (
     <>
-      <div className="w-full flex justify-between items-center font-semibold">
+      <div className="w-full mt-6 flex justify-between items-center font-semibold">
         <div className="flex items-center gap-2">
           <img
             className="w-8 bg-black p-2 rounded-2xl cursor-pointer"

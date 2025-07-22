@@ -4,6 +4,7 @@ import "./SignupStep1.scss";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setPassword as setPasswordAction } from "../../redux/slices/signupSlice";
+import logo from "../../assets/applogo.jpg";
 
 export default function SignupStep1() {
   const password = useSelector((state) => state.signup.password);

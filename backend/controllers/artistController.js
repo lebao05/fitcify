@@ -149,6 +149,46 @@ const deleteAlbum = async (req, res, next) => {
     next(err);
   }
 };
+async function getMyProfileById(req, res, next) {
+  try {
+    const profile = await artistService.getArtistProfileById(req.user._id);
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Profile fetched", Data: profile });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function editMyProfile(req, res, next) {
+  try {
+    const payload = {};
+    if (req.body.bio !== undefined) payload.bio = req.body.bio;
+    if (req.body.socialLinks !== undefined)
+      payload["socialLinks"] = req.body.socialLinks;
+    const updated = await artistService.updateArtistProfile(
+      req.user._id,
+      payload
+    );
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Profile updated", Data: updated });
+  } catch (err) {
+    next(err);
+  }
+}
+const getSongById = async (req, res, next) => {
+  try {
+    const result = await artistService.getSongById(req.params.id, req.user._id);
+    res.status(200).json({
+      Message: "Song fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const updateAlbumMetadata = async (req, res, next) => {
   try {
@@ -239,6 +279,18 @@ const deletePlaylist = async (req, res, next) => {
     next(err);
   }
 };
+const getAllSongs = async (req, res, next) => {
+  try {
+    const result = await artistService.getAllSongs(req.user._id);
+    res.status(200).json({
+      Message: "All songs fetched successfully",
+      Error: 0,
+      Data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const updatePlaylistMetadata = async (req, res, next) => {
   try {
@@ -263,7 +315,6 @@ const updatePlaylistMetadata = async (req, res, next) => {
   }
 };
 
-
 module.exports = {
   submitArtistVerification,
   uploadSong,
@@ -279,4 +330,8 @@ module.exports = {
   deletePlaylist,
   updatePlaylistMetadata,
   getPlaylistById,
+  getMyProfileById,
+  editMyProfile,
+  getSongById,
+  getAllSongs,
 };

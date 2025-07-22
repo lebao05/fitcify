@@ -23,7 +23,43 @@ router.patch(
   artistController.updateSong
 );
 
+router.get("/albums/me", isArtist, artistController.getAlbumsByArtist);
+router.get("/albums/:albumId", isArtist, artistController.getAlbumById);
+
+router.post(
+  "/albums",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.createAlbum
+);
+
+router.patch(
+  "/albums/:albumId",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.updateAlbumMetadata
+);
+
+router.get("/playlists/me", isArtist, artistController.getPlaylistsByArtist);
+router.get("/playlists/:playlistId", isArtist, artistController.getPlaylistById);
+
+router.post(
+  "/playlists",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.createPlaylist
+);
+
+router.patch(
+  "/playlists/:playlistId",
+  isArtist,
+  upload.fields([{ name: "coverImage", maxCount: 1 }]),
+  artistController.updatePlaylistMetadata
+);
+
 router.delete("/songs/:songId",isArtist, artistController.deleteSong);
+router.delete("/albums/:albumId", isArtist, artistController.deleteAlbum);
+router.delete("/playlists/:playlistId", isArtist, artistController.deletePlaylist);
 router.get("/songs", isArtist, artistController.getAllSongs);
 router.get("/songs/:id", isArtist, artistController.getSongById);
 

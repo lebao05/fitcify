@@ -8,7 +8,6 @@ import UserProfile from "../../pages/user/UserProfile";
 import DisplayPlaylist from "./DisplayPlayplist";
 import SearchResult from "./SearchPage";
 import AudioPlayer from "./AudioPlayer";
-
 const Display = () => {
   const displayRef = useRef();
   const location = useLocation();

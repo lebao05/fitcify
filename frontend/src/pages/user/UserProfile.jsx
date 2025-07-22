@@ -9,8 +9,9 @@ import PlaylistCard from "../../components/user/PlaylistCard.jsx";
 import ProfileFooter from "../../components/user/ProfileFooter.jsx";
 import EditProfileDialog from "../../components/user/EditProfileDialog.jsx"; // ✅ new import
 import "./UserProfile.scss";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { fetchCurrentProfileById } from "../../redux/slices/userSlice.js";
 
 const UserProfile = () => {
   const [playingArtistId, setPlayingArtistId] = useState(null);
@@ -20,14 +21,18 @@ const UserProfile = () => {
   const artistContainerRef = useRef();
   const playlistContainerRef = useRef();
   const { id } = useParams();
-
+  const ditpatch = useDispatch();
   const CARD_WIDTH = 180;
   const GAP = 16;
   const handleToggleEditModal = () => {
     setShowEditModal((prev) => !prev);
   };
-  const user = useSelector((state) => state.user.user);
-
+  const myAuth = useSelector((state) => state.user.myAuth);
+  const user = useSelector((state) => state.user.currentProfile);
+  useEffect(() => {
+    if(id)
+      ditpatch(fetchCurrentProfileById(id));
+  }, [id, fetchCurrentProfileById]);
   useEffect(() => {
     const calcVisible = () => {
       if (artistContainerRef.current) {
@@ -46,7 +51,6 @@ const UserProfile = () => {
     window.addEventListener("resize", calcVisible);
     return () => window.removeEventListener("resize", calcVisible);
   }, []);
-
   const topArtists = [
     { id: 1, name: "SOOBIN", image: testImg, type: "Artist" },
     { id: 2, name: "Sơn Tùng M-TP", image: testImg, type: "Artist" },
@@ -131,7 +135,8 @@ const UserProfile = () => {
       }))
     );
   };
-
+  if( user === null)
+    return null
   return (
     <div className="user-profile-content pb-10 h-full w-[75%] overflow-y-auto">
       <ProfileHeader user={user} onEditClick={handleToggleEditModal} />

@@ -1,7 +1,9 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./ArtistSidebar.scss";
-
+import { useSelector } from "react-redux";
+import defaultAvatar from "../../assets/unknown.jpg";
+import logo from "../../assets/applogo.jpg";
 const menu = [
   {
     label: "Dashboard",
@@ -93,6 +95,7 @@ const menu = [
 ];
 
 const ArtistSidebar = () => {
+  const myAuth = useSelector((state) => state.user.myAuth);
   const navigate = useNavigate();
   const location = useLocation();
   const active = location.pathname;
@@ -104,20 +107,15 @@ const ArtistSidebar = () => {
       <div className="artist-sidebar__header">
         <div className="artist-sidebar__logo">
           <span className="artist-sidebar__logo-circle">
-            <svg width="28" height="28" viewBox="0 0 32 32">
-              <rect width="32" height="32" rx="8" fill="#1ED760" />
-              <path
-                d="M10 16l4 4 8-8"
-                stroke="#fff"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <img
+              src={logo}
+              alt="Fitcify"
+              className="w-10 h-10 rounded-full shadow-md"
+            />
           </span>
           <div>
             <div className="artist-sidebar__logo-title">Artist Panel</div>
-            <div className="artist-sidebar__logo-desc">Spotify for Artists</div>
+            <div className="artist-sidebar__logo-desc">Fitcify for Artists</div>
           </div>
         </div>
       </div>
@@ -147,16 +145,16 @@ const ArtistSidebar = () => {
         <div className="artist-sidebar__user" tabIndex={0}>
           <img
             className="artist-sidebar__user-avatar"
-            src="https://i.pravatar.cc/150?img=12"
+            src={myAuth.avatarUrl || defaultAvatar}
             alt="User avatar"
           />
-          <span className="artist-sidebar__user-name">Dua Saleh</span>
+          <span className="artist-sidebar__user-name">{myAuth.username}</span>
           <div className="artist-sidebar__user-dialog">
             <button
               className="artist-sidebar__logout-btn"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/")}
             >
-              Log out
+              Home
             </button>
           </div>
         </div>

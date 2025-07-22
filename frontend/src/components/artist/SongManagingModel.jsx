@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-const UploadSongForm = ({ onUpload, onCancel }) => {
-  const isLoading = useSelector((state) => state.artistSong.loading);
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
+const SongManagingModal = ({ onUpload, onCancel }) => {
   const [file, setFile] = useState(null);
   const [cover, setCover] = useState(null);
   const [title, setTitle] = useState("");
@@ -10,23 +10,27 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
   const [date, setDate] = useState("");
   const [desc, setDesc] = useState("");
   const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const song = useSelector((state) => state.artistSong.selectedSong);
   const handleFile = (e) => setFile(e.target.files[0]);
   const handleCover = (e) => setCover(e.target.files[0]);
-  const handleUploading = async (e) => {
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!file || !title) {
+    if (!file || !title || !genre || !date) {
       setError("Please fill in all required fields and select an audio file.");
       return;
     }
     setError("");
-    const data = { title, audioFile: file, imageFile: cover };
-    if (onUpload) await onUpload(data);
+    onUpload && onUpload({ file, cover, title, genre, album, date, desc });
   };
-
+  useEffect((e) => {
+    if (song) {
+      setTitle(song.title);
+    }
+  }, []);
   return (
     <form
-      onSubmit={handleUploading}
+      onSubmit={handleSubmit}
       className="flex flex-col gap-5 w-full max-w-lg text-white"
     >
       <h2 className="flex items-center gap-2 text-2xl font-bold mb-2">
@@ -43,7 +47,7 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
           <path d="M12 19V5M12 5l-5 5M12 5l5 5" />
           <rect x="3" y="19" width="18" height="2" rx="1" fill="white" />
         </svg>
-        Upload New Song
+        Moderate Song
       </h2>
 
       <div>
@@ -122,9 +126,9 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
           required
           className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
         />
-      </div> */}
+      </div>
 
-      {/* <div>
+      <div>
         <label className="font-medium mb-1 block">Description (Optional)</label>
         <textarea
           value={desc}
@@ -140,40 +144,10 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
       <div className="flex gap-4 mt-2">
         <button
           type="submit"
-          disabled={isLoading}
-          className={`flex items-center justify-center gap-2 bg-[#1db954] hover:bg-[#169d45] text-white rounded-md px-6 py-2 font-semibold ${
-            isLoading ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          className="bg-[#1db954] hover:bg-[#169d45] text-white rounded-md px-6 py-2 font-semibold"
         >
-          {isLoading ? (
-            <>
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                ></path>
-              </svg>
-              Uploading...
-            </>
-          ) : (
-            "Upload Song"
-          )}
+          Update
         </button>
-
         <button
           type="button"
           onClick={onCancel}
@@ -186,4 +160,4 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
   );
 };
 
-export default UploadSongForm;
+export default SongManagingModal;

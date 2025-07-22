@@ -4,8 +4,14 @@ import {
   login,
   logout as logoutApi,
   verifyLoginOtp,
-} from "../../services/authApi"; // adjust if your file path is different
-import { getMyProfile, updateProfileInfo } from "../../services/userApi"; // Import user profile service
+} from "../../services/authApi";
+
+import {
+  getMyProfile,
+  updateProfileInfo,
+  getUserProfileById,
+} from "../../services/userApi";
+
 // ───── REGISTER ─────
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -20,21 +26,39 @@ export const registerUser = createAsyncThunk(
     }
   }
 );
+
+// ───── FETCH AUTHENTICATED USER ─────
 export const fetchUserFromCookie = createAsyncThunk(
   "user/fetchUserFromCookie",
   async (_, thunkAPI) => {
     try {
-      const res = await getMyProfile(); // must return { Data: { user } }
-      console.log("Fetched user from cookie:", res);
+      const res = await getMyProfile(); 
       return res.Data;
-    } catch (err) {
-      console.error("Error fetching user from cookie:", err);
+    } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "Not authenticated"
       );
     }
   }
 );
+
+// ───── FETCH PROFILE BY ID (viewer) ─────
+export const fetchCurrentProfileById = createAsyncThunk(
+  "user/fetchCurrentProfileById",
+  async (userId, thunkAPI) => {
+    try {
+      console.log("Fetching profile for userId:", userId);
+      const res = await getUserProfileById(userId);
+      return res.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Failed to fetch profile"
+      );
+    }
+  }
+);
+
+// ───── UPDATE PROFILE ─────
 export const updateUserProfile = createAsyncThunk(
   "user/updateUserProfile",
   async ({ username, avatarFile }, thunkAPI) => {
@@ -42,13 +66,12 @@ export const updateUserProfile = createAsyncThunk(
       const formData = new FormData();
       formData.append("username", username);
       if (avatarFile) {
-        formData.append("avatar", avatarFile); // 🔁 must match multer field name
+        formData.append("avatar", avatarFile); // Must match multer field
       }
-
       const response = await updateProfileInfo(formData);
       return response.Data;
     } catch (error) {
-      console.error("Error updating user profile:", error);
+      console.error("Update profile error:", error);
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "Profile update failed"
       );
@@ -56,7 +79,7 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
-// ───── LOGIN WITH PASSWORD ─────
+// ───── LOGIN ─────
 export const loginWithPassword = createAsyncThunk(
   "user/loginWithPassword",
   async ({ email, password }, thunkAPI) => {
@@ -71,7 +94,6 @@ export const loginWithPassword = createAsyncThunk(
   }
 );
 
-// ───── LOGIN WITH OTP ─────
 export const loginWithOtp = createAsyncThunk(
   "user/loginWithOtp",
   async ({ email, otp }, thunkAPI) => {
@@ -79,7 +101,6 @@ export const loginWithOtp = createAsyncThunk(
       const response = await verifyLoginOtp({ email, otp });
       return response.Data.user;
     } catch (error) {
-      console.error("Error in loginWithOtp:", error);
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "OTP login failed"
       );
@@ -104,10 +125,11 @@ export const logoutUserThunk = createAsyncThunk(
 
 // ───── INITIAL STATE ─────
 const initialState = {
-  user: null,
+  myAuth: null, // authenticated user's profile
+  currentProfile: null, // profile being viewed
   loading: false,
   error: null,
-  isInitialized: false, // Track if user data is initialized
+  isInitialized: false,
 };
 
 // ───── SLICE ─────
@@ -116,18 +138,19 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     logoutUser: (state) => {
-      state.user = null;
+      state.myAuth = null;
+      state.currentProfile = null;
+      state.isInitialized = false;
     },
   },
   extraReducers: (builder) => {
     builder
-      // ───── REGISTER ─────
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.myAuth = action.payload;
         state.loading = false;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -135,68 +158,81 @@ const userSlice = createSlice({
         state.loading = false;
       })
 
-      // ───── LOGIN WITH PASSWORD ─────
+      .addCase(loginWithPassword.fulfilled, (state, action) => {
+        state.myAuth = action.payload;
+        state.loading = false;
+      })
       .addCase(loginWithPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(loginWithPassword.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
       })
       .addCase(loginWithPassword.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       })
 
-      // ───── LOGIN WITH OTP ─────
+      .addCase(loginWithOtp.fulfilled, (state, action) => {
+        state.myAuth = action.payload;
+        state.loading = false;
+      })
       .addCase(loginWithOtp.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(loginWithOtp.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
       })
       .addCase(loginWithOtp.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       })
 
-      // ───── LOGOUT ─────
-      .addCase(logoutUserThunk.fulfilled, (state) => {
-        state.user = null;
+      .addCase(fetchUserFromCookie.fulfilled, (state, action) => {
+        state.myAuth = action.payload;
         state.loading = false;
-      })
-      .addCase(logoutUserThunk.rejected, (state, action) => {
-        state.error = action.payload;
-        state.loading = false;
+        state.isInitialized = true;
       })
       .addCase(fetchUserFromCookie.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchUserFromCookie.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
-        state.isInitialized = true; // ✅ done loading
-      })
       .addCase(fetchUserFromCookie.rejected, (state, action) => {
-        state.user = null;
+        state.myAuth = null;
         state.error = action.payload;
         state.loading = false;
-        state.isInitialized = true; // ✅ done loading
+        state.isInitialized = true;
       })
-      // ───── UPDATE USER PROFILE ─────
+
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.myAuth = action.payload;
+        state.loading = false;
+      })
       .addCase(updateUserProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateUserProfile.fulfilled, (state, action) => {
-        state.user = action.payload; // updated user
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.error = action.payload;
         state.loading = false;
       })
-      .addCase(updateUserProfile.rejected, (state, action) => {
+
+      .addCase(fetchCurrentProfileById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentProfileById.fulfilled, (state, action) => {
+        state.currentProfile = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchCurrentProfileById.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      .addCase(logoutUserThunk.fulfilled, (state) => {
+        state.myAuth = null;
+        state.currentProfile = null;
+        state.isInitialized = false;
+        state.loading = false;
+      })
+      .addCase(logoutUserThunk.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

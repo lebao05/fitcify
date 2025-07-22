@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./HorizontalDots.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUserProfile } from "../../redux/slices/userSlice";
+import { fetchCurrentProfileById, fetchUserFromCookie, updateUserProfile } from "../../redux/slices/userSlice";
 import defaultAvatar from "../../assets/unknown.jpg"; // fallback image
 
 const EditProfileDialog = ({ user, open, onClose }) => {
@@ -55,6 +55,11 @@ const EditProfileDialog = ({ user, open, onClose }) => {
   const handleSave = async () => {
     try {
       await dispatch(updateUserProfile({ username: name, avatarFile })).unwrap();
+      await dispatch(fetchCurrentProfileById(user._id));
+      if(user.avatarUrl !== "" && user.avatarRl !== null)
+        setAvatar(user.avatarUrl);
+      else 
+        setAvatar(defaultAvatar);
       onClose();
     } catch (err) {
       setError(err || "Failed to update profile.");

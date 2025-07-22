@@ -11,7 +11,7 @@ const HeaderBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.user.myAuth);
   const isLoggedIn = Boolean(user);
 
   const toggleNav = () => setNavOpen(!navOpen);
@@ -116,7 +116,7 @@ const HeaderBar = () => {
                   <img
                     src={user.avatarUrl || appLogo}
                     alt="User Profile"
-                    className= "cursor-pointer rounded-full w-7 h-7 object-cover"
+                    className="cursor-pointer rounded-full w-7 h-7 object-cover"
                   />
                 </button>
                 <div
@@ -130,7 +130,7 @@ const HeaderBar = () => {
                     Account
                   </button>
                   <button
-                    onClick={() => navigate("/profile")}
+                    onClick={() => navigate(`/profile/${user._id}`)}
                     className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"
                   >
                     Profile
@@ -138,6 +138,14 @@ const HeaderBar = () => {
                   <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
                     Upgrade to Premium
                   </button>
+                  {user.role === "artist" && (
+                    <button
+                      onClick={() => navigate("/artist")}
+                      className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"
+                    >
+                      For Artist
+                    </button>
+                  )}
                   <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
                     Support
                   </button>

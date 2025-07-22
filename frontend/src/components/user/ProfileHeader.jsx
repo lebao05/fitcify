@@ -2,6 +2,7 @@ import "./ProfileHeader.scss";
 import image from "../../assets/unknown.jpg";
 
 const ProfileHeader = ({ user, onEditClick }) => {
+  console.log("ProfileHeader user:", user);
   return (
     <div>
       <div className="profile-header">

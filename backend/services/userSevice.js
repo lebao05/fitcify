@@ -120,7 +120,58 @@ async function updateAccountInfo(userId, payload) {
     throw err;
   }
 }
+const followArtist = async (userId, artistId) => {
+  if (!mongoose.isValidObjectId(artistId)) {
+    const err = new Error('Invalid artist id');
+    err.status = 400;
+    throw err;
+  }
 
+  const artist = await User.findById(artistId).select('role');
+  if (!artist || artist.role !== 'artist') {
+    const err = new Error('Target user is not an artist');
+    err.status = 404;
+    throw err;
+  }
+
+  const [me, him] = await Promise.all([
+    User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { followees: artistId } },
+      { new: true, select: '_id followees' }
+    ),
+    User.findByIdAndUpdate(
+      artistId,
+      { $addToSet: { followers: userId } },
+      { new: true, select: '_id followers' }
+    ),
+  ]);
+
+  return { userId: me._id, followees: me.followees };
+};
+
+const unfollowArtist = async (userId, artistId) => {
+  if (!mongoose.isValidObjectId(artistId)) {
+    const err = new Error('Invalid artist id');
+    err.status = 400;
+    throw err;
+  }
+
+  const [me, him] = await Promise.all([
+    User.findByIdAndUpdate(
+      userId,
+      { $pull: { followees: artistId } },
+      { new: true, select: '_id followees' }
+    ),
+    User.findByIdAndUpdate(
+      artistId,
+      { $pull: { followers: userId } },
+      { new: true, select: '_id followers' }
+    ),
+  ]);
+
+  return { userId: me._id, followees: me.followees };
+};
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -129,4 +180,6 @@ module.exports = {
   deleteProfileAvatar,
   getAccountInfo,
   updateAccountInfo,
+  followArtist,
+  unfollowArtist
 };

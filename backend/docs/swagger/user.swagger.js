@@ -109,3 +109,38 @@
  *       200:
  *         description: Account updated
  */
+/**
+ * @swagger
+ * /api/users/artists/{artistId}/follow:
+ *   post:
+ *     summary: Follow an artist
+ *     tags: [Users]
+ *     parameters:
+ *       - name: artistId
+ *         in: path
+ *         description: Artist user ID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Followed artist
+ */
+
+/**
+ * @swagger
+ * /api/users/artists/{artistId}/follow:
+ *   delete:
+ *     summary: Unfollow an artist
+ *     tags: [Users]
+ *     parameters:
+ *       - name: artistId
+ *         in: path
+ *         description: Artist user ID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Unfollowed artist
+ */

@@ -92,7 +92,25 @@ const updateAccountInfo = async (req, res, next) => {
     next(err);
   }
 };
+const followArtist = async (req, res, next) => {
+  try {
+    const { artistId } = req.params;
+    const data = await userService.followArtist(req.user._id, artistId);
+    res.status(200).json({ Message: 'Followed artist', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
+const unfollowArtist = async (req, res, next) => {
+  try {
+    const { artistId } = req.params;
+    const data = await userService.unfollowArtist(req.user._id, artistId);
+    res.status(200).json({ Message: 'Unfollowed artist', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -102,4 +120,6 @@ module.exports = {
   getAccountInfo,
   updateAccountInfo,
   getMyProfile,
+  followArtist,
+  unfollowArtist
 };

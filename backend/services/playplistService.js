@@ -198,10 +198,52 @@ const deletePlaylist = async (playlistId, ownerId) => {
   return { deleted: true };
 };
 
+const getUserPlaylists = async (ownerId) => {
+  if (!mongoose.isValidObjectId(ownerId)) {
+    const err = new Error('Invalid user id');
+    err.status = 400;
+    throw err;
+  }
+  const playlists = await Playlist.find({ ownerId })
+    .select('name description isPublic imageUrl songs createdAt updatedAt')
+    .populate({
+      path: 'songs',
+      select: 'title artistId duration imageUrl',
+      options: { sort: { addedAt: 1 } }
+    });
+  return playlists;
+};
+
+const getPlaylistById = async (playlistId, viewerId) => {
+  if (!mongoose.isValidObjectId(playlistId)) {
+    const err = new Error('Invalid playlist id');
+    err.status = 400;
+    throw err;
+  }
+  const playlist = await Playlist.findById(playlistId)
+    .select('-__v')
+    .populate({
+      path: 'songs',
+      select: 'title artistId duration imageUrl'
+    });
+  if (!playlist) {
+    const err = new Error('Playlist not found');
+    err.status = 404;
+    throw err;
+  }
+  if (!playlist.isPublic && playlist.ownerId.toString() !== viewerId.toString()) {
+    const err = new Error('You do not have access to this playlist');
+    err.status = 403;
+    throw err;
+  }
+  return playlist;
+};
 module.exports = {
   createPlaylist,
   updatePlaylistDetails,
   addSongToPlaylist,
   removeSongFromPlaylist,
   deletePlaylist,
+  getUserPlaylists,
+  getPlaylistById
 };

@@ -138,3 +138,46 @@
  *       200:
  *         description: Playlist deleted
  */
+/**
+ * @swagger
+ * /api/playlists:
+ *   get:
+ *     summary: Get all playlists of the authenticated user
+ *     tags: [Playlists]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of playlists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *
+ * *
+ * @swagger
+ * /api/playlists/{playlistId}:
+ *   get:
+ *     summary: Get a single playlist by ID
+ *     tags: [Playlists]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: playlistId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the playlist
+ *     responses:
+ *       200:
+ *         description: Playlist details with songs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *       403:
+ *         description: Forbidden (private playlist)
+ *       404:
+ *         description: Playlist not found
+ */

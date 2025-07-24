@@ -13,6 +13,7 @@ const adminRoute = require("./routes/adminRoute");
 const artistRoute = require("./routes/artistRoute")
 const userRoute = require("./routes/userRoute");
 const musicRoute = require("./routes/musicRoute");
+const playlistRoute = require("./routes/playlistRoute");
 const session = require("express-session");
 const passport = require("passport");
 const cors = require("cors");
@@ -56,6 +57,8 @@ app.use("/api/admin", adminRoute);
 app.use("/api/artist", artistRoute);
 app.use("/api/user", userRoute);
 app.use("/api/music", musicRoute);
+app.use("/api/playlist", playlistRoute);
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

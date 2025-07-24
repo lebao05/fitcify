@@ -1,6 +1,7 @@
 
 const https = require("https");
 const Song = require("../models/song");
+const Album = require('../models/album');
 const mongoose = require('mongoose');
 
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
@@ -64,8 +65,35 @@ const getLikedTracks = async (userId) => {
   }
 };
 
+const getAlbumById = async(albumId) => {
+  if (!mongoose.isValidObjectId(albumId)) {
+    const err = new Error('Invalid album id');
+    err.status = 400;
+    throw err;
+  }
+  const album = await Album.findById(albumId).lean();
+  if (!album) {
+    const err = new Error('Album not found');
+    err.status = 404;
+    throw err;
+  }
+  return album;
+}
+
+
+const getAlbumsOfAnArtist = async (artistId) => {
+  if (!mongoose.isValidObjectId(artistId)) {
+    const err = new Error('Invalid artist id');
+    err.status = 400;
+    throw err;
+  }
+  const albums = await Album.find({ artistId }).lean();
+  return albums; 
+}
 module.exports = {
   toggleSongLike,
   getStream,
   getLikedTracks,
+  getAlbumById,
+  getAlbumsOfAnArtist,
 };

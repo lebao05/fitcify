@@ -7,4 +7,8 @@ router.get("/songs/:id/stream", streamingAudio);
 router.post('/songs/:songId/toggle-like', authMiddleware, toggleSongLikeController);
 router.get('/songs/liked', authMiddleware, getLikedTracksController);
 
+
+router.get('/albums/:albumId', musicController.getAlbumById);
+
+router.get('/artists/:artistId/albums', musicController.getAlbumsOfAnArtist);
 module.exports = router;

@@ -63,5 +63,24 @@ const getLikedTracksController = async (req, res) => {
     res.status(error.status || 500).json({ message: error.message || 'Internal Server Error' });
   }
 };
+const getAlbumById = async (req, res, next) => {
+  try {
+    const { albumId } = req.params;
+    const data = await musicService.getAlbumById(albumId);
+    res.status(200).json({ Message: 'Album fetched', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
-module.exports = { streamingAudio, toggleSongLikeController, getLikedTracksController };
+const getAlbumsOfAnArtist = async (req, res, next) => {
+  try {
+    const { artistId } = req.params;
+    const data = await musicService.getAlbumsOfAnArtist(artistId);
+    res.status(200).json({ Message: 'Albums fetched', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { streamingAudio, toggleSongLikeController, getLikedTracksController, getAlbumById, getAlbumsOfAnArtist };

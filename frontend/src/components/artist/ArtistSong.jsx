@@ -4,10 +4,12 @@ import UploadSongForm from "./UploadSongForm";
 import SongManagingModal from "./SongManagingModel";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setSelectedSong,
+  deleteArtistSong,
+  fetchArtistSongs,
   uploadArtistSong,
-} from "../../redux/slices/artistSong";
-import { fetchArtistSongs } from "../../redux/slices/artistSong";
+} from "../../redux/slices/artistSongSlice";
+import { Loader2 } from "lucide-react"; // loading spinner icon
+
 const mockSongs = [
   { id: 1, name: "Anti-Hero", artist: "Taylor Swift", duration: "3:20" },
   { id: 2, name: "Mascara", artist: "Chillies", duration: "4:01" },
@@ -43,9 +45,9 @@ const TrackItem = ({
     if (onEdit) onEdit(track);
   };
 
-  const handleDelete = (e) => {
-    e.stopPropagation();
-    if (onDelete) onDelete(track);
+  const handleDelete = async (id) => {
+    await dispatch(deleteArtistSong(id));
+    await dispatch(fetchArtistSongs());
   };
 
   const isPlaying = track.isPlaying;
@@ -67,7 +69,10 @@ const TrackItem = ({
           />
           <div className="create-form-modal-content">
             <SongManagingModal
-              onUpload={() => {}}
+              track={track}
+              onUpdate={() => {
+                setShowForm();
+              }}
               onCancel={() => setShowForm(false)}
             />
           </div>
@@ -163,7 +168,7 @@ const TrackItem = ({
         {/* Edit and Delete Buttons */}
         <div className="flex gap-2 ml-4">
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-full text-xs"
+            className="bg-blue-500 cursor-pointer hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-full text-xs"
             onClick={() => {
               // dispatct(setSelectedSong(track));
               setShowForm(true);
@@ -172,8 +177,8 @@ const TrackItem = ({
             Edit
           </button>
           <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full text-xs"
-            onClick={handleDelete}
+            className="bg-red-500 cursor-pointer hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full text-xs"
+            onClick={() => handleDelete(track._id)}
           >
             Delete
           </button>

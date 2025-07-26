@@ -1,23 +1,27 @@
 import React, { useState, useMemo, useEffect } from "react";
 import "./CreateDialog.scss";
-
+import {
+  updateAlbum,
+  getAlbumsOfAnArtist,
+  deleteAlbum,
+} from "../../redux/slices/artistAlbumSlice";
+import { useDispatch } from "react-redux";
 const AlbumManagingModal = ({
   album = {},
   songs = [],
   onSave,
   onDelete,
-  onPublish,
   onClose,
 }) => {
+  const dispatch = useDispatch();
   const [name, setName] = useState(album?.name || "");
-  const [desc, setDesc] = useState(album?.desc || "");
   const [cover, setCover] = useState(null);
   const initialSelected = useMemo(() => {
-    if (album?.songIds && Array.isArray(album.songIds)) {
-      return album.songIds;
+    if (album?.songs && Array.isArray(album.songs)) {
+      return album.songs;
     }
     if (album?.songs && Array.isArray(album.songs)) {
-      return album.songs.map(s => s.id || s._id).filter(Boolean);
+      return album.songs.map((s) => s.id || s._id).filter(Boolean);
     }
     return [];
   }, [album]);
@@ -28,6 +32,7 @@ const AlbumManagingModal = ({
 
   useEffect(() => {
     setSelected(initialSelected);
+    setName(album.title);
   }, [initialSelected]);
 
   const handleSelect = (id) => {
@@ -49,38 +54,38 @@ const AlbumManagingModal = ({
     setCover(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (selected.length === 0) {
       setError("You must select at least one song.");
       return;
     }
     setError("");
-    onSave &&
-      onSave({
-        ...album,
-        name,
-        desc,
-        cover,
-        songIds: selected,
-      });
+    const formData = new FormData();
+    formData.append("title", name);
+    if (cover) formData.append("coverImage", cover);
+    formData.append("songIds", JSON.stringify(selected));
+    await dispatch(updateAlbum({ albumId: album._id, formData }));
+    await dispatch(getAlbumsOfAnArtist());
+    onSave && onSave();
   };
 
   const handleDelete = () => {
     setShowConfirm(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    await dispatch(deleteAlbum(album._id));
+    await dispatch(getAlbumsOfAnArtist());
     setDeleting(true);
     setShowConfirm(false);
-    onDelete && onDelete(album);
+    onDelete && onDelete();
   };
 
-  // Album status: 'draft', 'pending', 'approved'
-  const status = album.status || (album.published ? 'approved' : 'draft');
-  const isDraft = status === 'draft';
-  const isPending = status === 'pending';
-  const isApproved = status === 'approved';
+  const status = album.status || (album.published ? "approved" : "draft");
+  const isDraft = status === "draft";
+  const isPending = status === "pending";
+  const isApproved = status === "approved";
 
   return (
     <div className="create-form-modal">
@@ -88,7 +93,9 @@ const AlbumManagingModal = ({
       <div className="create-form-modal-content">
         <form className="create-dialog-form relative" onSubmit={handleSubmit}>
           <div className="flex flex-row items-center justify-between mb-2">
-            <h2 className="text-2xl font-bold text-white leading-tight">Managing Album</h2>
+            <h2 className="text-2xl font-bold text-white leading-tight">
+              Managing Album
+            </h2>
             <button
               type="button"
               className="absolute -top-1.5 right-0 text-gray-400 hover:text-white cursor-pointer  text-[40px] font-extrabold rounded transition focus:outline-none w-12 h-12 z-10"
@@ -98,11 +105,22 @@ const AlbumManagingModal = ({
               &times;
             </button>
           </div>
-          <div className={`mb-2 font-semibold ${isDraft ? 'text-yellow-400' : isPending ? 'text-blue-400' : 'text-green-400'}`}>
-            Status: {isDraft ? 'Draft' : isPending ? 'Pending Approval' : 'Approved'}
+          <div
+            className={`mb-2 font-semibold ${
+              isDraft
+                ? "text-yellow-400"
+                : isPending
+                ? "text-blue-400"
+                : "text-green-400"
+            }`}
+          >
+            Status:{" "}
+            {isDraft ? "Draft" : isPending ? "Pending Approval" : "Approved"}
           </div>
           {isPending && (
-            <div className="text-red-400 font-semibold text-sm mb-2">This album is pending approval and cannot be edited.</div>
+            <div className="text-red-400 font-semibold text-sm mb-2">
+              This album is pending approval and cannot be edited.
+            </div>
           )}
           <label className="text-white font-medium">Album Name *</label>
           <input
@@ -114,57 +132,59 @@ const AlbumManagingModal = ({
             readOnly={isPending || isApproved}
             className="rounded-lg px-4 py-2 bg-[#23242b] text-white border border-[#333] focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
           />
-          <label className="text-white font-medium">Cover Image (leave blank to keep current)</label>
-          <input type="file" accept="image/*" onChange={handleCover} disabled={!isDraft} className="block text-white disabled:opacity-60" />
-          <label className="text-white font-medium">Description</label>
-          <textarea
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-            rows={3}
+          <label className="text-white font-medium">
+            Cover Image (leave blank to keep current)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleCover}
             disabled={!isDraft}
-            readOnly={isPending || isApproved}
-            className="rounded-lg px-4 py-2 bg-[#23242b] text-white border border-[#333] focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
+            className="block text-white disabled:opacity-60"
           />
-          {isDraft ? (
-            <>
-              <label className="text-white font-medium">Select Songs (1-30 songs)</label>
-              <div className="select-songs-list">
-                {songs.map((song) => {
-                  const isSelected = selected.includes(song.id);
-                  const isDisabled = !isSelected && selected.length >= 30;
-                  return (
-                    <div
-                      key={song.id}
-                      className={
-                        `select-song-row${isSelected ? ' selected' : ''}` +
-                        (!isDisabled ? '' : ' opacity-60 cursor-not-allowed')
-                      }
-                      onClick={() => !isDisabled && handleSelect(song.id)}
-                      style={isDisabled ? { background: '#333' } : {}}
-                    >
-                      <span>{song.name}</span>
-                      <span className="duration">{song.duration}</span>
-                    </div>
-                  );
-                })}
+          {songs.map((song) => {
+            const isSelected = selected.includes(song._id);
+            const belongsToOtherAlbum =
+              song.albumId && song.albumId !== album._id; // <-- important check
+            const isSelectable = !belongsToOtherAlbum;
+            const isDisabled =
+              !isSelected && (selected.length >= 30 || !isSelectable);
+
+            return (
+              <div
+                key={song._id}
+                className={`
+                  flex justify-between items-center px-4 py-2 rounded-md
+                  cursor-pointer transition-colors
+                  ${
+                    isSelected
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-800 text-gray-100 hover:bg-gray-700"
+                  }
+                  ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                `}
+                onClick={() => {
+                  if (!isDisabled) handleSelect(song._id);
+                }}
+              >
+                <span>
+                  {song.title}
+                  {belongsToOtherAlbum && (
+                    <span className="text-red-400 ml-2 text-xs">
+                      (In another album)
+                    </span>
+                  )}
+                </span>
+                <span className="text-sm text-gray-400">{song.duration}</span>
               </div>
-              <div className="selected-count">Selected: {selected.length} songs</div>
-            </>
-          ) : (
-            <>
-              <label className="text-white font-medium">Songs in Album</label>
-              <div className="selected-count mb-1">{selected.length} Songs in this album</div>
-              <div className="select-songs-list">
-                {songs.filter(song => selected.includes(song.id)).map(song => (
-                  <div key={song.id} className="select-song-row opacity-100 cursor-default">
-                    <span>{song.name}</span>
-                    <span className="duration">{song.duration}</span>
-                  </div>
-                ))}
-              </div>
-            </>
+            );
+          })}
+
+          {error && (
+            <div className="text-red-400 font-semibold text-sm mt-1">
+              {error}
+            </div>
           )}
-          {error && <div className="text-red-400 font-semibold text-sm mt-1">{error}</div>}
           <div className="flex flex-col gap-2 mt-4">
             {/* Draft: show Save, Request Approval, Delete */}
             {isDraft && (
@@ -178,15 +198,6 @@ const AlbumManagingModal = ({
                   </button>
                   <button
                     type="button"
-                    className="bg-indigo-400 text-white px-6 py-2 rounded-md font-bold text-base shadow hover:bg-indigo-600 transition min-w-[140px] h-11 cursor-pointer"
-                    onClick={() => onPublish && onPublish(album)}
-                  >
-                    Request Approval
-                  </button>
-                </div>
-                <div className="flex flex-nowrap justify-end items-center gap-3 w-full">
-                  <button
-                    type="button"
                     className="bg-red-600 text-white font-bold text-base px-6 py-2 rounded-md shadow transition hover:bg-red-800 focus:outline-none disabled:opacity-60 min-w-[140px] h-11 cursor-pointer"
                     onClick={handleDelete}
                     disabled={deleting}
@@ -196,44 +207,35 @@ const AlbumManagingModal = ({
                 </div>
               </>
             )}
-            {/* Pending: show Delete only. Approved: nothing. */}
-            {isPending && (
-              <div className="flex flex-nowrap justify-end items-center gap-3 w-full">
-                <button
-                  type="button"
-                  className="bg-red-600 text-white font-bold text-base px-6 py-2 rounded-md shadow transition hover:bg-red-800 focus:outline-none disabled:opacity-60 min-w-[140px] h-11 cursor-pointer"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                >
-                  {deleting ? "Deleting..." : "Delete Album"}
-                </button>
-              </div>
-            )}
           </div>
-            {showConfirm && (
-              <div className="fixed inset-0 bg-black/30 z-[1200] flex items-center justify-center">
-                <div className="bg-[#23242b] text-white rounded-xl p-8 min-w-[320px] shadow-2xl flex flex-col items-center gap-4 z-[1201]">
-                  <div className="text-xl font-bold mb-2">Confirm Delete</div>
-                  <div className="text-base mb-2 text-center">Are you sure you want to delete this album?<br/>This action cannot be undone.</div>
-                  <div className="flex gap-4 mt-2">
-                    <button
-                      type="button"
-                      className="bg-red-600 text-white rounded-lg px-5 py-2 font-bold text-base hover:bg-red-800 transition cursor-pointer"
-                      onClick={confirmDelete}
-                    >
-                      Yes, Delete
-                    </button>
-                    <button
-                      type="button"
-                      className="bg-[#23242b] text-white border border-gray-400 rounded-lg px-5 py-2 font-bold text-base hover:bg-gray-700 transition cursor-pointer"
-                      onClick={() => setShowConfirm(false)}
-                    >
-                      Close
-                    </button>
-                  </div>
+          {showConfirm && (
+            <div className="fixed inset-0 bg-black/30 z-[1200] flex items-center justify-center">
+              <div className="bg-[#23242b] text-white rounded-xl p-8 min-w-[320px] shadow-2xl flex flex-col items-center gap-4 z-[1201]">
+                <div className="text-xl font-bold mb-2">Confirm Delete</div>
+                <div className="text-base mb-2 text-center">
+                  Are you sure you want to delete this album?
+                  <br />
+                  This action cannot be undone.
+                </div>
+                <div className="flex gap-4 mt-2">
+                  <button
+                    type="button"
+                    className="bg-red-600 text-white rounded-lg px-5 py-2 font-bold text-base hover:bg-red-800 transition cursor-pointer"
+                    onClick={confirmDelete}
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-[#23242b] text-white border border-gray-400 rounded-lg px-5 py-2 font-bold text-base hover:bg-gray-700 transition cursor-pointer"
+                    onClick={() => setShowConfirm(false)}
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+          )}
         </form>
       </div>
     </div>

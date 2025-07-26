@@ -35,7 +35,7 @@ export const updateArtistSong = createAsyncThunk(
       console.log(res);
       return res.data.Data;
     } catch (error) {
-      console.error("An error happend");
+      console.error("An error happend", error);
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "Update failed"
       );

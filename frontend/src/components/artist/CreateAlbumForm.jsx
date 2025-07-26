@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import "./CreateDialog.scss";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createAlbum,
+  getAlbumsOfAnArtist,
+} from "../../redux/slices/artistAlbumSlice";
 const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [cover, setCover] = useState(null);
   const [selected, setSelected] = useState([]);
   const [error, setError] = useState("");
-
+  const dispatch = useDispatch();
   const handleSelect = (id) => {
     setError("");
     setSelected((prev) => {
@@ -27,8 +31,7 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
     setCover(e.target.files[0]);
   };
 
-
-  const handleSubmit = (e, publish = false) => {
+  const handleSubmit = async (e, publish = false) => {
     e.preventDefault();
     if (!name.trim()) {
       setError("You must enter an album name.");
@@ -39,11 +42,20 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
       return;
     }
     setError("");
-    onCreate && onCreate({ name, desc, cover, songIds: selected, published: publish });
+    const formData = new FormData();
+    formData.append("title", name);
+    formData.append("coverImage", cover); // fix typo: was 'coverIamge'
+    selected.forEach((id) => formData.append("songIds", id)); // send as array
+    await dispatch(createAlbum(formData));
+    await dispatch(getAlbumsOfAnArtist());
+    onCreate &&
+      onCreate({ name, desc, cover, songIds: selected, published: publish });
   };
-
   return (
-    <form className="create-dialog-form relative" onSubmit={e => handleSubmit(e, false)}>
+    <form
+      className="create-dialog-form relative"
+      onSubmit={(e) => handleSubmit(e, false)}
+    >
       <button
         type="button"
         aria-label="Close"
@@ -52,7 +64,7 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
       >
         &times;
       </button>
-      <h2 style={{paddingRight: 32}}>Create New Album</h2>
+      <h2 style={{ paddingRight: 32 }}>Create New Album</h2>
       <label>Album Name *</label>
       <input
         type="text"
@@ -70,29 +82,57 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
         placeholder="Enter album description"
         rows={3}
       />
-      <label>Select Songs (Max 30 songs)</label>
-      <div className="select-songs-list">
-        {songs.map((song) => {
-          const isSelected = selected.includes(song.id);
-          const isDisabled = !isSelected && selected.length >= 30;
-          return (
-            <div
-              key={song.id}
-              className={`select-song-row${isSelected ? " selected" : ""}`}
-              onClick={() => !isDisabled && handleSelect(song.id)}
-              style={{ cursor: !isDisabled ? 'pointer' : 'not-allowed', opacity: !isDisabled ? 1 : 0.6, background: isDisabled ? '#333' : undefined }}
-            >
-              <span>{song.name}</span>
-              <span className="duration">{song.duration}</span>
-            </div>
-          );
-        })}
+      <label className="text-white font-medium block mb-2">
+        Select Songs (Max 30 songs)
+      </label>
+
+      <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 mb-4">
+        <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 mb-4">
+          {songs.map((song) => {
+            const isSelected = selected.includes(song._id);
+            const isInAnotherAlbum = !!song.albumId;
+            const isDisabled =
+              isInAnotherAlbum || (!isSelected && selected.length >= 30);
+
+            return (
+              <div
+                key={song._id}
+                className={`
+          flex justify-between items-center px-4 py-2 rounded-md
+          transition-colors
+          ${
+            isSelected
+              ? "bg-green-500 text-white"
+              : "bg-gray-800 text-gray-100 hover:bg-gray-700"
+          }
+          ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+        `}
+                onClick={() => {
+                  if (!isDisabled) handleSelect(song._id);
+                }}
+              >
+                <span>{song.title}</span>
+                <span className="text-sm text-gray-400">{song.duration}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="selected-count">Selected: {selected.length} songs</div>
+
+      <div className="sticky bottom-0 left-0 bg-gray-900 text-white p-4 shadow-md rounded-md mb-4">
+        <div className="text-sm font-semibold">
+          Selected: {selected.length} song{selected.length !== 1 ? "s" : ""}
+        </div>
+      </div>
+
       {error && <div className="form-error">{error}</div>}
-      <div className="form-actions" style={{display: 'flex', gap: 12, justifyContent: 'flex-end'}}>
-        <button type="submit" className="primary">Save Album</button>
-        <button type="button" className="primary" style={{background: '#ca1717ff'}} onClick={e => handleSubmit(e, true)}>Request Approval</button>
+      <div
+        className="form-actions"
+        style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}
+      >
+        <button type="submit" className="primary">
+          Create
+        </button>
       </div>
     </form>
   );

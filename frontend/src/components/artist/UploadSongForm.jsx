@@ -101,7 +101,7 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
           <option value="Other">Other</option>
         </select>
       </div> */}
-
+{/* 
       <div>
         <label className="font-medium mb-1 block">Album (Optional)</label>
         <input
@@ -111,7 +111,7 @@ const UploadSongForm = ({ onUpload, onCancel }) => {
           placeholder="Enter album name"
           className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
         />
-      </div>
+      </div> */}
 
       {/* <div>
         <label className="font-medium mb-1 block">Release Date *</label>

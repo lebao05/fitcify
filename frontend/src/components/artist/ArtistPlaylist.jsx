@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
-import testImg from '../../assets/test.jpg';
+import testImg from "../../assets/test.jpg";
 import PlaylistCard from "../user/PlaylistCard.jsx";
 import CreatePlaylistForm from "./CreatePlaylistForm.jsx";
 import PlaylistManagingModal from "./PlaylistManagingModal.jsx";
 import "./ArtistSection.scss";
+import { useDispatch, useSelector } from "react-redux";
+import { getPlaylistsOfAnArtist } from "../../redux/slices/artistPlaylistSlice.js";
+import { fetchArtistSongs } from "../../redux/slices/artistSongSlice.js";
 
 const mockPlaylists = [
-  { id: 1, name: "Liked Songs", creator: "Spotify", image: testImg, isPinned: true },
+  {
+    id: 1,
+    name: "Liked Songs",
+    creator: "Spotify",
+    image: testImg,
+    isPinned: true,
+  },
   { id: 2, name: "My Playlist #2", creator: "Ngọc Hiếu", image: testImg },
   { id: 3, name: "Acoustic Favorites", creator: "Spotify", image: testImg },
   { id: 4, name: "This Is Taylor Swift", creator: "Spotify", image: testImg },
@@ -20,46 +29,45 @@ const mockSongs = [
   { id: 3, name: "Hẹn Một Mai", artist: "Bùi Anh Tuấn", duration: "5:00" },
 ];
 
-const ArtistPlaylist = ({ playlists }) => {
+const ArtistPlaylist = () => {
+  const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
-  const [songs, setSongs] = useState([]);
+  const songs = useSelector((state) => state.artistSong.songs);
+  const playlists = useSelector((state) => state.artistPlaylist.playlists);
   const data = playlists && playlists.length > 0 ? playlists : mockPlaylists;
   const songList = songs.length > 0 ? songs : mockSongs;
   const [editPlaylist, setEditPlaylist] = useState(null);
-
   useEffect(() => {
-    // Thay URL này bằng API thực tế của bạn
-    fetch("/api/artist/songs")
-      .then(res => res.json())
-      .then(data => setSongs(data))
-      .catch(() => setSongs([]));
-  }, []);
-
-
-  const handleCreatePlaylist = (playlistData) => {
-    alert("Playlist created successfully!\n" + JSON.stringify(playlistData, null, 2));
+    dispatch(getPlaylistsOfAnArtist());
+    dispatch(fetchArtistSongs());
+  }, [getPlaylistsOfAnArtist, fetchArtistSongs]);
+  const handleCreatePlaylist = () => {
     setShowForm(false);
+    console.log("DONE");
   };
 
   const handleEditClick = (playlist) => {
     setEditPlaylist(playlist);
   };
 
-  const handleSaveEdit = (updated) => {
-    alert("Playlist updated!\n" + JSON.stringify(updated, null, 2));
+  const handleSaveEdit = () => {
     setEditPlaylist(null);
-    // TODO: Gọi API cập nhật playlist thực tế
   };
 
-  const handleDelete = (playlist) => {
-    alert("Playlist deleted!\n" + JSON.stringify(playlist, null, 2));
+  const handleDelete = () => {
     setEditPlaylist(null);
-    // TODO: Gọi API xóa playlist thực tế
   };
 
   return (
     <div className="artist-playlist-container">
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24}}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 24,
+        }}
+      >
         <h2>Playlists</h2>
         <button className="create-btn" onClick={() => setShowForm(true)}>
           + Create new playlist
@@ -67,15 +75,26 @@ const ArtistPlaylist = ({ playlists }) => {
       </div>
       {showForm && (
         <div className="create-form-modal">
-          <div className="create-form-modal-backdrop" onClick={() => setShowForm(false)} />
+          <div
+            className="create-form-modal-backdrop"
+            onClick={() => setShowForm(false)}
+          />
           <div className="create-form-modal-content">
-            <CreatePlaylistForm songs={songList} onCreate={handleCreatePlaylist} onCancel={() => setShowForm(false)} />
+            <CreatePlaylistForm
+              songs={songList}
+              onCreate={handleCreatePlaylist}
+              onCancel={() => setShowForm(false)}
+            />
           </div>
         </div>
       )}
       <div className="playlist-grid">
-        {data.map((playlist) => (
-          <div key={playlist.id} style={{ cursor: 'pointer' }} onClick={() => handleEditClick(playlist)}>
+        {data.map((playlist, index) => (
+          <div
+            key={index}
+            style={{ cursor: "pointer" }}
+            onClick={() => handleEditClick(playlist)}
+          >
             <PlaylistCard playlist={playlist} isButton="" />
           </div>
         ))}

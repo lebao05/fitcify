@@ -22,7 +22,7 @@ const PlaylistCard = ({ playlist, onPlay, isButton }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="playlist-image-container">
-        <img src={playlist.image} alt={playlist.name} className="playlist-image"/>
+        <img src={playlist.imageUrl} alt={playlist.name} className="playlist-image"/>
         {isButton && isHovered && (
           <div className="playlist-play-button" onClick={handlePlay}>
             <PlayButton />

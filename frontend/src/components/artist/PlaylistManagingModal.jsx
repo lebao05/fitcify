@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import "./ArtistSection.scss";
-
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { Form } from "react-router-dom";
+import {
+  getPlaylistsOfAnArtist,
+  updatePlaylist,
+  deletePlaylist,
+} from "../../redux/slices/artistPlaylistSlice";
 const PlaylistEditModal = ({
   playlist,
   songs = [],
@@ -9,48 +16,50 @@ const PlaylistEditModal = ({
   onClose,
 }) => {
   const [name, setName] = useState(playlist?.name || "");
-  const [desc, setDesc] = useState(playlist?.desc || "");
   const [cover, setCover] = useState(null);
-  const [selected, setSelected] = useState(playlist?.songIds || []);
+  const [selected, setSelected] = useState([]);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
+  const dispatch = useDispatch();
   const handleSelect = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
     );
   };
-
   const handleCover = (e) => {
     setCover(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (selected.length === 0) {
       setError("You must select at least one song.");
       return;
     }
     setError("");
-    onSave &&
-      onSave({
-        ...playlist,
-        name,
-        desc,
-        cover,
-        songIds: selected,
-      });
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("coverImage", cover); // fix typo: was 'coverIamge'
+    selected.forEach((id) => formData.append("songIds", id)); // send as array
+    await dispatch(updatePlaylist({ playlistId: playlist._id, formData }));
+    await dispatch(getPlaylistsOfAnArtist());
+    onSave();
   };
-
+  useEffect(() => {
+    setSelected(playlist.songs);
+  }, []);
   const handleDelete = () => {
     setShowConfirm(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     setDeleting(true);
     setShowConfirm(false);
-    onDelete && onDelete(playlist);
+    await dispatch(deletePlaylist(playlist._id));
+    await dispatch(getPlaylistsOfAnArtist());
+    setDeleting(false);
+    onClose && onClose();
   };
 
   return (
@@ -66,7 +75,9 @@ const PlaylistEditModal = ({
           >
             &times;
           </button>
-          <h2 className="text-2xl font-bold text-white leading-tight">Managing Playlist</h2>
+          <h2 className="text-2xl font-bold text-white leading-tight">
+            Managing Playlist
+          </h2>
           <label>Playlist Name *</label>
           <input
             type="text"
@@ -76,26 +87,37 @@ const PlaylistEditModal = ({
           />
           <label>Cover Image (leave blank to keep current)</label>
           <input type="file" accept="image/*" onChange={handleCover} />
-          <label>Description</label>
-          <textarea
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-            rows={3}
-          />
           <label>Select Songs (Max 100 songs)</label>
-          <div className="select-songs-list">
-            {songs.map((song) => (
-              <div
-                key={song.id}
-                className={`select-song-row${selected.includes(song.id) ? " selected" : ""}`}
-                onClick={() => handleSelect(song.id)}
-              >
-                <span>{song.name}</span>
-                <span className="duration">{song.duration}</span>
-              </div>
-            ))}
+          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 mb-4">
+            {songs.map((song) => {
+              const isSelected = selected.includes(song._id);
+              const isDisabled = !isSelected && selected.length >= 100;
+
+              return (
+                <div
+                  key={song._id}
+                  className={`
+                  flex justify-between items-center px-4 py-2 rounded-md
+                  cursor-pointer transition-colors
+                  ${
+                    isSelected
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-800 text-gray-100 hover:bg-gray-700"
+                  }
+                  ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                `}
+                  onClick={() => !isDisabled && handleSelect(song._id)}
+                >
+                  <span className="truncate">{song.title}</span>
+                  <span className="text-sm text-gray-400">{song.duration}</span>
+                </div>
+              );
+            })}
           </div>
-          <div className="selected-count">Selected: {selected.length} songs</div>
+
+          <div className="selected-count">
+            Selected: {selected.length} songs
+          </div>
           {error && <div className="form-error">{error}</div>}
           <div className="flex flex-nowrap justify-end items-center gap-3 mt-4 w-full">
             <button
@@ -116,7 +138,11 @@ const PlaylistEditModal = ({
               <div className="fixed inset-0 bg-black/30 z-[1200] flex items-center justify-center">
                 <div className="bg-[#23242b] text-white rounded-xl p-8 min-w-[320px] shadow-2xl flex flex-col items-center gap-4 z-[1201]">
                   <div className="text-xl font-bold mb-2">Confirm Delete</div>
-                  <div className="text-base mb-2 text-center">Are you sure you want to delete this playlist?<br/>This action cannot be undone.</div>
+                  <div className="text-base mb-2 text-center">
+                    Are you sure you want to delete this playlist?
+                    <br />
+                    This action cannot be undone.
+                  </div>
                   <div className="flex gap-4 mt-2">
                     <button
                       type="button"

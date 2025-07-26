@@ -28,4 +28,7 @@ router.delete('/:playlistId/songs/:songId', playlistController.removeSongFromPla
 
 router.delete('/:playlistId', playlistController.deletePlaylist);
 
+router.get('/', playlistController.getUserPlaylists);
+
+router.get('/:playlistId', playlistController.getPlaylistById);
 module.exports = router;

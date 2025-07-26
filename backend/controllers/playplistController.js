@@ -55,11 +55,30 @@ const deletePlaylist = async (req, res, next) => {
     next(err);
   }
 };
+const getUserPlaylists = async (req, res, next) => {
+  try {
+    const data = await playlistService.getUserPlaylists(req.user._id);
+    res.status(200).json({ Message: 'Playlists fetched', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
+const getPlaylistById = async (req, res, next) => {
+  try {
+    const { playlistId } = req.params;
+    const data = await playlistService.getPlaylistById(playlistId, req.user._id);
+    res.status(200).json({ Message: 'Playlist fetched', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
   createPlaylist,
   updatePlaylistDetails,
   addSongToPlaylist,
   removeSongFromPlaylist,
   deletePlaylist,
+  getUserPlaylists,
+  getPlaylistById
 };

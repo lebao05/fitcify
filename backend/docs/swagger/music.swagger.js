@@ -76,3 +76,58 @@
  *       500:
  *         description: Internal server error
  */
+/**
+ * @swagger
+ * /api/music/albums/{albumId}:
+ *   get:
+ *     summary: Get album details by ID
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: albumId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the album to fetch
+ *     responses:
+ *       200:
+ *         description: Album fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *       400:
+ *         description: Invalid album id
+ *       404:
+ *         description: Album not found
+ */
+
+/**
+ * @swagger
+ * /api/music/artists/{artistId}/albums:
+ *   get:
+ *     summary: Get all albums of an artist
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the artist whose albums to fetch
+ *     responses:
+ *       200:
+ *         description: Albums fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *       400:
+ *         description: Invalid artist id
+ *       404:
+ *         description: Artist not found
+ */

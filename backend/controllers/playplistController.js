@@ -1,5 +1,5 @@
 // backend/controllers/playlistController.js
-const playlistService = require('../services/playlistService');
+const playlistService = require('../services/playplistService');
 
 const createPlaylist = async (req, res, next) => {
   try {

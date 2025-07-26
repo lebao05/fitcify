@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const { authMiddleware } = require('../middlewares/authMiddleware');
-const playlistController = require('../controllers/playlistController');
+const playlistController = require('../controllers/playplistController');
 
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); 

@@ -16,7 +16,7 @@ router.post(
   artistController.uploadSong
 );
 
-router.patch(
+router.put(
     "/songs/:id",
     isArtist,
   upload.fields([{ name: "audio", maxCount: 1 }, { name: "image", maxCount: 1 }]),
@@ -33,7 +33,7 @@ router.post(
   artistController.createAlbum
 );
 
-router.patch(
+router.put(
   "/albums/:albumId",
   isArtist,
   upload.fields([{ name: "coverImage", maxCount: 1 }]),
@@ -50,7 +50,7 @@ router.post(
   artistController.createPlaylist
 );
 
-router.patch(
+router.put(
   "/playlists/:playlistId",
   isArtist,
   upload.fields([{ name: "coverImage", maxCount: 1 }]),

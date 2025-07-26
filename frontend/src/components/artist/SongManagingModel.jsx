@@ -1,31 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-
-const SongManagingModal = ({ onUpload, onCancel }) => {
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchArtistSongs,
+  updateArtistSong,
+} from "../../redux/slices/artistSongSlice";
+const SongManagingModal = ({ onUpdate, onCancel, track }) => {
+  const isLoading = useSelector((state) => state.artistSong.loading);
   const [file, setFile] = useState(null);
   const [cover, setCover] = useState(null);
   const [title, setTitle] = useState("");
-  const [genre, setGenre] = useState("");
   const [album, setAlbum] = useState("");
-  const [date, setDate] = useState("");
-  const [desc, setDesc] = useState("");
   const [error, setError] = useState("");
-  const song = useSelector((state) => state.artistSong.selectedSong);
   const handleFile = (e) => setFile(e.target.files[0]);
   const handleCover = (e) => setCover(e.target.files[0]);
-
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file || !title || !genre || !date) {
-      setError("Please fill in all required fields and select an audio file.");
-      return;
-    }
+    await dispatch(
+      updateArtistSong({
+        songId: track._id,
+        data: {
+          title,
+          audioFile: file,
+          imageFile: cover,
+        },
+      })
+    );
+    await dispatch(fetchArtistSongs());
+    onUpdate();
     setError("");
-    onUpload && onUpload({ file, cover, title, genre, album, date, desc });
   };
   useEffect((e) => {
-    if (song) {
-      setTitle(song.title);
+    if (track) {
+      setTitle(track.title);
+      setAlbum(track.album);
     }
   }, []);
   return (
@@ -51,18 +59,17 @@ const SongManagingModal = ({ onUpload, onCancel }) => {
       </h2>
 
       <div>
-        <label className="font-medium mb-1 block">Audio File *</label>
+        <label className="font-medium mb-1 block">Replace Audio File *</label>
         <input
           type="file"
           accept="audio/mp3,audio/wav,audio/flac,audio/m4a"
           onChange={handleFile}
-          required
           className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
         />
       </div>
 
       <div>
-        <label className="font-medium mb-1 block">Cover Image</label>
+        <label className="font-medium mb-1 block">Upload New Cover Image</label>
         <input
           type="file"
           accept="image/*"
@@ -106,7 +113,7 @@ const SongManagingModal = ({ onUpload, onCancel }) => {
         </select>
       </div> */}
 
-      <div>
+      {/* <div>
         <label className="font-medium mb-1 block">Album (Optional)</label>
         <input
           type="text"
@@ -115,7 +122,7 @@ const SongManagingModal = ({ onUpload, onCancel }) => {
           placeholder="Enter album name"
           className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
         />
-      </div>
+      </div> */}
 
       {/* <div>
         <label className="font-medium mb-1 block">Release Date *</label>
@@ -144,10 +151,40 @@ const SongManagingModal = ({ onUpload, onCancel }) => {
       <div className="flex gap-4 mt-2">
         <button
           type="submit"
-          className="bg-[#1db954] hover:bg-[#169d45] text-white rounded-md px-6 py-2 font-semibold"
+          disabled={isLoading}
+          className={`flex items-center justify-center gap-2 bg-[#1db954] hover:bg-[#169d45] text-white rounded-md px-6 py-2 font-semibold ${
+            isLoading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
         >
-          Update
+          {isLoading ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              Wait a moment...
+            </>
+          ) : (
+            "Moderate metadata"
+          )}
         </button>
+
         <button
           type="button"
           onClick={onCancel}

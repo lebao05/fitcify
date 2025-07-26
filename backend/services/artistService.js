@@ -578,14 +578,12 @@ async function updatePlaylistMetadata({
   }
 
   if (coverImagePath) {
-    if (playlist.imageUrl) {
-      update.imageUrl = await handleCoverUpload(
-        coverImagePath,
-        "/fitcify/playlist-covers",
-        playlist.imageUrl
-      );
-      hasChange = true;
-    }
+    update.imageUrl = await handleCoverUpload(
+      coverImagePath,
+      "/fitcify/playlist-covers",
+      playlist.imageUrl
+    );
+    hasChange = true;
   }
 
   if (typeof songIds !== "undefined") {

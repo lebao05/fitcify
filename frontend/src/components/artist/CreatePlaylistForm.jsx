@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import "./CreateDialog.scss";
-
-
+import { useDispatch } from "react-redux";
+import { createPlaylist, getPlaylistsOfAnArtist } from "../../redux/slices/artistPlaylistSlice";
 const CreatePlaylistForm = ({ songs = [], onCreate, onCancel }) => {
   const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
   const [cover, setCover] = useState(null);
   const [selected, setSelected] = useState([]);
   const [error, setError] = useState("");
-
+  const dispatch = useDispatch();
   const handleSelect = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
@@ -19,61 +17,103 @@ const CreatePlaylistForm = ({ songs = [], onCreate, onCancel }) => {
     setCover(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (selected.length === 0) {
       setError("You must select at least one song to create a playlist.");
       return;
     }
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("coverImage", cover); // fix typo: was 'coverIamge'
+    selected.forEach((id) => formData.append("songIds", id)); // send as array
+    await dispatch(createPlaylist(formData));
+    await dispatch(getPlaylistsOfAnArtist());
     setError("");
-    onCreate && onCreate({ name, desc, cover, songIds: selected });
+    onCreate && onCreate();
   };
 
   return (
-    <form className="create-dialog-form relative" onSubmit={handleSubmit} >
+    <form className="create-dialog-form relative" onSubmit={handleSubmit}>
+      {/* Close button */}
       <button
         type="button"
         aria-label="Close"
         onClick={onCancel}
-        className="absolute -top-1.2 right-0 text-gray-400 hover:text-white cursor-pointer  text-[40px] font-extrabold rounded transition focus:outline-none w-12 h-12 z-10"
+        className="absolute -top-1.5 right-0 text-gray-400 hover:text-white cursor-pointer text-[40px] font-extrabold rounded transition focus:outline-none w-12 h-12 z-10"
       >
         &times;
       </button>
-      <h2 style={{paddingRight: 32}}>Create New Playlist</h2>
-      <label>Playlist Name *</label>
+
+      <h2 className="text-xl font-semibold mb-4 pr-8">Create New Playlist</h2>
+
+      <label className="text-white font-medium block mb-2">
+        Playlist Name *
+      </label>
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Enter playlist name"
         required
+        className="w-full px-3 py-2 rounded bg-gray-800 text-white mb-4 focus:outline-none focus:ring focus:ring-green-500"
       />
-      <label>Cover Image</label>
-      <input type="file" accept="image/*" onChange={handleCover} />
-      <label>Description</label>
-      <textarea
-        value={desc}
-        onChange={(e) => setDesc(e.target.value)}
-        placeholder="Enter playlist description"
-        rows={3}
+
+      <label className="text-white font-medium block mb-2">Cover Image</label>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleCover}
+        className="mb-4 text-white"
       />
-      <label>Select Songs (Max 100 songs)</label>
-      <div className="select-songs-list">
-        {songs.map((song) => (
-          <div
-            key={song.id}
-            className={`select-song-row${selected.includes(song.id) ? " selected" : ""}`}
-            onClick={() => handleSelect(song.id)}
-          >
-            <span>{song.name}</span>
-            <span className="duration">{song.duration}</span>
-          </div>
-        ))}
+
+      <label className="text-white font-medium block mb-2">
+        Select Songs (Max 100 songs)
+      </label>
+
+      {/* Song list */}
+      <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 mb-4">
+        {songs.map((song) => {
+          const isSelected = selected.includes(song._id);
+          return (
+            <div
+              key={song._id}
+              className={`
+                flex justify-between items-center px-4 py-2 rounded-md
+                cursor-pointer transition-colors
+                ${
+                  isSelected
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-800 text-gray-100 hover:bg-gray-700"
+                }
+              `}
+              onClick={() => handleSelect(song._id)}
+            >
+              <span>{song.title}</span>
+              <span className="text-sm text-gray-400">{song.duration}</span>
+            </div>
+          );
+        })}
       </div>
-      <div className="selected-count">Selected: {selected.length} songs</div>
-      {error && <div className="form-error">{error}</div>}
-      <div className="form-actions" style={{display: 'flex', justifyContent: 'flex-end'}}>
-        <button type="submit" className="primary">Create Playlist</button>
+
+      {/* Sticky bottom count */}
+      <div className="sticky bottom-0 left-0 bg-gray-900 text-white p-4 shadow-md rounded-md mb-4">
+        <div className="text-sm font-semibold">
+          Selected: {selected.length} song{selected.length !== 1 ? "s" : ""}
+        </div>
+      </div>
+
+      {/* Error */}
+      {error && <div className="text-red-400 font-medium mb-2">{error}</div>}
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3">
+        <button
+          type="submit"
+          className="bg-green-600 cursor-pointer hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition"
+        >
+          Create Playlist
+        </button>
       </div>
     </form>
   );

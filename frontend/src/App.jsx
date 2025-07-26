@@ -58,7 +58,7 @@ function App() {
           {/* <Route index element={<Navigate to="dashboard" replace />} /> */}
           <Route path="dashboard" element={<ArtistDashboard />} />
           <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />
-          <Route path="albums" element={<ArtistAlbum albums={[]} />} />
+          <Route path="albums" element={<ArtistAlbum/>} />
           <Route path="music" element={<ArtistSong songs={[]} />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>

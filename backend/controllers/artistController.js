@@ -105,7 +105,11 @@ const getAlbumsByArtist = async (req, res, next) => {
   try {
     const artistUserId = req.user._id;
     const albums = await artistService.getAlbumsByArtist(artistUserId);
-    res.json({ success: true, data: albums });
+    res.json({
+      Message: "Album created successfully",
+      Error: 0,
+      Data: albums,
+    });
   } catch (err) {
     next(err);
   }

@@ -138,6 +138,7 @@
  *       200:
  *         description: Playlist deleted
  */
+
 /**
  * @swagger
  * /api/playlists:
@@ -153,8 +154,9 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/DefaultResponse'
- *
- * *
+ */
+
+/**
  * @swagger
  * /api/playlists/{playlistId}:
  *   get:

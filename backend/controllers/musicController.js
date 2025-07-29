@@ -28,24 +28,23 @@ const streamingAudio = async (req, res, next) => {
   }
 };
 
-
 const toggleSongLikeController = async (req, res) => {
   const userId = req.user._id;
   const { songId } = req.params;
 
   if (!songId) {
-    return res.status(400).json({ message: 'Missing userId or songId' });
+    return res.status(400).json({ message: "Missing userId or songId" });
   }
 
   try {
     const result = await musicService.toggleSongLike(userId, songId);
     res.status(200).json({
-      message: result.liked ? 'Song liked' : 'Song unliked',
-      liked: result.liked
+      message: result.liked ? "Song liked" : "Song unliked",
+      liked: result.liked,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -53,21 +52,23 @@ const toggleSongLikeController = async (req, res) => {
 const getLikedTracksController = async (req, res) => {
   const userId = req.user && req.user._id;
   if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: "Unauthorized" });
   }
   try {
     const likedTracks = await musicService.getLikedTracks(userId);
     res.status(200).json({ likedTracks });
   } catch (error) {
     console.error(error);
-    res.status(error.status || 500).json({ message: error.message || 'Internal Server Error' });
+    res
+      .status(error.status || 500)
+      .json({ message: error.message || "Internal Server Error" });
   }
 };
 const getAlbumById = async (req, res, next) => {
   try {
     const { albumId } = req.params;
     const data = await musicService.getAlbumById(albumId);
-    res.status(200).json({ Message: 'Album fetched', Error: 0, Data: data });
+    res.status(200).json({ Message: "Album fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
@@ -77,10 +78,15 @@ const getAlbumsOfAnArtist = async (req, res, next) => {
   try {
     const { artistId } = req.params;
     const data = await musicService.getAlbumsOfAnArtist(artistId);
-    res.status(200).json({ Message: 'Albums fetched', Error: 0, Data: data });
+    res.status(200).json({ Message: "Albums fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
 };
-
-module.exports = { streamingAudio, toggleSongLikeController, getLikedTracksController, getAlbumById, getAlbumsOfAnArtist };
+module.exports = {
+  streamingAudio,
+  toggleSongLikeController,
+  getLikedTracksController,
+  getAlbumById,
+  getAlbumsOfAnArtist,
+};

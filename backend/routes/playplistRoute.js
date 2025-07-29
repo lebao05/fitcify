@@ -16,7 +16,7 @@ router.post(
   playlistController.createPlaylist
 );
 
-router.patch(
+router.put(
   '/:playlistId',
   upload.single('cover'),
   playlistController.updatePlaylistDetails

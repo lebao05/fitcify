@@ -4,9 +4,9 @@ import { fetchAudioStreamUrl } from "../../services/musicApi";
 
 const AudioPlayer = () => {
   const songIds = [
-    "687f0177e5bc51275c699f98",
-    "687ee9b69e29ddd4edcce3c2",
-    "687eeb629e29ddd4edcce3ed",
+    "68823aeaf3ae3183381e612a",
+    "68823b05f3ae3183381e612f",
+    "68823b19f3ae3183381e6134",
   ];
   const [volume, setVolume] = useState(1);
 
@@ -33,23 +33,22 @@ const AudioPlayer = () => {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+  const loadAudio = async () => {
+    try {
+      const url = await fetchAudioStreamUrl(songIds[currentIndex]);
+      setAudioUrl(url);
+      if (audioRef.current) {
+        audioRef.current.load();
+        if (isPlaying) {
+          audioRef.current.play();
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load audio:", error);
+    }
+  };
   useEffect(() => {
     console.log(currentIndex);
-    const loadAudio = async () => {
-      try {
-        const url = await fetchAudioStreamUrl(songIds[currentIndex]);
-        setAudioUrl(url);
-        if (audioRef.current) {
-          audioRef.current.load();
-          if (isPlaying) {
-            audioRef.current.play();
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load audio:", error);
-      }
-    };
-
     loadAudio();
   }, [currentIndex]);
 

@@ -1,9 +1,8 @@
-
 const https = require("https");
 const Song = require("../models/song");
-const Album = require('../models/album');
-const mongoose = require('mongoose');
-
+const Album = require("../models/album");
+const mongoose = require("mongoose");
+const Player = require("../models/audioPlayer");
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -30,11 +29,11 @@ const toggleSongLike = async (userId, songId) => {
     if (!song) throw new Error("Song not found");
 
     const userObjectId = new mongoose.Types.ObjectId(userId);
-    const hasLiked = song.likes.some(id => id.equals(userObjectId));
+    const hasLiked = song.likes.some((id) => id.equals(userObjectId));
 
     if (hasLiked) {
       // Bỏ like
-      song.likes = song.likes.filter(id => !id.equals(userObjectId));
+      song.likes = song.likes.filter((id) => !id.equals(userObjectId));
     } else {
       // Thêm like
       song.likes.push(userObjectId);
@@ -65,35 +64,37 @@ const getLikedTracks = async (userId) => {
   }
 };
 
-const getAlbumById = async(albumId) => {
+const getAlbumById = async (albumId) => {
   if (!mongoose.isValidObjectId(albumId)) {
-    const err = new Error('Invalid album id');
+    const err = new Error("Invalid album id");
     err.status = 400;
     throw err;
   }
-  const album = await Album.findById(albumId).lean();
+  const album = await Album.findById(albumId)
+    .populate("songs")
+    .populate("artistId")
+    .lean();
   if (!album) {
-    const err = new Error('Album not found');
+    const err = new Error("Album not found");
     err.status = 404;
     throw err;
   }
   return album;
-}
-
+};
 
 const getAlbumsOfAnArtist = async (artistId) => {
   if (!mongoose.isValidObjectId(artistId)) {
-    const err = new Error('Invalid artist id');
+    const err = new Error("Invalid artist id");
     err.status = 400;
     throw err;
   }
   const albums = await Album.find({ artistId }).lean();
-  return albums; 
-}
+  return albums;
+};
 module.exports = {
+  getAlbumsOfAnArtist,
   toggleSongLike,
   getStream,
   getLikedTracks,
   getAlbumById,
-  getAlbumsOfAnArtist,
 };

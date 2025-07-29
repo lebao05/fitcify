@@ -76,13 +76,13 @@ const HeaderBar = () => {
               </button>
               <div className="w-px h-6 bg-[#404040]" />
               <button
-                className="text-[#b3b3b3] text-sm font-semibold px-5 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]"
+                className="text-[#b3b3b3] cursor-pointer text-sm font-semibold px-5 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]"
                 onClick={() => (window.location.href = "/signup")}
               >
                 Sign up
               </button>
               <button
-                className="bg-white text-black text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#f1f1f1] transition-transform hover:scale-[1.04]"
+                className="bg-white cursor-pointer text-black text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#f1f1f1] transition-transform hover:scale-[1.04]"
                 onClick={() => (window.location.href = "/login")}
               >
                 Log in

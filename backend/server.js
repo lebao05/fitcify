@@ -57,7 +57,7 @@ app.use("/api/admin", adminRoute);
 app.use("/api/artist", artistRoute);
 app.use("/api/user", userRoute);
 app.use("/api/music", musicRoute);
-app.use("/api/playlist", playlistRoute);
+app.use("/api/playlists", playlistRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

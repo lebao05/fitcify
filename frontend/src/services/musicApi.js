@@ -17,3 +17,29 @@ export const fetchAudioStreamUrl = async (songId) => {
     throw error;
   }
 };
+
+export const getAlbumById = async (albumId) => {
+  try {
+    const response = await axiosInstance.get(`/music/albums/${albumId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching album:", error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch all albums of an artist by artist ID.
+ * GET /music/artists/:artistId/albums
+ */
+export const getAlbumsByArtistId = async (artistId) => {
+  try {
+    const response = await axiosInstance.get(
+      `/music/artists/${artistId}/albums`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching albums of artist:", error);
+    throw error;
+  }
+};

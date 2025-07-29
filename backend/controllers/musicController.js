@@ -1,10 +1,5 @@
-// controllers/songController.js
 const musicService = require("../services/musicService");
 
-/**
- * GET /api/songs/:id/stream
- * Streams audio from Cloudinary → Node → Client with Range support.
- */
 const streamingAudio = async (req, res, next) => {
   try {
     const range = req.headers.range || "bytes=0-";
@@ -48,7 +43,6 @@ const toggleSongLikeController = async (req, res) => {
   }
 };
 
-// Lấy danh sách bài hát đã like của user
 const getLikedTracksController = async (req, res) => {
   const userId = req.user && req.user._id;
   if (!userId) {
@@ -83,10 +77,135 @@ const getAlbumsOfAnArtist = async (req, res, next) => {
     next(err);
   }
 };
+
+const playAnAlbumController = async (req, res, next) => {
+  try {
+    const { albumId } = req.params;
+    const { songOrder = 0 } = req.query;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const song = await musicService.playAnAlbum(
+      albumId,
+      parseInt(songOrder),
+      user
+    );
+    res.status(200).json({
+      Message: "Album is now playing",
+      Error: 0,
+      Data: song,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+const playAPlaylist = async (req, res, next) => {
+  try {
+    const { playlistId } = req.params;
+    const { songOrder } = req.query;
+    const user = req.user;
+
+    const song = await musicService.playAPlaylist(
+      playlistId,
+      parseInt(songOrder) || 0,
+      user
+    );
+    res.status(200).json({
+      Message: "Started playing playlist",
+      Error: 0,
+      Data: song,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+async function playAnArtistController(req, res) {
+  try {
+    const user = req.user;
+    const { artistId } = req.params;
+
+    const song = await musicService.playAnArtist(user, artistId);
+    res.status(200).json({
+      Message: "Started playing artist",
+      Error: 0,
+      Data: song,
+    });
+  } catch (err) {
+    console.error("playAnArtist error:", err);
+    res.status(500).json({
+      Message: err.message || "Failed to play artist.",
+      Error: 1,
+      Data: null,
+    });
+  }
+}
+const previousTrack = async (req, res) => {
+  try {
+    const user = req.user;
+    const song = await musicService.previousTrack(user);
+    res.status(200).json({
+      Message: "Started playing artist",
+      Error: 0,
+      Data: song,
+    });
+  } catch (error) {
+    res.status(500).json({
+      Message: error.message || "Failed to play previous track.",
+      Error: 1,
+      Data: null,
+    });
+  }
+};
+const playASong = async (req, res) => {
+  try {
+    const user = req.user;
+    const { songId } = req.body;
+    const song = await musicService.playASong(user, songId);
+    res.status(200).json({
+      Message: "Started playing",
+      Error: 0,
+      Data: song,
+    });
+  } catch (err) {
+    console.error("playAnArtist error:", err);
+    res.status(500).json({
+      Message: err.message || "Failed to play.",
+      Error: 1,
+      Data: null,
+    });
+  }
+};
+const nextTrack = async (req, res) => {
+  try {
+    const user = req.user;
+    const song = await musicService.nextTrack(user);
+    res.status(200).json({
+      Message: "Next track is playing",
+      Error: 0,
+      Data: song,
+    });
+  } catch (err) {
+    res.status(500).json({
+      Message: err.message || "Failed to play next track.",
+      Error: 1,
+      Data: null,
+    });
+  }
+};
+
 module.exports = {
   streamingAudio,
   toggleSongLikeController,
   getLikedTracksController,
   getAlbumById,
   getAlbumsOfAnArtist,
+  playAPlaylist,
+  playASong,
+  playAnAlbumController,
+  playAnArtistController,
+  previousTrack,
+  nextTrack
+
 };

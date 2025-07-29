@@ -18,4 +18,27 @@ router.get("/songs/liked", authMiddleware, getLikedTracksController);
 router.get("/albums/:albumId", musicController.getAlbumById);
 
 router.get("/artists/:artistId/albums", musicController.getAlbumsOfAnArtist);
+
+router.post(
+  "/play/album/:albumId",
+  authMiddleware,
+  musicController.playAnAlbumController
+);
+
+router.post(
+  "/play/playlist/:playlistId",
+  authMiddleware,
+  musicController.playAPlaylist
+);
+
+router.post(
+  "/play/artist/:artistId",
+  authMiddleware,
+  musicController.playAnArtistController
+);
+
+router.post("/previous", authMiddleware, musicController.previousTrack);
+router.post("/play-song", authMiddleware, musicController.playASong);
+router.post("/next", authMiddleware, musicController.nextTrack);
+
 module.exports = router;

@@ -131,3 +131,148 @@
  *       404:
  *         description: Artist not found
  */
+
+/**
+ * @swagger
+ * /api/music/play/album/{albumId}:
+ *   post:
+ *     summary: Play an album
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: albumId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the album
+ *       - in: query
+ *         name: songOrder
+ *         schema:
+ *           type: integer
+ *         description: Index of the song to start playing (default 0)
+ *     responses:
+ *       200:
+ *         description: Album is now playing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Song'
+ */
+
+
+/**
+ * @swagger
+ * /api/music/play/playlist/{playlistId}:
+ *   post:
+ *     summary: Play a playlist
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: playlistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the playlist
+ *       - in: query
+ *         name: songOrder
+ *         schema:
+ *           type: integer
+ *         description: Index of the song to start (default 0)
+ *     responses:
+ *       200:
+ *         description: Playlist is now playing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Song'
+ */
+
+/**
+ * @swagger
+ * /api/music/play/artist/{artistId}:
+ *   post:
+ *     summary: Play songs from an artist
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: artistId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the artist
+ *     responses:
+ *       200:
+ *         description: Artist songs are now playing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Song'
+ */
+
+/**
+ * @swagger
+ * /api/music/play-song:
+ *   post:
+ *     summary: Play a specific song
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - songId
+ *             properties:
+ *               songId:
+ *                 type: string
+ *                 example: "64f8e12345678abcde000999"
+ *     responses:
+ *       200:
+ *         description: Song is now playing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Song'
+ */
+
+/**
+ * @swagger
+ * /api/music/previous:
+ *   post:
+ *     summary: Go to the previous song
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Previous song is now playing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Song'
+ */
+/**
+ * @swagger
+ * /api/music/next:
+ *   post:
+ *     summary: Go to the next song
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Next song is now playing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Song'
+ */

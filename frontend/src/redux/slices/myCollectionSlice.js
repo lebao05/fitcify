@@ -1,0 +1,153 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createPlaylist as apiCreatePlaylist,
+  updatePlaylist as apiUpdatePlaylist,
+  deletePlaylist as apiDeletePlaylist,
+  getUserPlaylists,
+  getPlaylistById,
+} from "../../services/playlistApi";
+
+// ───── THUNKS ─────
+
+// ── Fetch All ──
+export const fetchUserPlaylists = createAsyncThunk(
+  "myCollection/fetchUserPlaylistIds",
+  async (_, thunkAPI) => {
+    try {
+      const playlists = await getUserPlaylists();
+      return playlists.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Fetch playlists failed"
+      );
+    }
+  }
+);
+
+// ── Create ──
+export const createUserPlaylist = createAsyncThunk(
+  "myCollection/createUserPlaylist",
+  async (formData, thunkAPI) => {
+    try {
+      const newPlaylist = await apiCreatePlaylist(formData);
+      return newPlaylist;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Create playlist failed"
+      );
+    }
+  }
+);
+
+// ── Update ──
+export const updateUserPlaylist = createAsyncThunk(
+  "myCollection/updateUserPlaylist",
+  async (updateData, thunkAPI) => {
+    try {
+      const updated = await apiUpdatePlaylist(updateData);
+      return updated;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Update playlist failed"
+      );
+    }
+  }
+);
+
+// ── Delete ──
+export const deleteUserPlaylist = createAsyncThunk(
+  "myCollection/deleteUserPlaylist",
+  async ({ playlistId }, thunkAPI) => {
+    try {
+      await apiDeletePlaylist({ playlistId });
+      return playlistId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Delete playlist failed"
+      );
+    }
+  }
+);
+
+// ─── Get By ID (optional for detail use) ───
+export const fetchUserPlaylistById = createAsyncThunk(
+  "myCollection/fetchUserPlaylistById",
+  async ({ playlistId }, thunkAPI) => {
+    try {
+      const data = await getPlaylistById({ playlistId });
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Fetch playlist failed"
+      );
+    }
+  }
+);
+
+// ───── INITIAL STATE ─────
+const initialState = {
+  playlists: [], // store only playlist IDs
+  loading: false,
+  error: null,
+};
+
+// ───── SLICE ─────
+const myCollectionSlice = createSlice({
+  name: "myCollection",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // ── Fetch All ──
+      .addCase(fetchUserPlaylists.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserPlaylists.fulfilled, (state, action) => {
+        state.playlists = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchUserPlaylists.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // ── Create ──
+      .addCase(createUserPlaylist.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(createUserPlaylist.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // ── Update ──
+      .addCase(updateUserPlaylist.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      // ── Delete ──
+      .addCase(deleteUserPlaylist.fulfilled, (state, action) => {
+        state.playlists = state.playlists.filter((id) => id !== action.payload);
+      })
+      .addCase(deleteUserPlaylist.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+
+      // ── Fetch By ID ──
+      .addCase(fetchUserPlaylistById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserPlaylistById.fulfilled, (state, action) => {
+        state.selectedPlaylist = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchUserPlaylistById.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      });
+  },
+});
+
+export default myCollectionSlice.reducer;

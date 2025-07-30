@@ -10,18 +10,20 @@ const app = express();
 const port = process.env.PORT || 5000;
 const authRoute = require("./routes/authRoute");
 const adminRoute = require("./routes/adminRoute");
-const artistRoute = require("./routes/artistRoute");
 const paymentRoute = require("./routes/paymentRoute");
+const artistRoute = require("./routes/artistRoute")
+const userRoute = require("./routes/userRoute");
+const musicRoute = require("./routes/musicRoute");
 const session = require("express-session");
 const passport = require("passport");
 const cors = require("cors");
+
 app.use(cookieParser());
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5000"], // your frontend and swagger
     credentials: true, // allow cookies, sessions, etc.
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-
   })
 );
 require("./configs/passport");
@@ -44,7 +46,7 @@ app.use(
     swaggerOptions: {
       withCredentials: true,
       requestInterceptor: (req) => {
-        req.credentials = 'include';
+        req.credentials = "include";
         return req;
       },
     },
@@ -54,6 +56,9 @@ app.use("/api/auth", authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/artist", artistRoute);
 app.use("/api/payment", paymentRoute);
+app.use("/api/user", userRoute);
+app.use("/api/music", musicRoute);
+app.use("/api/playlists", playlistRoute);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

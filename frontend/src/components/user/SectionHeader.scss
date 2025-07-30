@@ -1,0 +1,38 @@
+@use '../../styles/variables';
+@use '../../styles/mixins';
+
+.section-header{
+  color:white;
+
+  .section-title-container{
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+
+    &:hover{
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+
+  .section-subtitle{
+    display:flex;
+    font-size: 1rem;
+    color:white;
+    font-weight: 100;
+    opacity: 0.6;
+    justify-content: space-between;
+
+  }
+
+  .show-all{
+    margin-right: 1rem;
+
+    &:hover{
+      cursor: pointer; 
+      text-decoration: underline;
+    }
+  }
+}
+
+

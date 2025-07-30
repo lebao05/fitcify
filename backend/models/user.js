@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
       required() {
         return this.authProvider == "email";
       },
-    },/* ───────── one­‑time passwords ───────── */
+    } /* ───────── one­‑time passwords ───────── */,
     loginOtp: {
       code: { type: String, default: null },
       expiresAt: { type: Date, default: null },
@@ -72,6 +72,7 @@ const userSchema = new mongoose.Schema(
     subscribedUntil: { type: Date, default: null },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     followees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likedSongs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
 
     /* ───────── admin flags ───────── */
     isBlocked: { type: Boolean, default: false },
@@ -131,7 +132,7 @@ userSchema.statics.authWithGoogle = async function ({ username, email }) {
     return existingUser;
   }
   return await this.create({
-    username, 
+    username,
     email,
     authProvider: "google",
   });
@@ -153,26 +154,31 @@ userSchema.statics.authWithFacebook = async function ({
     authProvider: "facebook",
   });
 };
-const OTP_TTL_MIN = 10;                        // 10‑minute default TTL
+const OTP_TTL_MIN = 10; // 10‑minute default TTL
 
 // create & attach a new OTP (type = "login" | "forgot")
 userSchema.methods.generateOtp = function (type, ttl = OTP_TTL_MIN) {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const expires = new Date(Date.now() + ttl * 60 * 1000);
   this[`${type}Otp`] = { code: otp, expiresAt: expires };
-  return otp;                                   // return plaintext to send via e‑mail
+  return otp; // return plaintext to send via e‑mail
 };
 
 // verify & consume OTP
 userSchema.methods.verifyOtp = async function (type, otp) {
   const entry = this[`${type}Otp`];
   if (!entry || !entry.code) return false;
-  const valid = entry.code === otp && entry.expiresAt > Date.now();
-  if (valid) {
-    this[`${type}Otp`] = null;                  // one‑time use → clear it
+
+  const isValid = entry.code === otp && entry.expiresAt > new Date();
+
+  if (isValid) {
+    // Properly reset the code and expiration instead of assigning `null`
+    this[`${type}Otp`].code = null;
+    this[`${type}Otp`].expiresAt = null;
     await this.save();
   }
-  return valid;
+
+  return isValid;
 };
 
 // Static method to find user by provider

@@ -1,169 +1,150 @@
-// Variables
-$main-bg: #181a20;
-$card-bg: #23242b;
-$radius-lg: 18px;
-$radius-md: 16px;
-$radius-sm: 12px;
-$shadow-lg: 0 4px 24px rgba(0,0,0,0.06);
-$shadow-md: 0 2px 12px rgba(0,0,0,0.04);
-$primary: #9437c9;
-$secondary: #fa71cd;
-$success: #229f56;
-$info: #2e85be;
-$warning: #de8705;
-$dark: #232946;
-$purple: #a259f7;
-$title: #22223b;
-$placeholder: #e0e7ef;
-
-
 .dashboard-container {
-  flex: auto;
-  position: relative;
-  max-width: 100%;
-  padding: 20px 40px 32px 40px;
-  background: $main-bg;
-
-  box-shadow: $shadow-lg;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
 }
 
 .dashboard-title {
   font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: #f8fafc;
+  margin-bottom: 1rem;
 }
 
-.dashboard-row {
+.profile-info {
   display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.dashboard-card {
-  background: $card-bg;
-  border-radius: $radius-md;
-  padding: 18px 20px;
-  box-shadow: $shadow-md;
-  flex: 1;
-  min-width: 160px;
+.avatar-box {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.text-info p {
+  margin: 0.3rem 0;
+}
+
+.song-list-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.song-list-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.song-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.song-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  p {
+    margin: 0.2rem 0;
+  }
+}
+
+
+.album-section-title {
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.album-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  font-size: 0.97rem;
-  color: #f8fafc;
+  gap: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-.stats-card {
-  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
-  color: #fff;
-  position: relative;
-}
-
-.growth-info {
+.album-card {
   display: flex;
-  align-items: center;
-  margin-top: 14px;
-  font-size: 0.95rem;
-  .growth-icon {
-    font-size: 1rem;
-    margin-right: 6px;
-  }
-  .growth-text {
-    font-weight: 600;
-  }
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #fafafa;
 }
 
-.listeners-card {
-  background: $success;
-  color: #fff;
-  align-items: center;
-  justify-content: center;
-  .listeners-number {
-    font-size: 2.2rem;
-    font-weight: 700;
-  }
-  .listeners-label {
-    font-size: 1rem;
-    margin-top: 6px;
-  }
-}
-
-.plays-card {
-  background: $info;
-  color: #fff;
-  align-items: center;
-  justify-content: center;
-  .plays-number {
-    font-size: 2.2rem;
-    font-weight: 700;
-  }
-  .plays-label {
-    font-size: 1rem;
-    margin-top: 6px;
-  }
-}
-
-.release-card {
-  background: $warning;
-  color: #fff;
-  flex: 1.2;
-  position: relative;
-  .heart {
-    position: absolute;
-    top: 24px;
-    left: 32px;
-    font-size: 1.5rem;
-    color: #fff;
-  }
-}
-
-.activity-card {
-  background: $dark;
-  color: #fff;
-  flex: 1.8;
-  h3 {
-    margin-bottom: 16px;
-  }
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-  li {
-    margin-bottom: 10px;
-    font-size: 1.08rem;
-    display: flex;
-    align-items: center;
-  }
-}
-
-.dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 10px;
-  &.green { background: $success; }
-  &.blue { background: $info; }
-  &.purple { background: $purple; }
-}
-
-.grid-row {
-  gap: 24px;
-}
-.dashboard-placeholder {
-  background: $placeholder;
-  border-radius: $radius-sm;
+.album-cover {
+  width: 120px;
   height: 120px;
-  flex: 1;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
-@media (max-width: 900px) {
-  .dashboard-row {
-    flex-direction: column;
-    gap: 16px;
+.album-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  ul {
+    margin-top: 0.5rem;
+    padding-left: 1.2rem;
+
+    li {
+      list-style-type: disc;
+    }
   }
-  .dashboard-card, .dashboard-placeholder {
-    min-width: 0;
+}
+
+
+.top-songs-section {
+  margin-top: 3rem;
+  background: #f3f3f3;
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+
+.top-songs-title {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.top-songs-lists {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.top-list {
+  flex: 1;
+
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  ol {
+    padding-left: 1.2rem;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
   }
 }

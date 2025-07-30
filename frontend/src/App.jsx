@@ -13,6 +13,9 @@ import ArtistDashboard from "./pages/artist/ArtistDashboard";
 import ArtistPlaylist from "./components/artist/ArtistPlaylist";
 import ArtistAlbum from "./components/artist/ArtistAlbum";
 import ArtistSong from "./components/artist/ArtistSong";
+import SubscribePage from "./pages/payment/subscribe";
+import PaymentSuccess from "./pages/payment/payment-success";
+import PaymentCancel from "./pages/payment/payment-cancel";
 import { Navigate } from "react-router-dom";
 
 import { useState, useEffect } from "react";
@@ -62,6 +65,9 @@ function App() {
           <Route path="music" element={<ArtistSong songs={[]} />} />
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
+        <Route path="/subscribe" element={<SubscribePage />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route path="/*" element={<MainPlayout />} />
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />

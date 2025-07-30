@@ -8,12 +8,13 @@ const swaggerSpec = require("./configs/swagger");
 const cookieParser = require("cookie-parser");
 const app = express();
 const port = process.env.PORT || 5000;
+const playlistRoute = require("./routes/playplistRoute");
 const authRoute = require("./routes/authRoute");
 const adminRoute = require("./routes/adminRoute");
+const paymentRoute = require("./routes/paymentRoute");
 const artistRoute = require("./routes/artistRoute")
 const userRoute = require("./routes/userRoute");
 const musicRoute = require("./routes/musicRoute");
-const playlistRoute = require("./routes/playplistRoute");
 const session = require("express-session");
 const passport = require("passport");
 const cors = require("cors");
@@ -55,10 +56,10 @@ app.use(
 app.use("/api/auth", authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/artist", artistRoute);
+app.use("/api/payment", paymentRoute);
 app.use("/api/user", userRoute);
 app.use("/api/music", musicRoute);
 app.use("/api/playlists", playlistRoute);
-
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

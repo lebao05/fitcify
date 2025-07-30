@@ -51,7 +51,7 @@ const ArtistAlbum = () => {
   );
   const songList = songs.length > 0 ? songs : mockSongs;
 
-  useEffect(() => {
+  useEffect(() => {    
     dispatch(fetchArtistSongs());
     dispatch(getAlbumsOfAnArtist());
   }, [fetchArtistSongs, getAlbumsOfAnArtist]);

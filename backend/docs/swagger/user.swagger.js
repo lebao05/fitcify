@@ -111,7 +111,7 @@
  */
 /**
  * @swagger
- * /api/users/artists/{artistId}/follow:
+ * /api/user/artists/{artistId}/follow:
  *   post:
  *     summary: Follow an artist
  *     tags: [Users]
@@ -129,7 +129,7 @@
 
 /**
  * @swagger
- * /api/users/artists/{artistId}/follow:
+ * /api/user/artists/{artistId}/follow:
  *   delete:
  *     summary: Unfollow an artist
  *     tags: [Users]

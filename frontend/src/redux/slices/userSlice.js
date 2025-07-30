@@ -32,7 +32,7 @@ export const fetchUserFromCookie = createAsyncThunk(
   "user/fetchUserFromCookie",
   async (_, thunkAPI) => {
     try {
-      const res = await getMyProfile(); 
+      const res = await getMyProfile();
       return res.Data;
     } catch (error) {
       return thunkAPI.rejectWithValue(

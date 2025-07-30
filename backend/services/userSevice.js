@@ -2,13 +2,12 @@ const User = require("../models/user");
 const cloudinary = require("../configs/cloudinary");
 const { uploadToCloudinary } = require("./cloudinaryService");
 const extractCloudinaryPublicId = require("../helpers/extractPublicId");
-
+const mongoose = require("mongoose");
 /** ------------------------- PUBLIC API ------------------------- **/
 
 async function getProfileInfo(userId) {
-  const user = await User.findById(userId).lean();
+  const user = await User.findById(userId).populate("followees").lean();
   if (!user) throw new Error("User not found");
-
   return user;
 }
 const getAllUsers = async () => {

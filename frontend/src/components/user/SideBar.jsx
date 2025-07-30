@@ -4,7 +4,9 @@ import PlayplistBar from "./PlayplistBar.jsx";
 import ArtistBar from "./ArtistBar.jsx";
 import AlbumBar from "./AlbumBar.jsx";
 import LikedTrackBar from "./LikedTrackBar.jsx";
-
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { fetchUserPlaylists } from "../../redux/slices/myCollectionSlice.js";
 const likedItem = {
   cover: assets.liked_icon,
   title: "Liked Songs",
@@ -133,7 +135,14 @@ const mockLibrary = [
 
 const Sidebar = () => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
+  const playlist = useSelector((state) => state.myCollection.playlists);
+  const user = useSelector((state) => state.user.myAuth);
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchUserPlaylists());
+    }
+  }, [user, dispatch]);
   return (
     <div className="w-[20%] mt-14 min-w-[250px] h-full flex flex-col p-2 gap-2 text-white bg-black">
       {/* Top Nav Section */}
@@ -146,13 +155,12 @@ const Sidebar = () => {
             <p className="font-semibold">Your Library</p>
           </div>
           <img
-            className="w-5 cursor-pointer"
+            className="cursor-pointer rounded-full hover:bg-[#282828] w-8 h-8 p-1"
             src={assets.plus_icon}
-            alt="plus_icon"
+            alt="Create Playlist"
           />
         </div>
-
-        <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover pb-32">
+        {/* <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover pb-32">
           <LikedTrackBar
             cover={likedItem.cover}
             title={likedItem.title}
@@ -191,6 +199,32 @@ const Sidebar = () => {
               );
             } else return null;
           })}
+        </div> */}
+        <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover pb-32">
+          <LikedTrackBar
+            cover={likedItem.cover}
+            title={likedItem.title}
+            subtitle={likedItem.subtitle}
+            onClick={() => console.log("Liked Songs clicked")}
+          />
+          {playlist?.map((item) => (
+            <PlayplistBar
+              key={item._id}
+              cover={item.imageUrl || assets.music_placeholder}
+              title={item.name}
+              subtitle={`Playlist • ${item.owner?.name || "You"}`}
+              onClick={() => console.log("Playlist clicked", item.name)}
+            />
+          ))}
+          {user.followees &&
+            user.followees.map((item) => (
+              <ArtistBar
+                key={item._id}
+                avatar={item.avatarUrl}
+                name={item.username}
+                onClick={() => console.log("Playlist clicked", item.username)}
+              />
+            ))}
         </div>
       </div>
     </div>

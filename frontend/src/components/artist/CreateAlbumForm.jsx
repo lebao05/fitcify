@@ -5,6 +5,7 @@ import {
   createAlbum,
   getAlbumsOfAnArtist,
 } from "../../redux/slices/artistAlbumSlice";
+import { fetchArtistSongs } from "../../redux/slices/artistSongSlice";
 const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -48,6 +49,7 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
     selected.forEach((id) => formData.append("songIds", id)); // send as array
     await dispatch(createAlbum(formData));
     await dispatch(getAlbumsOfAnArtist());
+    await dispatch(fetchArtistSongs());
     onCreate &&
       onCreate({ name, desc, cover, songIds: selected, published: publish });
   };

@@ -276,3 +276,40 @@
  *             schema:
  *               $ref: '#/components/schemas/Song'
  */
+/**
+ * @swagger
+ * /api/music/top/songs:
+ *   get:
+ *     summary: Get top songs sorted by play count
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of top songs to return
+ *     responses:
+ *       200:
+ *         description: A list of top songs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *             examples:
+ *               TopSongs:
+ *                 value:
+ *                   Message: Top songs fetched
+ *                   Error: 0
+ *                   Data:
+ *                     - _id: "64f1a2..."
+ *                       title: "Hit Song"
+ *                       artistId: "64f1b3..."
+ *                       playCount: 12345
+ *                       imageUrl: "https://..."
+ *       401:
+ *         description: Unauthorized (no valid token)
+ */

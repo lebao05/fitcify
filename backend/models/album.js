@@ -7,7 +7,7 @@ const albumSchema = new mongoose.Schema(
         releaseDate: { type: Date },
         imageUrl: { type: String, default: '' },
         totalDuration: { type: Number, default: 0 },
-        description: { type: String, default: '' },
+        description: { type: String, default: '' },       
     },
     { timestamps: true }
 );

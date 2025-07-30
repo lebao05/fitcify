@@ -319,7 +319,13 @@ async function nextTrack(user) {
 
   return currentSong;
 }
-
+const getTopSongs = async (limit = 10) => {
+  const topSongs = await Song.find({ isApproved: true })
+    .sort({ playCount: -1 })
+    .limit(limit)
+    .select('title artistId playCount imageUrl');
+  return topSongs;
+};
 module.exports = {
   getAlbumsOfAnArtist,
   toggleSongLike,
@@ -332,4 +338,5 @@ module.exports = {
   previousTrack,
   playASong,
   nextTrack,
+  getTopSongs
 };

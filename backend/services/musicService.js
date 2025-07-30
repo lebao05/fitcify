@@ -1,6 +1,7 @@
 const https = require("https");
 const Song = require("../models/song");
 const Album = require("../models/album");
+const ArtistProfile = require("../models/artistProfile");
 const mongoose = require("mongoose");
 const Player = require("../models/audioPlayer");
 const Playlist = require("../models/playlist");
@@ -326,6 +327,18 @@ const getTopSongs = async (limit = 10) => {
     .select('title artistId playCount imageUrl');
   return topSongs;
 };
+const getTopArtists = async (limit = 10) => {
+  const artists = await ArtistProfile.find({ totalPlays: { $gt: 0 } })
+    .sort({ totalPlays: -1 })
+    .limit(limit)
+    .populate({
+      path: 'userId',
+      select: 'username avatarUrl'
+    })
+    .select('userId totalPlays');
+
+  return artists;
+};
 module.exports = {
   getAlbumsOfAnArtist,
   toggleSongLike,
@@ -338,5 +351,6 @@ module.exports = {
   previousTrack,
   playASong,
   nextTrack,
-  getTopSongs
+  getTopSongs,
+  getTopArtists
 };

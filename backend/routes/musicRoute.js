@@ -42,4 +42,5 @@ router.post("/play-song", authMiddleware, musicController.playASong);
 router.post("/next", authMiddleware, musicController.nextTrack);
 
 router.get('/top/songs', musicController.getTopSongs);
+router.get('/top/artists', musicController.getTopArtists);
 module.exports = router;

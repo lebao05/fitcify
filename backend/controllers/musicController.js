@@ -203,6 +203,23 @@ const getTopSongs = async (req, res, next) => {
     next(err);
   }
 };
+const getTopArtists = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const artistProfiles = await musicService.getTopArtists(limit);
+    const data = artistProfiles.map(profile => ({
+      _id: profile._id,
+      userId: profile.userId._id,
+      name: profile.userId.username,
+      imageUrl: profile.userId.avatarUrl,
+      totalPlays: profile.totalPlays
+    }));
+    res.status(200).json({ Message: 'Top artists fetched', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   streamingAudio,
   toggleSongLikeController,
@@ -215,6 +232,7 @@ module.exports = {
   playAnArtistController,
   previousTrack,
   nextTrack,
-  getTopSongs
+  getTopSongs,
+  getTopArtists
 
 };

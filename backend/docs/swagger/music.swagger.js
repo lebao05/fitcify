@@ -313,3 +313,45 @@
  *       401:
  *         description: Unauthorized (no valid token)
  */
+/**
+ * @swagger
+ * /api/music/top/artists:
+ *   get:
+ *     summary: Get top artists sorted by total play count
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of artists to return
+ *     responses:
+ *       200:
+ *         description: A list of top artists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *             examples:
+ *               TopArtists:
+ *                 value:
+ *                   Message: Top artists fetched
+ *                   Error: 0
+ *                   Data:
+ *                     - _id: "64f1b3a7..."
+ *                       userId: "64f1b3a7..."
+ *                       name: "Artist Name"
+ *                       imageUrl: "https://..."
+ *                       totalPlays: 987654
+ *                     - _id: "64f2c4b8..."
+ *                       userId: "64f2c4b8..."
+ *                       name: "Another Artist"
+ *                       imageUrl: "https://..."
+ *                       totalPlays: 876543
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ */

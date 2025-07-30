@@ -276,3 +276,120 @@
  *             schema:
  *               $ref: '#/components/schemas/Song'
  */
+/**
+ * @swagger
+ * /api/music/top/songs:
+ *   get:
+ *     summary: Get top songs sorted by play count
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of top songs to return
+ *     responses:
+ *       200:
+ *         description: A list of top songs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *             examples:
+ *               TopSongs:
+ *                 value:
+ *                   Message: Top songs fetched
+ *                   Error: 0
+ *                   Data:
+ *                     - _id: "64f1a2..."
+ *                       title: "Hit Song"
+ *                       artistId: "64f1b3..."
+ *                       playCount: 12345
+ *                       imageUrl: "https://..."
+ *       401:
+ *         description: Unauthorized (no valid token)
+ */
+/**
+ * @swagger
+ * /api/music/top/artists:
+ *   get:
+ *     summary: Get top artists sorted by total play count
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of artists to return
+ *     responses:
+ *       200:
+ *         description: A list of top artists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *             examples:
+ *               TopArtists:
+ *                 value:
+ *                   Message: Top artists fetched
+ *                   Error: 0
+ *                   Data:
+ *                     - _id: "64f1b3a7..."
+ *                       userId: "64f1b3a7..."
+ *                       name: "Artist Name"
+ *                       imageUrl: "https://..."
+ *                       totalPlays: 987654
+ *                     - _id: "64f2c4b8..."
+ *                       userId: "64f2c4b8..."
+ *                       name: "Another Artist"
+ *                       imageUrl: "https://..."
+ *                       totalPlays: 876543
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ */
+/**
+ * @swagger
+ * /api/music/top/albums:
+ *   get:
+ *     summary: Get top albums sorted by view count
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of albums to return
+ *     responses:
+ *       200:
+ *         description: A list of top albums
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *             examples:
+ *               TopAlbums:
+ *                 value:
+ *                   Message: Top albums fetched
+ *                   Error: 0
+ *                   Data:
+ *                     - _id: "64f3a9f..."
+ *                       title: "Hit Album"
+ *                       artistId: "64f1b3a7..."
+ *                       imageUrl: "https://..."
+ *                       viewCount: 54321
+ *                       releaseDate: "2023-07-01T00:00:00.000Z"
+ *       401:
+ *         description: Unauthorized
+ */

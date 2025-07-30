@@ -111,6 +111,8 @@ const unfollowArtist = async (req, res, next) => {
     next(err);
   }
 };
+
+
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -121,5 +123,5 @@ module.exports = {
   updateAccountInfo,
   getMyProfile,
   followArtist,
-  unfollowArtist
+  unfollowArtist,
 };

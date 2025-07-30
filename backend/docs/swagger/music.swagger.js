@@ -355,3 +355,41 @@
  *       401:
  *         description: Unauthorized (missing or invalid token)
  */
+/**
+ * @swagger
+ * /api/music/top/albums:
+ *   get:
+ *     summary: Get top albums sorted by view count
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Maximum number of albums to return
+ *     responses:
+ *       200:
+ *         description: A list of top albums
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DefaultResponse'
+ *             examples:
+ *               TopAlbums:
+ *                 value:
+ *                   Message: Top albums fetched
+ *                   Error: 0
+ *                   Data:
+ *                     - _id: "64f3a9f..."
+ *                       title: "Hit Album"
+ *                       artistId: "64f1b3a7..."
+ *                       imageUrl: "https://..."
+ *                       viewCount: 54321
+ *                       releaseDate: "2023-07-01T00:00:00.000Z"
+ *       401:
+ *         description: Unauthorized
+ */

@@ -219,6 +219,15 @@ const getTopArtists = async (req, res, next) => {
     next(err);
   }
 };
+const getTopAlbums = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const data = await musicService.getTopAlbums(limit);
+    res.status(200).json({ Message: 'Top albums fetched', Error: 0, Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
   streamingAudio,
@@ -233,6 +242,6 @@ module.exports = {
   previousTrack,
   nextTrack,
   getTopSongs,
-  getTopArtists
-
+  getTopArtists,
+  getTopAlbums
 };

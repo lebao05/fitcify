@@ -8,6 +8,7 @@ const albumSchema = new mongoose.Schema(
         imageUrl: { type: String, default: '' },
         totalDuration: { type: Number, default: 0 },
         description: { type: String, default: '' },       
+        viewCount: { type: Number, default: 0 },
     },
     { timestamps: true }
 );

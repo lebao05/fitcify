@@ -339,6 +339,12 @@ const getTopArtists = async (limit = 10) => {
 
   return artists;
 };
+const getTopAlbums = async (limit = 10) => {
+  return await Album.find({})             
+    .sort({ viewCount: -1 })
+    .limit(limit)
+    .select('title artistId imageUrl viewCount releaseDate');
+};
 module.exports = {
   getAlbumsOfAnArtist,
   toggleSongLike,
@@ -352,5 +358,6 @@ module.exports = {
   playASong,
   nextTrack,
   getTopSongs,
-  getTopArtists
+  getTopArtists,
+  getTopAlbums
 };

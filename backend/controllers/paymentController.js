@@ -77,7 +77,7 @@ const paymentSuccess = async (req, res, next) => {
     res.status(result.status).json({
       Message: result.message,
       Error: result.status === 200 ? 0 : 1,
-      Data: null,
+      Data: result.data || null,
     });
   } catch (err) {
     next(err);

@@ -8,6 +8,7 @@ const swaggerSpec = require("./configs/swagger");
 const cookieParser = require("cookie-parser");
 const app = express();
 const port = process.env.PORT || 5000;
+const playlistRoute = require("./routes/playplistRoute");
 const authRoute = require("./routes/authRoute");
 const adminRoute = require("./routes/adminRoute");
 const paymentRoute = require("./routes/paymentRoute");

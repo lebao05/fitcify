@@ -2,26 +2,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAlbumById } from "../../services/musicApi";
 import { assets } from "../../assets/assets";
-
+import { useDispatch } from "react-redux";
+import { playAlbumThunk } from "../../redux/slices/playerSlice";
 const DisplayAlbum = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [album, setAlbum] = useState(null);
-
-  const handlePlayAlbum = () => {
-    console.log("Playing full album:", album.title);
-  };
-
-  const handleShuffleAlbum = () => {
-    console.log("Shuffle play album:", album.title);
-  };
-
+  const dispatch = useDispatch();
   const handleAddAlbum = () => {
     console.log("Add album to library:", album.title);
   };
-
-  const handleDownloadAlbum = () => {
-    console.log("Download album:", album.title);
+  const handlePlayAlbum = (songOrder) => {
+    if (!id) return;
+    dispatch(playAlbumThunk({ albumId: id, songOrder }));
   };
 
   useEffect(() => {
@@ -110,9 +103,16 @@ const DisplayAlbum = () => {
           >
             {/* Title + image */}
             <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
-              <div className="w-5 text-right">
-                <span className="group-hover:hidden block text-[#a7a7a7]">{index + 1}</span>
-                <span className="hidden group-hover:block text-[#a7a7a7]">▶</span>
+              <div
+                className="w-5 text-right"
+                onClick={() => handlePlayAlbum(index)}
+              >
+                <span className="group-hover:hidden block text-[#a7a7a7]">
+                  {index + 1}
+                </span>
+                <span className="hidden group-hover:block text-[#a7a7a7]">
+                  ▶
+                </span>
               </div>
 
               <img

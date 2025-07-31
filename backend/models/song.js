@@ -15,6 +15,6 @@ const songSchema = new mongoose.Schema(
         },
         uploadedAt: { type: Date, default: Date.now },
     },
-    { timestamps: false }
+    { timestamps: true }
 );
 module.exports = mongoose.model('Song', songSchema); 

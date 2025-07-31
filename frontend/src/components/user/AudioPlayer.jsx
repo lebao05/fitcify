@@ -1,56 +1,82 @@
 import React, { useEffect, useRef, useState } from "react";
 import { assets } from "../../assets/assets";
 import { fetchAudioStreamUrl } from "../../services/musicApi";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  playNextThunk,
+  playPreviousThunk,
+  togglePlay,
+} from "../../redux/slices/playerSlice";
 
 const AudioPlayer = () => {
-  const songIds = [
-    "68823aeaf3ae3183381e612a",
-    "68823b05f3ae3183381e612f",
-    "68823b19f3ae3183381e6134",
-  ];
+  const dispatch = useDispatch();
+
+  // Get Redux state
+  const currentSong = useSelector((state) => state.player.currentSong);
+  const isPlaying = useSelector((state) => state.player.isPlaying);
+  const [autoPlay, setAutoPlay] = useState(false);
+  // Local UI state
   const [volume, setVolume] = useState(1);
-
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [audioUrl, setAudioUrl] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const audioRef = useRef(null);
-  const seekBar = useRef(null);
-  const seekBg = useRef(null);
-
   const [track, setTrack] = useState({
     image: "/placeholder.jpg",
     name: "Demo Song",
     desc: "Demo artist / album",
   });
-
   const [time, setTime] = useState({
     currentTime: { minute: "00", second: "00" },
     totalTime: { minute: "00", second: "00" },
   });
+
+  const audioRef = useRef(null);
+  const seekBar = useRef(null);
+  const seekBg = useRef(null);
+
+  // Set audio volume
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
-  const loadAudio = async () => {
-    try {
-      const url = await fetchAudioStreamUrl(songIds[currentIndex]);
-      setAudioUrl(url);
-      if (audioRef.current) {
-        audioRef.current.load();
-        if (isPlaying) {
-          audioRef.current.play();
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load audio:", error);
-    }
-  };
+
+  // Load new audio when currentSongId changes
   useEffect(() => {
-    console.log(currentIndex);
+    const loadAudio = async () => {
+      if (!currentSong) return;
+      setAutoPlay(true);
+      try {
+        const url = await fetchAudioStreamUrl(currentSong._id);
+        setAudioUrl(url);
+
+        if (audioRef.current) {
+          const audio = audioRef.current;
+
+          // Clean up existing event listener
+          const handleCanPlay = async () => {
+            if (isPlaying || autoPlay) {
+              try {
+                await audio.play();
+              } catch (err) {
+                console.error("Audio play failed:", err);
+              }
+            }
+          };
+
+          audio.addEventListener("canplaythrough", handleCanPlay);
+          audio.load(); // Must call after setting src
+
+          // Cleanup to prevent multiple listeners
+          return () => {
+            audio.removeEventListener("canplaythrough", handleCanPlay);
+          };
+        }
+      } catch (error) {
+        console.error("Failed to load audio:", error);
+      }
+    };
+
     loadAudio();
-  }, [currentIndex]);
+  }, [currentSong]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
@@ -64,8 +90,11 @@ const AudioPlayer = () => {
 
   const updateProgress = () => {
     if (!audioRef.current) return;
-    const current = audioRef.current.currentTime;
+
+    const current = audioRef.current.currentTime || 0;
     const duration = audioRef.current.duration;
+
+    if (isNaN(duration) || duration === 0) return; // Prevent NaN division
 
     setTime({
       currentTime: formatTime(current),
@@ -87,37 +116,43 @@ const AudioPlayer = () => {
     audioRef.current.currentTime = newTime;
   };
 
-  const togglePlay = () => {
+  const togglePlayButton = () => {
+    dispatch(togglePlay());
     if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
+    if (audioRef.current.paused) {
       audioRef.current.play();
+    } else {
+      audioRef.current.pause();
     }
-    setIsPlaying(!isPlaying);
   };
 
-  const previous = () => {
-    setCurrentIndex((prev) => (prev === 0 ? songIds.length - 1 : prev - 1));
-    setIsPlaying(true);
-    audioRef.current.play();
+  const previous = async () => {
+    dispatch(playPreviousThunk());
+    if (currentSong) {
+      audioRef.current.currentTime = 0;
+      if (!isPlaying) dispatch(togglePlay());
+    }
   };
 
   const next = () => {
-    setCurrentIndex((prev) => (prev === songIds.length - 1 ? 0 : prev + 1));
+    dispatch(playNextThunk());
   };
 
   const handleEnded = () => {
-    next();
+    dispatch(playNextThunk());
   };
 
   return (
     <div className="fixed bottom-0 bg-gray-800 left-0 w-full h-[7%] text-white px-4 py-2 flex items-center justify-between border-t border-gray-700 z-50">
       {/* Left: Song Info */}
       <div className="hidden lg:flex items-center gap-4 w-[25%]">
-        <img src={track.image} alt="track" className="w-12 h-12 rounded" />
+        <img
+          src={currentSong?.imageUrl || null}
+          alt="track"
+          className="w-12 h-12 rounded"
+        />
         <div>
-          <p className="text-sm font-semibold">{track.name}</p>
+          <p className="text-sm font-semibold">{currentSong?.title}</p>
           <p className="text-xs text-gray-400">{track.desc.slice(0, 43)}</p>
         </div>
       </div>
@@ -135,13 +170,13 @@ const AudioPlayer = () => {
             <img
               src={assets.pause_icon}
               className="w-6 cursor-pointer"
-              onClick={togglePlay}
+              onClick={togglePlayButton}
             />
           ) : (
             <img
               src={assets.play_icon}
               className="w-6 cursor-pointer"
-              onClick={togglePlay}
+              onClick={togglePlayButton}
             />
           )}
           <img
@@ -174,10 +209,6 @@ const AudioPlayer = () => {
 
       {/* Right: Options */}
       <div className="hidden lg:flex items-center gap-3 w-[25%] justify-end text-gray-300">
-        <img src={assets.plays_icon} className="w-4" />
-        <img src={assets.mic_icon} className="w-4" />
-        <img src={assets.queue_icon} className="w-4" />
-        <img src={assets.speaker_icon} className="w-4" />
         <div className="flex items-center gap-2">
           <img
             src={assets.volume_icon}
@@ -194,9 +225,6 @@ const AudioPlayer = () => {
             className="w-24 h-1 accent-white cursor-pointer"
           />
         </div>
-
-        <img src={assets.mini_player_icon} className="w-4" />
-        <img src={assets.zoom_icon} className="w-4" />
       </div>
 
       <audio
@@ -205,7 +233,7 @@ const AudioPlayer = () => {
         onTimeUpdate={updateProgress}
         onEnded={handleEnded}
         preload="auto"
-        autoPlay={isPlaying}
+        autoPlay={autoPlay}
       />
     </div>
   );

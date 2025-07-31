@@ -136,6 +136,7 @@ const mockLibrary = [
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const nagivate = useNavigate();
   const playlist = useSelector((state) => state.myCollection.playlists);
   const user = useSelector((state) => state.user.myAuth);
   useEffect(() => {
@@ -213,7 +214,7 @@ const Sidebar = () => {
               cover={item.imageUrl || assets.music_placeholder}
               title={item.name}
               subtitle={`Playlist • ${item.owner?.name || "You"}`}
-              onClick={() => console.log("Playlist clicked", item.name)}
+              onClick={() => navigate(`/playlist/${item._id}`)}
             />
           ))}
           {user.followees &&

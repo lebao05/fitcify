@@ -236,11 +236,12 @@ const getPlaylistById = async (playlistId, viewerId) => {
     .select("-__v")
     .populate({
       path: "ownerId",
-      select: "username avatarUrl", 
+      select: "username avatarUrl",
     })
     .populate({
       path: "songs",
       select: "title artistId duration imageUrl",
+      options: { sort: { createdAt: 1 } },
       populate: {
         path: "artistId",
         model: "User",

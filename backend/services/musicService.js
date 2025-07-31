@@ -21,6 +21,15 @@ function proxyStreamFromCloudinary(cloudinaryUrl, range) {
 async function getStream(songId, rangeHeader = "bytes=0-") {
   const song = await Song.findById(songId).select("audioUrl");
   if (!song) throw new Error("Song not found");
+
+  const album = await Album.findOne({ songs: songId }).select("_id");
+
+  // Fire-and-forget async updates (non-blocking)
+  Song.updateOne({ _id: songId }, { $inc: { playCount: 1 } }).exec();
+  if (album) {
+    Album.updateOne({ _id: album._id }, { $inc: { playCount: 1 } }).exec();
+  }
+
   const cloudRes = await proxyStreamFromCloudinary(song.audioUrl, rangeHeader);
   return cloudRes;
 }
@@ -72,15 +81,21 @@ const getAlbumById = async (albumId) => {
     err.status = 400;
     throw err;
   }
+
   const album = await Album.findById(albumId)
-    .populate("songs")
+    .populate({
+      path: "songs",
+      options: { sort: { createdAt: 1 } }, // ascending, use -1 for descending
+    })
     .populate("artistId")
     .lean();
+
   if (!album) {
     const err = new Error("Album not found");
     err.status = 404;
     throw err;
   }
+
   return album;
 };
 
@@ -101,7 +116,10 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     throw err;
   }
 
-  const album = await Album.findById(albumId).populate("songs");
+  const album = await Album.findById(albumId).populate({
+    path: "songs",
+    options: { sort: { createdAt: 1 } },
+  });
   if (!album) {
     const err = new Error("Album not found");
     err.status = 404;
@@ -136,8 +154,8 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
       currentSong: resultSongs[0]._id,
       currentIndex: 0,
       isPlaying: true,
-      repeatMode: false, 
-      shuffle: !user?.isPremium, 
+      repeatMode: false,
+      shuffle: !user?.isPremium,
     },
     { upsert: true, new: true }
   );
@@ -152,7 +170,10 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     throw err;
   }
 
-  const playlist = await Playlist.findById(playlistId).populate("songs");
+  const playlist = await Playlist.findById(playlistId).populate({
+    path: "songs",
+    options: { sort: { createdAt: 1 } }, // ascending by creation date
+  });
   if (!playlist) {
     const err = new Error("Playlist not found");
     err.status = 404;
@@ -232,7 +253,7 @@ async function previousTrack(user) {
 
   // If already at the beginning of the queue
   if (player.currentIndex <= 0) {
-    throw new Error("Already at the beginning of the queue.");
+    return player.queue[0]; // Return the first song
   }
   player.currentIndex -= 1;
   const currentSong = player.queue[player.currentIndex];
@@ -324,7 +345,7 @@ const getTopSongs = async (limit = 10) => {
   const topSongs = await Song.find({ isApproved: true })
     .sort({ playCount: -1 })
     .limit(limit)
-    .select('title artistId playCount imageUrl');
+    .select("title artistId playCount imageUrl");
   return topSongs;
 };
 const getTopArtists = async (limit = 10) => {
@@ -332,18 +353,18 @@ const getTopArtists = async (limit = 10) => {
     .sort({ totalPlays: -1 })
     .limit(limit)
     .populate({
-      path: 'userId',
-      select: 'username avatarUrl'
+      path: "userId",
+      select: "username avatarUrl",
     })
-    .select('userId totalPlays');
+    .select("userId totalPlays");
 
   return artists;
 };
 const getTopAlbums = async (limit = 10) => {
-  return await Album.find({})             
+  return await Album.find({})
     .sort({ viewCount: -1 })
     .limit(limit)
-    .select('title artistId imageUrl viewCount releaseDate');
+    .select("title artistId imageUrl viewCount releaseDate");
 };
 module.exports = {
   getAlbumsOfAnArtist,
@@ -359,5 +380,5 @@ module.exports = {
   nextTrack,
   getTopSongs,
   getTopArtists,
-  getTopAlbums
+  getTopAlbums,
 };

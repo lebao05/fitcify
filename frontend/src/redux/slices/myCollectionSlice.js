@@ -6,9 +6,54 @@ import {
   getUserPlaylists,
   getPlaylistById,
 } from "../../services/playlistApi";
-
+import {
+  getTopSongs,
+  getTopAlbums,
+  getTopArtists,
+} from "../../services/musicApi";
 // ───── THUNKS ─────
+// ─── THUNKS ───
+export const fetchTopSongs = createAsyncThunk(
+  "music/fetchTopSongs",
+  async (_, thunkAPI) => {
+    try {
+      const data = await getTopSongs();
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Failed to fetch top songs"
+      );
+    }
+  }
+);
 
+export const fetchTopAlbums = createAsyncThunk(
+  "music/fetchTopAlbums",
+  async (_, thunkAPI) => {
+    try {
+      const data = await getTopAlbums();
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Failed to fetch top albums"
+      );
+    }
+  }
+);
+
+export const fetchTopArtists = createAsyncThunk(
+  "music/fetchTopArtists",
+  async (_, thunkAPI) => {
+    try {
+      const data = await getTopArtists();
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Failed to fetch top artists"
+      );
+    }
+  }
+);
 // ── Fetch All ──
 export const fetchUserPlaylists = createAsyncThunk(
   "myCollection/fetchUserPlaylistIds",
@@ -87,6 +132,9 @@ export const fetchUserPlaylistById = createAsyncThunk(
 // ───── INITIAL STATE ─────
 const initialState = {
   playlists: [], // store only playlist IDs
+  topSongs: [],
+  topAlbums: [],
+  topArtists: [],
   loading: false,
   error: null,
 };
@@ -144,6 +192,47 @@ const myCollectionSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchUserPlaylistById.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      .addCase(fetchTopSongs.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopSongs.fulfilled, (state, action) => {
+        state.topSongs = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopSongs.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // ── Top Albums ──
+      .addCase(fetchTopAlbums.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopAlbums.fulfilled, (state, action) => {
+        state.topAlbums = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopAlbums.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // ── Top Artists ──
+      .addCase(fetchTopArtists.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopArtists.fulfilled, (state, action) => {
+        state.topArtists = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopArtists.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

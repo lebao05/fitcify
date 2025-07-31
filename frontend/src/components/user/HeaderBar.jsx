@@ -27,7 +27,7 @@ const HeaderBar = () => {
         <div className="flex items-center">
           <div
             className="w-12 h-12 flex items-center justify-center cursor-pointer"
-            onClick={() => (window.location.href = "/")}
+            onClick={() => navigate("/")}
           >
             <img
               src={appLogo}
@@ -40,8 +40,8 @@ const HeaderBar = () => {
         {/* Center Section */}
         <div className="flex items-center gap-4 flex-1 max-w-[700px] mx-4 relative left-[12%] lg:left-0 lg:justify-center lg:px-3">
           <button
-            className="w-12 h-12 bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all"
-            onClick={() => (window.location.href = "/")}
+            className="w-12 h-12 cursor-pointer bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all"
+            onClick={() => navigate("/")}
           >
             <Home size={25} className="cursor-pointer" />
           </button>
@@ -68,11 +68,8 @@ const HeaderBar = () => {
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
             <>
-              <button className="text-[#b3b3b3] text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
+              <button className="text-[#b3b3b3] cursor-pointer text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
                 Premium
-              </button>
-              <button className="text-[#b3b3b3] text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
-                Support
               </button>
               <div className="w-px h-6 bg-[#404040]" />
               <button
@@ -90,11 +87,8 @@ const HeaderBar = () => {
             </>
           ) : (
             <>
-              <button className="text-[#b3b3b3] text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
+              <button className="text-[#b3b3b3] cursor-pointer text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
                 Premium
-              </button>
-              <button className="text-[#b3b3b3] text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
-                Support
               </button>
               <div className="w-px h-6 bg-[#404040]" />
               <div className="relative">

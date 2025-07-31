@@ -138,28 +138,43 @@ async function updateSong(
 
 async function deleteSong(songId, artistUserId) {
   const user = await User.findById(artistUserId);
-  if (!user || !user.isVerified || user.role !== "artist")
+  if (!user || !user.isVerified || user.role !== "artist") {
     throw new Error("Only verified artists can delete songs");
+  }
 
   const song = await Song.findById(songId);
   if (!song) throw new Error("Song not found");
-  if (!song.artistId.equals(artistUserId))
+  if (!song.artistId.equals(artistUserId)) {
     throw new Error("You do not have permission to delete this song");
+  }
 
   const oldAudioId = extractCloudinaryPublicId(song.audioUrl);
-  if (oldAudioId)
+  if (oldAudioId) {
     await cloudinary.uploader.destroy(oldAudioId, { resource_type: "video" });
+  }
 
   const oldImgId = extractCloudinaryPublicId(song.imageUrl);
-  if (oldImgId)
+  if (oldImgId) {
     await cloudinary.uploader.destroy(oldImgId, { resource_type: "image" });
+  }
 
   await ArtistProfile.findOneAndUpdate(
     { userId: artistUserId },
     { $pull: { songs: song._id } }
   );
 
+  await Playlist.updateMany(
+    { songs: song._id },
+    { $pull: { songs: song._id } }
+  );
+
+  await Album.updateMany(
+    { songs: song._id },
+    { $pull: { songs: song._id } }
+  );
+
   await Song.findByIdAndDelete(song._id);
+
   return { deletedSongId: song._id };
 }
 

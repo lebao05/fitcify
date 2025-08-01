@@ -217,7 +217,7 @@ const Sidebar = () => {
               onClick={() => navigate(`/playlist/${item._id}`)}
             />
           ))}
-          {user.followees &&
+          {user?.followees &&
             user.followees.map((item) => (
               <ArtistBar
                 key={item._id}

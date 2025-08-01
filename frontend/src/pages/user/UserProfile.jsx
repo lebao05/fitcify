@@ -30,8 +30,7 @@ const UserProfile = () => {
   const myAuth = useSelector((state) => state.user.myAuth);
   const user = useSelector((state) => state.user.currentProfile);
   useEffect(() => {
-    if(id)
-      ditpatch(fetchCurrentProfileById(id));
+    if (id) ditpatch(fetchCurrentProfileById(id));
   }, [id, fetchCurrentProfileById]);
   useEffect(() => {
     const calcVisible = () => {
@@ -135,8 +134,7 @@ const UserProfile = () => {
       }))
     );
   };
-  if( user === null)
-    return null
+  if (user === null) return null;
   return (
     <div className="user-profile-content pb-10 h-full w-[75%] overflow-y-auto">
       <ProfileHeader user={user} onEditClick={handleToggleEditModal} />

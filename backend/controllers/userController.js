@@ -111,30 +111,36 @@ const unfollowArtist = async (req, res, next) => {
     next(err);
   }
 };
-const recommendRecentlyPlayed = async (req, res, next) => {
+async function recentlyPlayed(req, res, next) {
   try {
     const userId = req.user._id;
     const limit = parseInt(req.query.limit, 10) || 3;
-    const recs = await userService.recommendRecentlyPlayed(userId, limit);
-    res.status(200).json({
-      Message: "Recent recommendations fetched",
-      Error: 0,
-      Data: recs,
-    });
+    const data = await userService.getRecentlyPlayed(userId, limit);
+    res.status(200).json({ Error: 0, Message: 'Recently played', Data: data });
   } catch (err) {
     next(err);
   }
-};
-const topSongThisMonth = async (req, res, next) => {
+}
+
+async function topSongsThisMonth(req, res, next) {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
     const data = await userService.topSongThisMonth(limit);
-    res.json({ Error: 0, Message: 'Top songs this month', Data: data });
+    res.status(200).json({ Error: 0, Message: 'Top songs this month', Data: data });
   } catch (err) {
     next(err);
   }
-};
+}
 
+async function topArtistsThisMonth(req, res, next) {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const data = await userService.topArtistThisMonth(limit);
+    res.status(200).json({ Error: 0, Message: 'Top artists this month', Data: data });
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   getAllUsers,
@@ -147,6 +153,7 @@ module.exports = {
   getMyProfile,
   followArtist,
   unfollowArtist,
-  recommendRecentlyPlayed,
-  topSongThisMonth
+  recentlyPlayed,
+  topSongsThisMonth,
+  topArtistsThisMonth,
 };

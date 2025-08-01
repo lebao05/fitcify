@@ -2,10 +2,9 @@ const User = require("../models/user");
 const cloudinary = require("../configs/cloudinary");
 const { uploadToCloudinary } = require("./cloudinaryService");
 const extractCloudinaryPublicId = require("../helpers/extractPublicId");
-const PlayHistory = require('../models/playHistory'); // schema should include itemType: ['song','album','playlist']
 const Song = require('../models/song');
-const Album = require('../models/album');
-const Playlist = require('../models/playlist');
+const ArtistProfile = require('../models/artistProfile');
+const PlayHistory = require('../models/playHistory');
 const mongoose = require("mongoose");
 /** ------------------------- PUBLIC API ------------------------- **/
 
@@ -176,70 +175,62 @@ const unfollowArtist = async (userId, artistId) => {
   return { userId: me._id, followees: me.followees };
 };
 
-async function recommendRecentlyPlayed(userId, limit = 3) {
+async function getRecentlyPlayed(userId, limit = 3) {
   if (!mongoose.isValidObjectId(userId)) throw new Error('Invalid user ID');
 
-  // Fetch recent play history sorted descending
-  const history = await PlayHistory.find({ userId })
+  const history = await PlayHistory.find({ userId, itemType: 'song' })
     .sort({ playedAt: -1 })
-    .lean()
-    .exec();
+    .lean();
 
   const seen = new Set();
-  const recommendations = [];
-
+  const results = [];
   for (const entry of history) {
-    const key = `${entry.itemType}:${entry.itemId.toString()}`;
+    const key = entry.itemId.toString();
     if (seen.has(key)) continue;
     seen.add(key);
 
-    let doc = null;
-    if (entry.itemType === 'song') {
-      doc = await Song.findById(entry.itemId)
-        .populate('artistId', 'name')
-        .lean();
-    } else if (entry.itemType === 'album') {
-      doc = await Album.findById(entry.itemId)
-        .populate('artistId', 'name')
-        .lean();
-    } else if (entry.itemType === 'playlist') {
-      doc = await Playlist.findById(entry.itemId)
-        .populate('owner', 'username')
-        .lean();
-    }
+    const song = await Song.findById(entry.itemId)
+      .populate({ path: 'artistId', select: 'username' })
+      .lean();
+    if (!song) continue;
 
-    if (doc) {
-      recommendations.push({
-        itemType: entry.itemType,
-        data: doc,
-        playedAt: entry.playedAt,
-      });
-    }
+    results.push({
+      song: {
+        _id: song._id,
+        title: song.title,
+        audioUrl: song.audioUrl,
+        imageUrl: song.imageUrl,
+        duration: song.duration,
+        playCount: song.playCount || 0,
+        artist: song.artistId
+          ? { _id: song.artistId._id, username: song.artistId.username }
+          : null,
+      },
+      playedAt: entry.playedAt,
+    });
 
-    if (recommendations.length >= limit) break;
+    if (results.length >= limit) break;
   }
 
-  return recommendations;
-};
+  return results;
+}
 
+/**
+ * Top songs this month by history (playsThisMonth) plus cumulative playCount
+ */
 async function topSongThisMonth(limit = 10) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const startOfNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   const pipeline = [
     {
       $match: {
         itemType: 'song',
-        playedAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+        playedAt: { $gte: startOfMonth, $lt: startOfNext },
       },
     },
-    {
-      $group: {
-        _id: '$itemId',
-        playsThisMonth: { $sum: 1 },
-      },
-    },
+    { $group: { _id: '$itemId', playsThisMonth: { $sum: 1 } } },
     { $sort: { playsThisMonth: -1 } },
     { $limit: limit },
     {
@@ -269,22 +260,78 @@ async function topSongThisMonth(limit = 10) {
           imageUrl: '$song.imageUrl',
           duration: '$song.duration',
           playCount: '$song.playCount',
-          isApproved: '$song.isApproved',
         },
         playsThisMonth: 1,
         artist: {
           userId: '$artistProfile.userId',
           isVerified: '$artistProfile.isVerified',
+          totalPlays: '$artistProfile.totalPlays',
           bio: '$artistProfile.bio',
         },
       },
     },
   ];
 
-  const results = await PlayHistory.aggregate(pipeline).exec();
-  return results;
+  return await PlayHistory.aggregate(pipeline).exec();
 }
 
+/**
+ * Top artists this month by aggregated song plays
+ */
+async function topArtistThisMonth(limit = 10) {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const pipeline = [
+    {
+      $match: {
+        itemType: 'song',
+        playedAt: { $gte: startOfMonth, $lt: startOfNext },
+      },
+    },
+    {
+      $lookup: {
+        from: 'songs',
+        localField: 'itemId',
+        foreignField: '_id',
+        as: 'song',
+      },
+    },
+    { $unwind: '$song' },
+    {
+      $group: {
+        _id: '$song.artistId',
+        playsThisMonth: { $sum: 1 },
+      },
+    },
+    { $sort: { playsThisMonth: -1 } },
+    { $limit: limit },
+    {
+      $lookup: {
+        from: 'artistprofiles',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'artistProfile',
+      },
+    },
+    { $unwind: { path: '$artistProfile', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        artist: '$artistProfile',
+        playsThisMonth: 1,
+        totalPlays: '$artistProfile.totalPlays',
+      },
+    },
+  ];
+
+  const aggregated = await PlayHistory.aggregate(pipeline).exec();
+  return aggregated.map((a) => ({
+    artist: a.artist,
+    playsThisMonth: a.playsThisMonth,
+    totalPlays: a.totalPlays || 0,
+  }));
+}
 
 module.exports = {
   getAllUsers,
@@ -296,6 +343,7 @@ module.exports = {
   updateAccountInfo,
   followArtist,
   unfollowArtist,
-  recommendRecentlyPlayed,
-  topSongThisMonth
+  getRecentlyPlayed,
+  topSongThisMonth,
+  topArtistThisMonth,
 };

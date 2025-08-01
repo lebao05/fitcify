@@ -30,4 +30,13 @@ router.patch("/account", userController.updateAccountInfo);
 router.post('/artists/:artistId/follow', userController.followArtist);
 router.delete('/artists/:artistId/follow', userController.unfollowArtist);
 
+// recently played distinct songs
+router.get('/music/recently-played', userController.recentlyPlayed);
+
+// top songs this month
+router.get('/music/top-songs-month', userController.topSongsThisMonth);
+
+// top artists this month
+router.get('/music/top-artists-month', userController.topArtistsThisMonth);
+
 module.exports = router;

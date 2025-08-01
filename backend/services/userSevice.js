@@ -215,9 +215,7 @@ async function getRecentlyPlayed(userId, limit = 3) {
   return results;
 }
 
-/**
- * Top songs this month by history (playsThisMonth) plus cumulative playCount
- */
+
 async function topSongThisMonth(limit = 10) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -275,9 +273,7 @@ async function topSongThisMonth(limit = 10) {
   return await PlayHistory.aggregate(pipeline).exec();
 }
 
-/**
- * Top artists this month by aggregated song plays
- */
+
 async function topArtistThisMonth(limit = 10) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

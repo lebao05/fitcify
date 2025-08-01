@@ -12,6 +12,7 @@ const AlbumManagingModal = ({
   const [name, setName] = useState(album?.name || "");
   const [desc, setDesc] = useState(album?.desc || "");
   const [cover, setCover] = useState(null);
+  const [releaseDate, setReleaseDate] = useState(album?.releaseDate ? album.releaseDate : "");
   const initialSelected = useMemo(() => {
     if (album?.songIds && Array.isArray(album.songIds)) {
       return album.songIds;
@@ -51,6 +52,19 @@ const AlbumManagingModal = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!name.trim()) {
+      setError("You must enter an album name.");
+      return;
+    }
+    if (!releaseDate.trim()) {
+      setError("You must enter a release date.");
+      return;
+    }
+    // Validate format mm-dd-yyyy
+    if (!/^\d{2}-\d{2}-\d{4}$/.test(releaseDate.trim())) {
+      setError("Release date must be in format mm-dd-yyyy.");
+      return;
+    }
     if (selected.length === 0) {
       setError("You must select at least one song.");
       return;
@@ -62,6 +76,7 @@ const AlbumManagingModal = ({
         name,
         desc,
         cover,
+        releaseDate: releaseDate || null,
         songIds: selected,
       });
   };
@@ -114,6 +129,20 @@ const AlbumManagingModal = ({
             readOnly={isPending || isApproved}
             className="rounded-lg px-4 py-2 bg-[#23242b] text-white border border-[#333] focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
           />
+          <label className="text-white font-medium">Release Date *</label>
+          <input
+            type="text"
+            value={releaseDate}
+            onChange={e => setReleaseDate(e.target.value)}
+            placeholder="mm-dd-yyyy"
+            required
+            maxLength={10}
+            pattern="\d{2}-\d{2}-\d{4}"
+            title="Format: mm-dd-yyyy"
+            disabled={!isDraft}
+            readOnly={isPending || isApproved}
+            className="rounded-lg px-4 py-2 bg-[#23242b] text-white border border-[#333] focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60 mb-2"
+          />
           <label className="text-white font-medium">Cover Image (leave blank to keep current)</label>
           <input type="file" accept="image/*" onChange={handleCover} disabled={!isDraft} className="block text-white disabled:opacity-60" />
           <label className="text-white font-medium">Description</label>
@@ -154,6 +183,10 @@ const AlbumManagingModal = ({
             <>
               <label className="text-white font-medium">Songs in Album</label>
               <div className="selected-count mb-1">{selected.length} Songs in this album</div>
+              <div className="mb-2">
+                <span className="text-white font-medium">Release Date: </span>
+                <span className="text-gray-300">{releaseDate ? releaseDate : "N/A"}</span>
+              </div>
               <div className="select-songs-list">
                 {songs.filter(song => selected.includes(song.id)).map(song => (
                   <div key={song.id} className="select-song-row opacity-100 cursor-default">

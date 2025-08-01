@@ -5,6 +5,7 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [cover, setCover] = useState(null);
+  const [releaseDate, setReleaseDate] = useState("");
   const [selected, setSelected] = useState([]);
   const [error, setError] = useState("");
 
@@ -34,12 +35,21 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
       setError("You must enter an album name.");
       return;
     }
+    if (!releaseDate.trim()) {
+      setError("You must enter a release date.");
+      return;
+    }
+    // Validate format mm-dd-yyyy
+    if (!/^\d{2}-\d{2}-\d{4}$/.test(releaseDate.trim())) {
+      setError("Release date must be in format mm-dd-yyyy.");
+      return;
+    }
     if (selected.length === 0) {
       setError("You must select at least one song to create an album.");
       return;
     }
     setError("");
-    onCreate && onCreate({ name, desc, cover, songIds: selected, published: publish });
+    onCreate && onCreate({ name, desc, cover, releaseDate, songIds: selected, published: publish });
   };
 
   return (
@@ -60,6 +70,17 @@ const CreateAlbumForm = ({ songs = [], onCreate, onCancel }) => {
         onChange={(e) => setName(e.target.value)}
         placeholder="Enter album name"
         required
+      />
+      <label>Release Date *</label>
+      <input
+        type="text"
+        value={releaseDate}
+        onChange={e => setReleaseDate(e.target.value)}
+        placeholder="mm-dd-yyyy"
+        required
+        maxLength={10}
+        pattern="\d{2}-\d{2}-\d{4}"
+        title="Format: mm-dd-yyyy"
       />
       <label>Cover Image</label>
       <input type="file" accept="image/*" onChange={handleCover} />

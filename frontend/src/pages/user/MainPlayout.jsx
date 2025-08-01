@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import HeaderBar from "../../components/user/HeaderBar";
-import Display from "../../components/user/DisPlay";
+import Display from "../../components/user/Display";
 import Sidebar from "../../components/user/SideBar";
 
 const MainPlayout = () => {

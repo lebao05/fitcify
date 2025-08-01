@@ -1,6 +1,6 @@
 // Màu sắc tinh chỉnh
 $primary-color: #1a8cff; // Xanh dương nhẹ
-$secondary-color: #4CAF50; // Xanh lá dịu
+$secondary-color: #4caf50; // Xanh lá dịu
 $dark-color: #2d3748;
 $light-color: #f8f9fa;
 $gray-color: #718096;
@@ -8,7 +8,10 @@ $light-gray: #e2e8f0;
 
 // Base styles
 .music-premium {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  height: 100%;
+  width: 100%;
+  border: 1px solid red;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: $light-color;
   color: $dark-color;
   min-height: 100vh;
@@ -101,7 +104,8 @@ $light-gray: #e2e8f0;
           }
         }
 
-        .vat, .member-count {
+        .vat,
+        .member-count {
           font-size: 0.9rem;
           color: $gray-color;
         }
@@ -200,7 +204,7 @@ $light-gray: #e2e8f0;
   .music-premium {
     .hero-section {
       padding: 40px 20px;
-      
+
       h1 {
         font-size: 2rem;
       }

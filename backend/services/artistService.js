@@ -524,6 +524,7 @@ async function createPlaylist({
     imageUrl,
     description: description || "",
     songs: songIdArr,
+    isArtistPlaylist: true
   });
   return playlist;
 }

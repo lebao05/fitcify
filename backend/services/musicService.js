@@ -5,6 +5,9 @@ const ArtistProfile = require("../models/artistProfile");
 const mongoose = require("mongoose");
 const Player = require("../models/audioPlayer");
 const Playlist = require("../models/playlist");
+const User = require("../models/user");
+const normalizeString = require("../helpers/normolize").normalizeString;
+const { distance } = require("fastest-levenshtein");
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -17,10 +20,45 @@ function proxyStreamFromCloudinary(cloudinaryUrl, range) {
     req.on("error", reject);
   });
 }
+async function search(query) {
+  const [songsRaw, albumsRaw, playlistsRaw, artistsRaw] = await Promise.all([
+    Song.find({})
+      .select("title artistId titleNormalized  imageUrl duration")
+      .populate("artistId", "username avatarUrl"),
+    Album.find({})
+      .select("title imageUrl titleNormalized  artistId releaseDate")
+      .populate("artistId", "username avatarUrl"),
+    Playlist.find({})
+      .select("name imageUrl nameNormalized  ownerId")
+      .populate("ownerId", "username  avatarUrl"),
+    User.find({ role: "artist" }).select(
+      "username usernameNormalized avatarUrl"
+    ),
+  ]);
+  const maxDistance = 5;
+  const fuzzyFilter = (items, field) =>
+    items
+      .map((item) => {
+        const norm = normalizeString(item[field]);
+        return { item, dist: distance(query, norm) };
+      })
+      .filter((e) => e.dist <= maxDistance)
+      .sort((a, b) => a.dist - b.dist)
+      .map((e) => e.item)
+      .slice(0, 10);
 
+  const songs = fuzzyFilter(songsRaw, "titleNormalized");
+  const albums = fuzzyFilter(albumsRaw, "titleNormalized");
+  const playlists = fuzzyFilter(playlistsRaw, "nameNormalized");
+  const artists = fuzzyFilter(artistsRaw, "usernameNormalized");
+  return { songs, albums, playlists, artists };
+}
 async function getStream(songId, rangeHeader = "bytes=0-") {
-  const song = await Song.findById(songId).select("audioUrl");
+  const song = await Song.findById(songId)
+    .populate("artistId")
+    .select("audioUrl");
   if (!song) throw new Error("Song not found");
+  User.updateOne({ _id: song.artistId._id }, { $inc: { playCount: 1 } }).exec();
 
   const album = await Album.findOne({ songs: songId }).select("_id");
 
@@ -381,4 +419,5 @@ module.exports = {
   getTopSongs,
   getTopArtists,
   getTopAlbums,
+  search,
 };

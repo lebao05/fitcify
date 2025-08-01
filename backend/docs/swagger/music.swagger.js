@@ -161,7 +161,6 @@
  *               $ref: '#/components/schemas/Song'
  */
 
-
 /**
  * @swagger
  * /api/music/play/playlist/{playlistId}:
@@ -392,4 +391,113 @@
  *                       releaseDate: "2023-07-01T00:00:00.000Z"
  *       401:
  *         description: Unauthorized
+ */
+/**
+ * @swagger
+ * /api/music/search:
+ *   get:
+ *     summary: Search songs, albums, artists, or playlists
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The search term (e.g., keyword, song title, artist name)
+ *       - in: query
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [song, album, artist, playlist]
+ *         description: Type of content to search for (defaults to all)
+ *     responses:
+ *       200:
+ *         description: Search results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Error:
+ *                   type: integer
+ *                   example: 0
+ *                 Message:
+ *                   type: string
+ *                   example: Search results fetched
+ *                 Data:
+ *                   type: object
+ *                   properties:
+ *                     songs:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Song'
+ *                     albums:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Album'
+ *                     artists:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *                     playlists:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Playlist'
+ *       400:
+ *         description: Bad request (e.g., missing query param)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Error:
+ *                   type: integer
+ *                   example: 1
+ *                 Message:
+ *                   type: string
+ *                   example: Missing or invalid search query
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *       500:
+ *         description: Internal server error
+ */
+/**
+ * @swagger
+ * /api/music/normalize:
+ *   put:
+ *     summary: Normalize text fields for search (diacritics, case-insensitive)
+ *     tags: [Music]
+ *     description: Removes accents and normalizes the title, name, and username fields for songs, albums, playlists, and artists.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Normalization completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Normalization complete for all content
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Error:
+ *                   type: integer
+ *                   example: 1
+ *                 Message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       500:
+ *         description: Internal server error
  */

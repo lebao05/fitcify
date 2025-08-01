@@ -32,7 +32,6 @@ export const updatePlaylist = async ({
   if (description) formData.append("description", description);
   if (typeof isPublic !== "undefined") formData.append("isPublic", isPublic);
   if (cover) formData.append("cover", cover);
-
   const response = await axiosInstance.put(
     `/playlists/${playlistId}`,
     formData,

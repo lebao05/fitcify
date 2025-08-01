@@ -125,6 +125,15 @@ const recommendRecentlyPlayed = async (req, res, next) => {
     next(err);
   }
 };
+const topSongThisMonth = async (req, res, next) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const data = await userService.topSongThisMonth(limit);
+    res.json({ Error: 0, Message: 'Top songs this month', Data: data });
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 module.exports = {
@@ -138,5 +147,6 @@ module.exports = {
   getMyProfile,
   followArtist,
   unfollowArtist,
-  recommendRecentlyPlayed
+  recommendRecentlyPlayed,
+  topSongThisMonth
 };

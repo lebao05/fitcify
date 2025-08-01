@@ -221,6 +221,71 @@ async function recommendRecentlyPlayed(userId, limit = 3) {
 
   return recommendations;
 };
+
+async function topSongThisMonth(limit = 10) {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const pipeline = [
+    {
+      $match: {
+        itemType: 'song',
+        playedAt: { $gte: startOfMonth, $lt: startOfNextMonth },
+      },
+    },
+    {
+      $group: {
+        _id: '$itemId',
+        playsThisMonth: { $sum: 1 },
+      },
+    },
+    { $sort: { playsThisMonth: -1 } },
+    { $limit: limit },
+    {
+      $lookup: {
+        from: 'songs',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'song',
+      },
+    },
+    { $unwind: '$song' },
+    {
+      $lookup: {
+        from: 'artistprofiles',
+        localField: 'song.artistId',
+        foreignField: 'userId',
+        as: 'artistProfile',
+      },
+    },
+    { $unwind: { path: '$artistProfile', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        song: {
+          _id: '$song._id',
+          title: '$song.title',
+          audioUrl: '$song.audioUrl',
+          imageUrl: '$song.imageUrl',
+          duration: '$song.duration',
+          playCount: '$song.playCount',
+          isApproved: '$song.isApproved',
+        },
+        playsThisMonth: 1,
+        artist: {
+          userId: '$artistProfile.userId',
+          isVerified: '$artistProfile.isVerified',
+          bio: '$artistProfile.bio',
+        },
+      },
+    },
+  ];
+
+  const results = await PlayHistory.aggregate(pipeline).exec();
+  return results;
+}
+
+
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -231,5 +296,6 @@ module.exports = {
   updateAccountInfo,
   followArtist,
   unfollowArtist,
-  recommendRecentlyPlayed
+  recommendRecentlyPlayed,
+  topSongThisMonth
 };

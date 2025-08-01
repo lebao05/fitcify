@@ -32,4 +32,6 @@ router.delete('/artists/:artistId/follow', userController.unfollowArtist);
 
 router.get("/recommendations/recent", authMiddleware, userController.recommendRecentlyPlayed);
 
+router.get('/music/top-songs-month', userController.topSongThisMonth);
+
 module.exports = router;

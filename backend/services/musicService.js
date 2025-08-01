@@ -365,6 +365,7 @@ const getTopAlbums = async (limit = 10) => {
     .sort({ viewCount: -1 })
     .limit(limit)
     .select("title artistId imageUrl viewCount releaseDate");
+
 };
 
 const getCurrentSong = async (userId) => {

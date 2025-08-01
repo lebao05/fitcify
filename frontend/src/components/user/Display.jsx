@@ -8,6 +8,7 @@ import UserProfile from "../../pages/user/UserProfile";
 import DisplayPlaylist from "./DisplayPlayplist";
 import SearchResult from "./SearchPage";
 import AudioPlayer from "./AudioPlayer";
+import PaymentPage from "../../pages/payment/SubscribePage"
 const Display = () => {
   const displayRef = useRef();
   const location = useLocation();
@@ -28,10 +29,11 @@ const Display = () => {
     >
       <Routes>
         <Route path="/" element={<DisplayHome />} />
-        <Route path="/album/:id" element={<DisplayAlbum />} />
+        <Route path="/album/:id" element={<z />} />
         <Route path="/profile/:id" element={<UserProfile />} />
         <Route path="/playlist/:id" element={<DisplayPlaylist />} />
         <Route path="/search/*" element={<SearchResult />} />
+        <Route path="/subscribe/" element={<PaymentPage />} />
       </Routes>{" "}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <AudioPlayer />

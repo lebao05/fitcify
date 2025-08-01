@@ -30,4 +30,6 @@ router.patch("/account", userController.updateAccountInfo);
 router.post('/artists/:artistId/follow', userController.followArtist);
 router.delete('/artists/:artistId/follow', userController.unfollowArtist);
 
+router.get("/recommendations/recent", authMiddleware, userController.recommendRecentlyPlayed);
+
 module.exports = router;

@@ -111,6 +111,20 @@ const unfollowArtist = async (req, res, next) => {
     next(err);
   }
 };
+const recommendRecentlyPlayed = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const limit = parseInt(req.query.limit, 10) || 3;
+    const recs = await userService.recommendRecentlyPlayed(userId, limit);
+    res.status(200).json({
+      Message: "Recent recommendations fetched",
+      Error: 0,
+      Data: recs,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 module.exports = {
@@ -124,4 +138,5 @@ module.exports = {
   getMyProfile,
   followArtist,
   unfollowArtist,
+  recommendRecentlyPlayed
 };

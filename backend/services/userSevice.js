@@ -2,6 +2,10 @@ const User = require("../models/user");
 const cloudinary = require("../configs/cloudinary");
 const { uploadToCloudinary } = require("./cloudinaryService");
 const extractCloudinaryPublicId = require("../helpers/extractPublicId");
+const PlayHistory = require('../models/playHistory'); // schema should include itemType: ['song','album','playlist']
+const Song = require('../models/song');
+const Album = require('../models/album');
+const Playlist = require('../models/playlist');
 const mongoose = require("mongoose");
 /** ------------------------- PUBLIC API ------------------------- **/
 
@@ -171,6 +175,52 @@ const unfollowArtist = async (userId, artistId) => {
 
   return { userId: me._id, followees: me.followees };
 };
+
+async function recommendRecentlyPlayed(userId, limit = 3) {
+  if (!mongoose.isValidObjectId(userId)) throw new Error('Invalid user ID');
+
+  // Fetch recent play history sorted descending
+  const history = await PlayHistory.find({ userId })
+    .sort({ playedAt: -1 })
+    .lean()
+    .exec();
+
+  const seen = new Set();
+  const recommendations = [];
+
+  for (const entry of history) {
+    const key = `${entry.itemType}:${entry.itemId.toString()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    let doc = null;
+    if (entry.itemType === 'song') {
+      doc = await Song.findById(entry.itemId)
+        .populate('artistId', 'name')
+        .lean();
+    } else if (entry.itemType === 'album') {
+      doc = await Album.findById(entry.itemId)
+        .populate('artistId', 'name')
+        .lean();
+    } else if (entry.itemType === 'playlist') {
+      doc = await Playlist.findById(entry.itemId)
+        .populate('owner', 'username')
+        .lean();
+    }
+
+    if (doc) {
+      recommendations.push({
+        itemType: entry.itemType,
+        data: doc,
+        playedAt: entry.playedAt,
+      });
+    }
+
+    if (recommendations.length >= limit) break;
+  }
+
+  return recommendations;
+};
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -180,5 +230,6 @@ module.exports = {
   getAccountInfo,
   updateAccountInfo,
   followArtist,
-  unfollowArtist
+  unfollowArtist,
+  recommendRecentlyPlayed
 };

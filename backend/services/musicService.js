@@ -366,6 +366,46 @@ const getTopAlbums = async (limit = 10) => {
     .limit(limit)
     .select("title artistId imageUrl viewCount releaseDate");
 };
+
+const getCurrentSong = async (userId) => {
+  if (!mongoose.isValidObjectId(userId)) {
+    const err = new Error("Invalid user ID");
+    err.status = 400;
+    throw err;
+  }
+
+  const player = await Player.findOne({ userId })
+    .populate({
+      path: "queue",
+      populate: {
+        path: "artistId",
+        select: "username", 
+      },
+    });
+
+  if (!player || !player.queue || player.queue.length === 0) {
+    const err = new Error("No active song in player");
+    err.status = 404;
+    throw err;
+  }
+
+  const currentSong = player.queue[player.currentIndex];
+
+  let album = null;
+  if (currentSong.albumId) {
+    album = await Album.findById(currentSong.albumId)
+      .select("title releaseDate imageUrl");
+  }
+
+  return {
+    ...currentSong.toObject(),
+    artist: currentSong.artistId, // artistId đã populate username
+    album: album || null,
+  };
+};
+
+
+
 module.exports = {
   getAlbumsOfAnArtist,
   toggleSongLike,
@@ -381,4 +421,5 @@ module.exports = {
   getTopSongs,
   getTopArtists,
   getTopAlbums,
+  getCurrentSong,
 };

@@ -7,6 +7,7 @@ const playlistSchema = new mongoose.Schema(
         isPublic: { type: Boolean, default: true },
         imageUrl: { type: String, default: '' },
         songs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }],
+        isArtistPlaylist: { type: Boolean, default: false }
     },
     { timestamps: true }
 );

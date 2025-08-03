@@ -6,24 +6,26 @@ import { useDispatch } from "react-redux";
 import { playPlaylistThunk } from "../../redux/slices/playerSlice";
 import defaultMusic from "../../assets/default-music.png";
 import EditPlaylistModal from "./EditPlaylistModal";
-import { updateUserPlaylist } from "../../redux/slices/myCollectionSlice";
-
+import { fetchUserPlaylists } from "../../redux/slices/myCollectionSlice";
+import { useSelector } from "react-redux";
 const DisplayPlaylist = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-
+  const [isOwner, setIsOwner] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [playlist, setPlaylist] = useState(null);
-
-  const handleSave = async ({ name, description, image }) => {
+  const user = useSelector((state) => state.user.myAuth);
+  const handleSave = async ({ name, description, cover }) => {
     try {
       const updated = await updatePlaylist({
         playlistId: id,
         name,
         description,
-        cover: image instanceof File ? image : undefined,
+        cover,
       });
+      fetchPlaylist();
+      dispatch(fetchUserPlaylists());
     } catch (err) {
       console.error("Update failed", err);
     } finally {
@@ -36,16 +38,27 @@ const DisplayPlaylist = () => {
     dispatch(playPlaylistThunk({ playlistId: id, songOrder }));
   };
 
-  useEffect(() => {
-    if (id) {
-      getPlaylistById({ playlistId: id })
-        .then((res) => setPlaylist(res?.Data))
-        .catch((err) => console.error(err));
+  const fetchPlaylist = async () => {
+    try {
+      setPlaylist(null);
+      const res = await getPlaylistById({ playlistId: id });
+      const data = res?.Data;
+      setPlaylist(data);
+
+      if (user?._id && data?.ownerId?._id && user._id === data.ownerId._id) {
+        setIsOwner(true);
+      } else {
+        setIsOwner(false);
+      }
+    } catch (err) {
+      console.error(err);
     }
-  }, [id]);
+  };
+  useEffect(() => {
+    if (id) fetchPlaylist();
+  }, [id, user?._id]);
 
   if (!playlist) return null;
-
   return (
     <div className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover">
       <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-end">
@@ -90,10 +103,15 @@ const DisplayPlaylist = () => {
         >
           ▶
         </button>
-
-        <button className="text-zinc-400 cursor-pointer text-4xl border-5 w-11 h-11 flex items-center justify-center border-zinc-400 hover:border-zinc-200 hover:text-zinc-200 rounded-full px-4 py-2 hover:scale-105 transition-all">
-          +
+        <button
+          onClick={handlePlay}
+          className="transparent pb-4 align-middle cursor-pointer font-bold w-14 h-14 text-white rounded-full flex items-center text-2xl justify-center hover:text-3xl transition-all"
+        >
+          ...
         </button>
+        {/* <button className="text-zinc-400 cursor-pointer text-4xl border-5 w-11 h-11 flex items-center justify-center border-zinc-400 hover:border-zinc-200 hover:text-zinc-200 rounded-full px-4 py-2 hover:scale-105 transition-all">
+          +
+        </button> */}
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-3 mt-10 mb-4 pl-2 text-[#a7a7a7] text-sm">
@@ -138,12 +156,14 @@ const DisplayPlaylist = () => {
         </div>
       ))}
 
-      <EditPlaylistModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        playlist={playlist}
-        onSave={handleSave}
-      />
+      {isOwner && (
+        <EditPlaylistModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          playlist={playlist}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 };

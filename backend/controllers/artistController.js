@@ -183,7 +183,7 @@ async function editMyProfile(req, res, next) {
 }
 const getSongById = async (req, res, next) => {
   try {
-    const result = await artistService.getSongById(req.params.id, req.user._id);
+    const result = await artistService.getSongById(req.params.id);
     res.status(200).json({
       Message: "Song fetched successfully",
       Error: 0,

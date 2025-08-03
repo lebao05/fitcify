@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import defaultImg from "../../assets/default-music.png";
-
+import { useSelector } from "react-redux";
 const EditPlaylistModal = ({ isOpen, onClose, playlist, onSave }) => {
   const [name, setName] = useState(playlist.name || "");
   const [description, setDescription] = useState(playlist.description || "");
-  const [image, setImage] = useState(playlist.imageUrl || defaultImg);
+  const [imagePreview, setImagePreview] = useState(
+    playlist.imageUrl || defaultImg
+  );
+  const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
-  const modalRef = useRef(null); // NEW
-
+  const modalRef = useRef(null);
+  const [isSaving, setIsSaving] = useState(false);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -23,15 +26,22 @@ const EditPlaylistModal = ({ isOpen, onClose, playlist, onSave }) => {
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
-    onSave({ name, description, image });
+  const handleSave = async () => {
+    setIsSaving(true);
+    await onSave({
+      name,
+      description,
+      cover: imageFile, // send the File object
+    });
+    setIsSaving(false);
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file); // store File object
       const reader = new FileReader();
-      reader.onload = (event) => setImage(event.target.result);
+      reader.onload = (event) => setImagePreview(event.target.result); // preview only
       reader.readAsDataURL(file);
     }
   };
@@ -42,7 +52,6 @@ const EditPlaylistModal = ({ isOpen, onClose, playlist, onSave }) => {
         ref={modalRef}
         className="bg-neutral-900 text-white rounded-lg w-[500px] p-6 shadow-2xl relative"
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute cursor-pointer top-4 right-4 text-white text-3xl hover:opacity-80"
@@ -54,13 +63,12 @@ const EditPlaylistModal = ({ isOpen, onClose, playlist, onSave }) => {
         <h2 className="text-2xl font-bold mb-6">Edit details</h2>
 
         <div className="flex gap-4">
-          {/* Image Section */}
           <div
             className="relative w-48 h-36 rounded overflow-hidden group bg-neutral-800"
             onClick={() => fileInputRef.current.click()}
           >
             <img
-              src={image}
+              src={imagePreview}
               alt="playlist"
               className="w-full h-full object-cover opacity-70 group-hover:opacity-50 transition duration-300"
             />
@@ -76,7 +84,6 @@ const EditPlaylistModal = ({ isOpen, onClose, playlist, onSave }) => {
             />
           </div>
 
-          {/* Text Section */}
           <div className="flex flex-col w-full">
             <input
               className="bg-neutral-800 text-white placeholder:text-neutral-400 rounded px-3 py-2 mb-3 outline-none"
@@ -94,17 +101,15 @@ const EditPlaylistModal = ({ isOpen, onClose, playlist, onSave }) => {
           </div>
         </div>
 
-        {/* Save Button */}
         <div className="flex justify-end mt-6">
           <button
             onClick={handleSave}
             className="bg-white cursor-pointer text-black rounded-full px-6 py-2 font-semibold hover:scale-105 transition-transform shadow"
           >
-            Save
+            {isSaving ? "Saving..." : "Save"}
           </button>
         </div>
 
-        {/* Footer Disclaimer */}
         <p className="text-xs text-neutral-400 mt-4">
           By proceeding, you agree to give Fitcify access to the image you
           choose to upload. Please make sure you have the right to upload the

@@ -24,14 +24,14 @@ const UserProfile = () => {
   const ditpatch = useDispatch();
   const CARD_WIDTH = 180;
   const GAP = 16;
-  const handleToggleEditModal = () => {
-    setShowEditModal((prev) => !prev);
-  };
   const myAuth = useSelector((state) => state.user.myAuth);
   const user = useSelector((state) => state.user.currentProfile);
   useEffect(() => {
     if (id) ditpatch(fetchCurrentProfileById(id));
   }, [id, fetchCurrentProfileById]);
+  const handleToggleEditModal = () => {
+    if (myAuth._id === id) setShowEditModal((prev) => !prev);
+  };
   useEffect(() => {
     const calcVisible = () => {
       if (artistContainerRef.current) {
@@ -136,7 +136,8 @@ const UserProfile = () => {
   };
   if (user === null) return null;
   return (
-    <div className="user-profile-content pb-10 h-full w-[75%] overflow-y-auto">
+    <div className="user-profile-content pb-10 h-full w-[80%] overflow-y-auto">
+      {" "}
       <ProfileHeader user={user} onEditClick={handleToggleEditModal} />
       {showEditModal && (
         <EditProfileDialog
@@ -190,7 +191,7 @@ const UserProfile = () => {
           <div ref={playlistContainerRef} className="playlists-container">
             {playlists.slice(0, maxVisiblePlaylists).map((playlist) => (
               <PlaylistCard
-                key={playlist.id}
+                key={playlist._id}
                 playlist={playlist}
                 onPlay={handlePlay}
                 isButton="true"

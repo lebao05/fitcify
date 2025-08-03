@@ -3,7 +3,6 @@ const normalizeString = require("../helpers/normolize").normalizeString;
 const playlistSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    nameNormalized: { type: String },
     description: { type: String, default: "" },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -13,6 +12,7 @@ const playlistSchema = new mongoose.Schema(
     isPublic: { type: Boolean, default: true },
     imageUrl: { type: String, default: "" },
     songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
+    isArtistPlaylist: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

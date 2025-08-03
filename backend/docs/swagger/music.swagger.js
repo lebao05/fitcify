@@ -131,7 +131,6 @@
  *       404:
  *         description: Artist not found
  */
-
 /**
  * @swagger
  * /api/music/play/album/{albumId}:
@@ -417,87 +416,80 @@
  *     responses:
  *       200:
  *         description: Search results
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 Error:
- *                   type: integer
- *                   example: 0
- *                 Message:
- *                   type: string
- *                   example: Search results fetched
- *                 Data:
- *                   type: object
- *                   properties:
- *                     songs:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Song'
- *                     albums:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Album'
- *                     artists:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/User'
- *                     playlists:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Playlist'
- *       400:
- *         description: Bad request (e.g., missing query param)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 Error:
- *                   type: integer
- *                   example: 1
- *                 Message:
- *                   type: string
- *                   example: Missing or invalid search query
- *       401:
- *         description: Unauthorized (missing or invalid token)
- *       500:
- *         description: Internal server error
- */
+
 /**
  * @swagger
- * /api/music/normalize:
- *   put:
- *     summary: Normalize text fields for search (diacritics, case-insensitive)
- *     tags: [Music]
- *     description: Removes accents and normalizes the title, name, and username fields for songs, albums, playlists, and artists.
+ * /api/music/current-song:
+ *   get:
+ *     summary: Get the currently playing song of the authenticated user
+ *     tags:
+ *       - Music
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Normalization completed successfully
+ *         description: Successfully retrieved the current song
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
- *                   example: Normalization complete for all content
- *       401:
- *         description: Unauthorized (missing or invalid token)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 Error:
- *                   type: integer
- *                   example: 1
  *                 Message:
  *                   type: string
- *                   example: Unauthorized
+ *                   example: Fetched current song
+ *                 Error:
+ *                   type: integer
+ *                   example: 0
+ *                 Data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 64b7b2d2a4f838f5cd9a31df
+ *                     title:
+ *                       type: string
+ *                       example: "Ngày Mai Em Đi"
+ *                     duration:
+ *                       type: number
+ *                       example: 210
+ *                     audioUrl:
+ *                       type: string
+ *                       example: "https://res.cloudinary.com/..."
+ *                     playCount:
+ *                       type: number
+ *                       example: 4321
+ *                     uploadedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2024-05-01T12:00:00.000Z"
+ *                     artist:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 64b7aabb77e29876fd0d23fa
+ *                         username:
+ *                           type: string
+ *                           example: "Đen Vâu"
+ *                     album:
+ *                       type: object
+ *                       nullable: true
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 64b7b49ac1a9f2a1f246abc9
+ *                         title:
+ *                           type: string
+ *                           example: "Show of Life"
+ *                         releaseDate:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2023-11-11T00:00:00.000Z"
+ *                         imageUrl:
+ *                           type: string
+ *                           example: "https://res.cloudinary.com/..."
+ *       401:
+ *         description: Unauthorized – missing or invalid token
  *       500:
  *         description: Internal server error
  */

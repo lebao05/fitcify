@@ -17,16 +17,13 @@ const DisplayPlaylist = () => {
   const [playlist, setPlaylist] = useState(null);
 
   const handleSave = async ({ name, description, image }) => {
-    console.log(image);
     try {
       const updated = await updatePlaylist({
         playlistId: id,
         name,
         description,
-        cover: image instanceof File ? image : undefined, // File only
+        cover: image instanceof File ? image : undefined,
       });
-
-      console.log("Updated Playlist:", updated);
     } catch (err) {
       console.error("Update failed", err);
     } finally {
@@ -51,7 +48,6 @@ const DisplayPlaylist = () => {
 
   return (
     <div className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover">
-      {/* Playlist Info */}
       <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-end">
         <img
           className="w-48 cursor-pointer h-48 object-cover rounded transition-all duration-200 hover:scale-105 hover:brightness-110 hover:shadow-lg"
@@ -87,7 +83,6 @@ const DisplayPlaylist = () => {
         </div>
       </div>
 
-      {/* Controls */}
       <div className="flex items-center gap-6 mt-8 mb-4 pl-2">
         <button
           onClick={handlePlay}
@@ -101,22 +96,19 @@ const DisplayPlaylist = () => {
         </button>
       </div>
 
-      {/* Song List Header */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[#a7a7a7] text-sm">
+      <div className="grid grid-cols-3 sm:grid-cols-3 mt-10 mb-4 pl-2 text-[#a7a7a7] text-sm">
         <p>
           <b className="mr-4">#</b>Title
         </p>
         <p>Artist</p>
-        <p className="hidden sm:block">Added</p>
         <img className="m-auto w-4" src={assets.clock_icon} alt="duration" />
       </div>
       <hr />
 
-      {/* Song List */}
       {playlist?.songs.map((song, index) => (
         <div
           key={song._id}
-          className="group grid grid-cols-3 sm:grid-cols-4 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer"
+          className="group grid grid-cols-3 sm:grid-cols-3 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer"
           onClick={() => handlePlay(index)}
         >
           <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
@@ -139,11 +131,6 @@ const DisplayPlaylist = () => {
             </div>
           </div>
           <p className="text-[15px]">Playlist</p>
-          <p className="text-[15px] hidden sm:block">
-            {song.uploadedAt
-              ? new Date(song.uploadedAt).toLocaleDateString()
-              : "Recently"}
-          </p>
           <p className="text-[15px] text-center">
             {Math.floor(song.duration / 60)}:
             {String(song.duration % 60).padStart(2, "0")}
@@ -151,7 +138,6 @@ const DisplayPlaylist = () => {
         </div>
       ))}
 
-      {/* Modal */}
       <EditPlaylistModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

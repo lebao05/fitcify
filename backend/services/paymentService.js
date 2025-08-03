@@ -13,8 +13,16 @@ const payos = new PayOS(
 async function createSubscription(userId, planType) {
   try {
     const validPlans = {
-      premium: { amount: Number(process.env.premium_cost), currency: "VND", durationInDays: 30 },
-      family: { amount: Number(process.env.family_cost), currency: "VND", durationInDays: 30 },
+      premium: {
+        amount: Number(process.env.premium_cost),
+        currency: "VND",
+        durationInDays: 30,
+      },
+      family: {
+        amount: Number(process.env.family_cost),
+        currency: "VND",
+        durationInDays: 30,
+      },
     };
 
     const plan = validPlans[planType];
@@ -22,7 +30,9 @@ async function createSubscription(userId, planType) {
 
     const now = new Date();
     const endDate = dayjs(now).add(plan.durationInDays, "day").toDate();
-    const orderCode = Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+    const orderCode = Number(
+      `${Date.now()}${Math.floor(Math.random() * 1000)}`
+    );
     const subscription = new Subscription({
       userId,
       planType,
@@ -50,8 +60,8 @@ async function createSubscription(userId, planType) {
     await payment.save();
 
     const description = `Dang ki ${planType}`;
-    const returnUrl = `${process.env.DOMAIN}/api/payment/payment-success?orderCode=${orderCode}`;
-    const cancelUrl = `${process.env.DOMAIN}/api/payment/payment-cancel?orderCode=${orderCode}`;
+    const returnUrl = `${process.env.FRONTEND_DOMAIN}/payment-success?orderCode=${orderCode}`;
+    const cancelUrl = `${process.env.FRONTEND_DOMAIN}/payment-cancel?orderCode=${orderCode}`;
 
     console.log("🟢 orderCode:", orderCode);
     console.log("🟢 amount:", plan.amount);
@@ -174,6 +184,17 @@ async function confirmPayment(orderCode) {
     return {
       status: 200,
       message: "✅ Subscription activated!",
+      data: {
+        orderCode: payment.orderCode,
+        amount: payment.amount,
+        currency: payment.currency,
+        username: user.username,
+        email: user.email,
+        startDate: subscription.startDate,
+        endDate: subscription.endDate,
+        planType: subscription.planType,
+        paymentMethod: payment.paymentMethod,
+      },
     };
   } catch (err) {
     console.error("[confirmPayment] error:", err);

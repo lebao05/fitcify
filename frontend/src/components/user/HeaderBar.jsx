@@ -87,7 +87,10 @@ const HeaderBar = () => {
             </>
           ) : (
             <>
-              <button className="text-[#b3b3b3] cursor-pointer text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]">
+              <button
+                onClick={() => navigate("/subscribe")}
+                className="text-[#b3b3b3] cursor-pointer text-[17px] font-semibold px-4 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]"
+              >
                 Premium
               </button>
               <div className="w-px h-6 bg-[#404040]" />
@@ -129,7 +132,10 @@ const HeaderBar = () => {
                   >
                     Profile
                   </button>
-                  <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
+                  <button
+                    onClick={() => navigate("/subscribe")}
+                    className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"
+                  >
                     Upgrade to Premium
                   </button>
                   {user.role === "artist" && (

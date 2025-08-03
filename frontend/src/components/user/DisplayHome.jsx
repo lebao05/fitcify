@@ -3,7 +3,7 @@ import AlbumItem from "./AlbumItem";
 import { songsData } from "../../assets/assets";
 import SongItem from "./SongItem";
 import ArtistItem from "./ArtistItem";
-import ShortcutGrid from "./ShortcutGrid";
+import ShortcutItem from "./ShortcutItem";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import {
@@ -39,7 +39,7 @@ const DisplayHome = () => {
     <div className="px-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 mb-6">
         {shortcutItems.map((item) => (
-          <ShortcutGrid
+          <ShortcutItem
             key={item.id}
             name={item.name}
             image={item.image}
@@ -56,20 +56,6 @@ const DisplayHome = () => {
               key={item.index}
               name={item.title}
               desc={""}
-              id={item._id}
-              image={item.imageUrl}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="mb-4">
-        <h1 className="my-5 font-bold text-2xl">Featured Charts</h1>
-        <div className="flex overflow-auto">
-          {topAlbums.map((item, index) => (
-            <AlbumItem
-              key={index}
-              name={item.title}
-              desc={item.desc}
               id={item._id}
               image={item.imageUrl}
             />
@@ -100,20 +86,6 @@ const DisplayHome = () => {
               desc={item.desc}
               id={item._id}
               image={item.imageUrl}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="mb-4">
-        <h1 className="my-5 font-bold text-2xl">Top mixes</h1>
-        <div className="flex overflow-auto">
-          {albumsData.map((item, index) => (
-            <AlbumItem
-              key={index}
-              name={item.name}
-              desc={item.desc}
-              id={item.id}
-              image={item.image}
             />
           ))}
         </div>

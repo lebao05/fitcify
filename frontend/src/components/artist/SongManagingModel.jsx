@@ -16,7 +16,7 @@ const SongManagingModal = ({ onUpdate, onCancel, track }) => {
   const dispatch = useDispatch();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await dispatch(
+    dispatch(
       updateArtistSong({
         songId: track._id,
         data: {
@@ -26,7 +26,7 @@ const SongManagingModal = ({ onUpdate, onCancel, track }) => {
         },
       })
     );
-    await dispatch(fetchArtistSongs());
+    dispatch(fetchArtistSongs());
     onUpdate();
     setError("");
   };

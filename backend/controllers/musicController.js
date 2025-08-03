@@ -262,6 +262,34 @@ const getTopAlbums = async (req, res, next) => {
   }
 };
 
+const getCurrentSong = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).json({
+        Message: "Unauthorized",
+        Error: 1,
+        Data: null,
+      });
+    }
+
+    const song = await musicService.getCurrentSong(userId);
+
+    res.status(200).json({
+      Message: "Fetched current song",
+      Error: 0,
+      Data: song,
+    });
+  } catch (err) {
+    res.status(500).json({
+      Message: err.message || "Failed to get current song",
+      Error: 1,
+      Data: null,
+    });
+  }
+};
+
+
 module.exports = {
   streamingAudio,
   toggleSongLikeController,
@@ -278,4 +306,5 @@ module.exports = {
   getTopArtists,
   getTopAlbums,
   search,
+  getCurrentSong
 };

@@ -7,35 +7,13 @@ import "./ArtistSection.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { getPlaylistsOfAnArtist } from "../../redux/slices/artistPlaylistSlice.js";
 import { fetchArtistSongs } from "../../redux/slices/artistSongSlice.js";
-
-const mockPlaylists = [
-  {
-    id: 1,
-    name: "Liked Songs",
-    creator: "Spotify",
-    image: testImg,
-    isPinned: true,
-  },
-  { id: 2, name: "My Playlist #2", creator: "Ngọc Hiếu", image: testImg },
-  { id: 3, name: "Acoustic Favorites", creator: "Spotify", image: testImg },
-  { id: 4, name: "This Is Taylor Swift", creator: "Spotify", image: testImg },
-  { id: 5, name: "Top Nghệ Sĩ Việt 2024", creator: "Spotify", image: testImg },
-  { id: 6, name: "Reading Soundtrack", creator: "Spotify", image: testImg },
-  { id: 7, name: "My Playlist #1", creator: "Ngọc Hiếu", image: testImg },
-];
-const mockSongs = [
-  { id: 1, name: "Anti-Hero", artist: "Taylor Swift", duration: "3:20" },
-  { id: 2, name: "Mascara", artist: "Chillies", duration: "4:01" },
-  { id: 3, name: "Hẹn Một Mai", artist: "Bùi Anh Tuấn", duration: "5:00" },
-];
-
 const ArtistPlaylist = () => {
   const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
   const songs = useSelector((state) => state.artistSong.songs);
   const playlists = useSelector((state) => state.artistPlaylist.playlists);
-  const data = playlists && playlists.length > 0 ? playlists : mockPlaylists;
-  const songList = songs.length > 0 ? songs : mockSongs;
+  const data = playlists;
+  const songList = songs;
   const [editPlaylist, setEditPlaylist] = useState(null);
   useEffect(() => {
     dispatch(getPlaylistsOfAnArtist());

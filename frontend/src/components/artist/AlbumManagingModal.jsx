@@ -6,6 +6,7 @@ import {
   deleteAlbum,
 } from "../../redux/slices/artistAlbumSlice";
 import { useDispatch } from "react-redux";
+import { fetchArtistSongs } from "../../redux/slices/artistSongSlice";
 const AlbumManagingModal = ({
   album = {},
   songs = [],
@@ -75,17 +76,13 @@ const AlbumManagingModal = ({
   };
 
   const confirmDelete = async () => {
+    setShowConfirm(false);
+    setDeleting(true);
     await dispatch(deleteAlbum(album._id));
     await dispatch(getAlbumsOfAnArtist());
-    setDeleting(true);
-    setShowConfirm(false);
+    await dispatch(fetchArtistSongs());
     onDelete && onDelete();
   };
-
-  const status = album.status || (album.published ? "approved" : "draft");
-  const isDraft = status === "draft";
-  const isPending = status === "pending";
-  const isApproved = status === "approved";
 
   return (
     <div className="create-form-modal">
@@ -105,31 +102,12 @@ const AlbumManagingModal = ({
               &times;
             </button>
           </div>
-          <div
-            className={`mb-2 font-semibold ${
-              isDraft
-                ? "text-yellow-400"
-                : isPending
-                ? "text-blue-400"
-                : "text-green-400"
-            }`}
-          >
-            Status:{" "}
-            {isDraft ? "Draft" : isPending ? "Pending Approval" : "Approved"}
-          </div>
-          {isPending && (
-            <div className="text-red-400 font-semibold text-sm mb-2">
-              This album is pending approval and cannot be edited.
-            </div>
-          )}
           <label className="text-white font-medium">Album Name *</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            disabled={!isDraft}
-            readOnly={isPending || isApproved}
             className="rounded-lg px-4 py-2 bg-[#23242b] text-white border border-[#333] focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
           />
           <label className="text-white font-medium">
@@ -139,13 +117,12 @@ const AlbumManagingModal = ({
             type="file"
             accept="image/*"
             onChange={handleCover}
-            disabled={!isDraft}
             className="block text-white disabled:opacity-60"
           />
           {songs.map((song) => {
             const isSelected = selected.includes(song._id);
             const belongsToOtherAlbum =
-              song.albumId && song.albumId !== album._id; // <-- important check
+              song.albumId && song.albumId._id !== album._id; // <-- important check
             const isSelectable = !belongsToOtherAlbum;
             const isDisabled =
               !isSelected && (selected.length >= 30 || !isSelectable);
@@ -187,26 +164,23 @@ const AlbumManagingModal = ({
           )}
           <div className="flex flex-col gap-2 mt-4">
             {/* Draft: show Save, Request Approval, Delete */}
-            {isDraft && (
-              <>
-                <div className="flex flex-nowrap justify-end items-center gap-3 mb-2 w-full">
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold text-base shadow hover:bg-blue-700 transition min-w-[140px] h-11 cursor-pointer"
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-red-600 text-white font-bold text-base px-6 py-2 rounded-md shadow transition hover:bg-red-800 focus:outline-none disabled:opacity-60 min-w-[140px] h-11 cursor-pointer"
-                    onClick={handleDelete}
-                    disabled={deleting}
-                  >
-                    {deleting ? "Deleting..." : "Delete Album"}
-                  </button>
-                </div>
-              </>
-            )}
+
+            <div className="flex flex-nowrap justify-end items-center gap-3 mb-2 w-full">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold text-base shadow hover:bg-blue-700 transition min-w-[140px] h-11 cursor-pointer"
+              >
+                Save Changes
+              </button>
+              <button
+                type="button"
+                className="bg-red-600 text-white font-bold text-base px-6 py-2 rounded-md shadow transition hover:bg-red-800 focus:outline-none disabled:opacity-60 min-w-[140px] h-11 cursor-pointer"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete Album"}
+              </button>
+            </div>
           </div>
           {showConfirm && (
             <div className="fixed inset-0 bg-black/30 z-[1200] flex items-center justify-center">

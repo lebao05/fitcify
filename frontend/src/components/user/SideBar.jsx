@@ -6,7 +6,10 @@ import AlbumBar from "./AlbumBar.jsx";
 import LikedTrackBar from "./LikedTrackBar.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { fetchUserPlaylists } from "../../redux/slices/myCollectionSlice.js";
+import {
+  createUserPlaylist,
+  fetchUserPlaylists,
+} from "../../redux/slices/myCollectionSlice.js";
 const likedItem = {
   cover: assets.liked_icon,
   title: "Liked Songs",
@@ -139,6 +142,24 @@ const Sidebar = () => {
   const nagivate = useNavigate();
   const playlist = useSelector((state) => state.myCollection.playlists);
   const user = useSelector((state) => state.user.myAuth);
+  const handleCreatePlaylist = async () => {
+    const result = await dispatch(
+      createUserPlaylist({
+        name: `My playlist #${playlist.length + 1}`,
+        description: "",
+        isPublic: true,
+        cover: "",
+      })
+    ).unwrap();
+    dispatch(fetchUserPlaylists());
+    console.log("Create Playlist Result:", result);
+    if (result?._id) {
+      navigate("/playlist/" + result._id);
+    } else {
+      console.error("Failed to create playlist");
+    }
+  };
+
   useEffect(() => {
     if (user) {
       dispatch(fetchUserPlaylists());
@@ -156,6 +177,7 @@ const Sidebar = () => {
             <p className="font-semibold">Your Library</p>
           </div>
           <img
+            onClick={handleCreatePlaylist}
             className="cursor-pointer rounded-full hover:bg-[#282828] w-8 h-8 p-1"
             src={assets.plus_icon}
             alt="Create Playlist"

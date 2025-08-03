@@ -31,6 +31,7 @@ const createPlaylist = async (ownerId, body, file) => {
     isPublic,
     imageUrl,
     songs: [],
+    isArtistPlaylist: false,
   });
 
   return playlist;
@@ -215,7 +216,7 @@ const getUserPlaylists = async (ownerId) => {
     err.status = 400;
     throw err;
   }
-  const playlists = await Playlist.find({ ownerId })
+  const playlists = await Playlist.find({ ownerId, isArtistPlaylist: false })
     .select("name description isPublic imageUrl songs createdAt updatedAt")
     .populate({
       path: "songs",

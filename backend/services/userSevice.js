@@ -3,6 +3,7 @@ const cloudinary = require("../configs/cloudinary");
 const { uploadToCloudinary } = require("./cloudinaryService");
 const extractCloudinaryPublicId = require("../helpers/extractPublicId");
 const mongoose = require("mongoose");
+const { normalizeString } = require("../helpers/normolize");
 /** ------------------------- PUBLIC API ------------------------- **/
 
 async function getProfileInfo(userId) {
@@ -32,8 +33,11 @@ async function getFollowedArtists(userId) {
 async function updateProfileInfo(userId, { username }, file) {
   const updates = {};
 
-  if (username?.trim()) updates.username = username.trim();
-
+  if (username?.trim()) {
+    const trimmedUsername = username.trim();
+    updates.username = trimmedUsername;
+    updates.usernameNormalized = normalizeString(trimmedUsername); // ✅ add this line
+  }
   /* ---------- avatar upload logic ---------- */
   if (file) {
     // Fetch the old avatar URL first before uploading
@@ -121,14 +125,14 @@ async function updateAccountInfo(userId, payload) {
 }
 const followArtist = async (userId, artistId) => {
   if (!mongoose.isValidObjectId(artistId)) {
-    const err = new Error('Invalid artist id');
+    const err = new Error("Invalid artist id");
     err.status = 400;
     throw err;
   }
 
-  const artist = await User.findById(artistId).select('role');
-  if (!artist || artist.role !== 'artist') {
-    const err = new Error('Target user is not an artist');
+  const artist = await User.findById(artistId).select("role");
+  if (!artist || artist.role !== "artist") {
+    const err = new Error("Target user is not an artist");
     err.status = 404;
     throw err;
   }
@@ -137,12 +141,12 @@ const followArtist = async (userId, artistId) => {
     User.findByIdAndUpdate(
       userId,
       { $addToSet: { followees: artistId } },
-      { new: true, select: '_id followees' }
+      { new: true, select: "_id followees" }
     ),
     User.findByIdAndUpdate(
       artistId,
       { $addToSet: { followers: userId } },
-      { new: true, select: '_id followers' }
+      { new: true, select: "_id followers" }
     ),
   ]);
 
@@ -151,7 +155,7 @@ const followArtist = async (userId, artistId) => {
 
 const unfollowArtist = async (userId, artistId) => {
   if (!mongoose.isValidObjectId(artistId)) {
-    const err = new Error('Invalid artist id');
+    const err = new Error("Invalid artist id");
     err.status = 400;
     throw err;
   }
@@ -160,12 +164,12 @@ const unfollowArtist = async (userId, artistId) => {
     User.findByIdAndUpdate(
       userId,
       { $pull: { followees: artistId } },
-      { new: true, select: '_id followees' }
+      { new: true, select: "_id followees" }
     ),
     User.findByIdAndUpdate(
       artistId,
       { $pull: { followers: userId } },
-      { new: true, select: '_id followers' }
+      { new: true, select: "_id followers" }
     ),
   ]);
 
@@ -180,5 +184,5 @@ module.exports = {
   getAccountInfo,
   updateAccountInfo,
   followArtist,
-  unfollowArtist
+  unfollowArtist,
 };

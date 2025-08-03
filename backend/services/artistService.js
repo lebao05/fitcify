@@ -168,10 +168,7 @@ async function deleteSong(songId, artistUserId) {
     { $pull: { songs: song._id } }
   );
 
-  await Album.updateMany(
-    { songs: song._id },
-    { $pull: { songs: song._id } }
-  );
+  await Album.updateMany({ songs: song._id }, { $pull: { songs: song._id } });
 
   await Song.findByIdAndDelete(song._id);
 
@@ -488,7 +485,10 @@ async function getPlaylistsByArtist(artistUserId) {
   if (!user || !user.isVerified || user.role !== "artist") {
     throw new Error("Only verified artists can perform this action");
   }
-  const playlists = await Playlist.find({ ownerId: artistUserId }).sort({
+  const playlists = await Playlist.find({
+    ownerId: artistUserId,
+    isArtistPlaylist: true,
+  }).sort({
     createdAt: -1,
   });
   return playlists;
@@ -539,7 +539,7 @@ async function createPlaylist({
     imageUrl,
     description: description || "",
     songs: songIdArr,
-    isArtistPlaylist: true
+    isArtistPlaylist: true,
   });
   return playlist;
 }

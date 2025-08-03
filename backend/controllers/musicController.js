@@ -1,4 +1,31 @@
 const musicService = require("../services/musicService");
+const Song = require("../models/song");
+const Album = require("../models/album");
+const Playlist = require("../models/playlist");
+const User = require("../models/user");
+const { distance } = require("fastest-levenshtein");
+const normalizeString = require("../helpers/normolize").normalizeString;
+
+const search = async (req, res, next) => {
+  try {
+    const rawQuery = req.query.q?.trim();
+    if (!rawQuery)
+      return res.status(400).json({ Error: "Search query required" });
+    const data = await musicService.search(rawQuery);
+    res.status(200).json({
+      Message: "Search results",
+      Error: 0,
+      Data: {
+        songs: data.songs,
+        albums: data.albums,
+        playlists: data.playlists,
+        artists: data.artists,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const streamingAudio = async (req, res, next) => {
   try {
@@ -198,7 +225,9 @@ const getTopSongs = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
     const data = await musicService.getTopSongs(limit);
-    res.status(200).json({ Message: 'Top songs fetched', Error: 0, Data: data });
+    res
+      .status(200)
+      .json({ Message: "Top songs fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
@@ -207,14 +236,16 @@ const getTopArtists = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
     const artistProfiles = await musicService.getTopArtists(limit);
-    const data = artistProfiles.map(profile => ({
+    const data = artistProfiles.map((profile) => ({
       _id: profile._id,
       userId: profile.userId._id,
       name: profile.userId.username,
       imageUrl: profile.userId.avatarUrl,
-      totalPlays: profile.totalPlays
+      totalPlays: profile.totalPlays,
     }));
-    res.status(200).json({ Message: 'Top artists fetched', Error: 0, Data: data });
+    res
+      .status(200)
+      .json({ Message: "Top artists fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
@@ -223,7 +254,9 @@ const getTopAlbums = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
     const data = await musicService.getTopAlbums(limit);
-    res.status(200).json({ Message: 'Top albums fetched', Error: 0, Data: data });
+    res
+      .status(200)
+      .json({ Message: "Top albums fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
@@ -272,5 +305,6 @@ module.exports = {
   getTopSongs,
   getTopArtists,
   getTopAlbums,
+  search,
   getCurrentSong
 };

@@ -72,10 +72,15 @@ export const fetchUserPlaylists = createAsyncThunk(
 // ── Create ──
 export const createUserPlaylist = createAsyncThunk(
   "myCollection/createUserPlaylist",
-  async (formData, thunkAPI) => {
+  async ({ name, description, isPublic, cover }, thunkAPI) => {
     try {
-      const newPlaylist = await apiCreatePlaylist(formData);
-      return newPlaylist;
+      const newPlaylist = await apiCreatePlaylist({
+        name,
+        description,
+        isPublic,
+        cover,
+      });
+      return newPlaylist.Data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "Create playlist failed"
@@ -87,9 +92,15 @@ export const createUserPlaylist = createAsyncThunk(
 // ── Update ──
 export const updateUserPlaylist = createAsyncThunk(
   "myCollection/updateUserPlaylist",
-  async (updateData, thunkAPI) => {
+  async ({ playlistId, name, description, isPublic, cover }, thunkAPI) => {
     try {
-      const updated = await apiUpdatePlaylist(updateData);
+      const updated = await apiUpdatePlaylist({
+        playlistId,
+        name,
+        description,
+        isPublic,
+        cover,
+      });
       return updated;
     } catch (error) {
       return thunkAPI.rejectWithValue(

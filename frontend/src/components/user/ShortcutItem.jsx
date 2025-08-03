@@ -1,4 +1,4 @@
-const ShortcutGrid = ({ name, image, onClick }) => {
+const ShortcutItem = ({ name, image, onClick }) => {
   return (
     <div
       onClick={onClick}
@@ -29,4 +29,4 @@ const ShortcutGrid = ({ name, image, onClick }) => {
   );
 };
 
-export default ShortcutGrid;
+export default ShortcutItem;

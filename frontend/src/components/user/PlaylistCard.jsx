@@ -6,13 +6,8 @@ import PlayButton from "./PlayButton.jsx";
 
 const PlaylistCard = ({ playlist, isButton }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const audioRef = useRef(null);
-
   const handlePlay = (e) => {
     e.stopPropagation();
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
   };
 
   return (
@@ -32,7 +27,6 @@ const PlaylistCard = ({ playlist, isButton }) => {
             <PlayButton />
           </div>
         )}
-        {playlist.audio && <audio ref={audioRef} src={playlist?.audio} />}
       </div>
 
       <div className="playlist-info">

@@ -247,9 +247,11 @@ async function getAlbumsByArtist(artistUserId) {
   if (!user || !user.isVerified || user.role !== "artist") {
     throw new Error("Only verified artists can perform this action");
   }
-  const albums = await Album.find({ artistId: artistUserId }).sort({
-    createdAt: -1,
-  });
+  const albums = await Album.find({ artistId: artistUserId })
+    .populate("artistId", "username")
+    .sort({
+      createdAt: -1,
+    });
   return albums;
 }
 
@@ -466,10 +468,7 @@ async function getPlaylistById(playlistId) {
       path: "songs",
       model: "Song",
     })
-    .populate({
-      path: "ownerId",
-      model: "User",
-    });
+    .populate("ownerId", "username");
 
   if (!playlist) {
     const err = new Error("Playlist not found");
@@ -488,9 +487,11 @@ async function getPlaylistsByArtist(artistUserId) {
   const playlists = await Playlist.find({
     ownerId: artistUserId,
     isArtistPlaylist: true,
-  }).sort({
-    createdAt: -1,
-  });
+  })
+    .populate("ownerId", "username")
+    .sort({
+      createdAt: -1,
+    });
   return playlists;
 }
 
@@ -653,10 +654,9 @@ async function getAllSongs(artistUserId) {
   if (!artist || !artist.isVerified || artist.role !== "artist") {
     throw new Error("Only verified artists can view their songs");
   }
-  return await Song.find({ artistId: artistUserId }).populate(
-    "artistId",
-    "-password -refreshToken -__v"
-  );
+  return await Song.find({ artistId: artistUserId })
+    .populate("albumId", "title _id")
+    .populate("artistId", "username -_id");
 }
 
 async function getArtistProfileById(userId) {

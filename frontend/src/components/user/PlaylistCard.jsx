@@ -4,7 +4,7 @@ import { Play } from "lucide-react";
 import "./PlaylistCard.scss";
 import PlayButton from "./PlayButton.jsx";
 
-const PlaylistCard = ({ playlist, onPlay, isButton }) => {
+const PlaylistCard = ({ playlist, isButton }) => {
   const [isHovered, setIsHovered] = useState(false);
   const audioRef = useRef(null);
 
@@ -32,13 +32,13 @@ const PlaylistCard = ({ playlist, onPlay, isButton }) => {
             <PlayButton />
           </div>
         )}
-        {playlist.audio && <audio ref={audioRef} src={playlist.audio} />}
+        {playlist.audio && <audio ref={audioRef} src={playlist?.audio} />}
       </div>
 
       <div className="playlist-info">
-        <h3 className="playlist-name">{playlist.name}</h3>
+        <h3 className="playlist-name">{playlist?.name}</h3>
         <p className="playlist-creator">
-          Playlist &#8901; {playlist.ownerId.username}
+          Playlist &#8901; {playlist?.ownerId?.username}
         </p>
       </div>
     </div>

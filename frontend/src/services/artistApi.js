@@ -30,13 +30,13 @@ export const updateSong = async (
   });
 };
 export const deleteSong = async (songId) => {
-  return axios.delete(`/artist/songs/${songId}`);
+  return await axios.delete(`/artist/songs/${songId}`);
 };
 export const getAllSongs = async () => {
-  return axios.get("/artist/songs");
+  return await axios.get("/artist/songs");
 };
 export const getSongById = async (songId) => {
-  return axios.get(`/artist/songs/${songId}`);
+  return await axios.get(`/artist/songs/${songId}`);
 };
 // Create an album
 export const createAlbum = async (formData) => {

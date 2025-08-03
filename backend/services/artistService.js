@@ -635,17 +635,11 @@ async function updatePlaylistMetadata({
   return updated;
 }
 
-async function getSongById(songId, artistUserId) {
-  const artist = await User.findById(artistUserId);
-  if (!artist || !artist.isVerified || artist.role !== "artist")
-    throw new Error("Only verified artists can delete songs");
-
-  const song = await Song.findById(songId);
+async function getSongById(songId) {
+  const song = await Song.findById(songId)
+    .populate("artistId", "username -_id")
+    .populate("albumId", "title _id");
   if (!song) throw new Error("Song not found");
-
-  if (!song.artistId.equals(artistUserId))
-    throw new Error("This is not your song");
-
   return song;
 }
 

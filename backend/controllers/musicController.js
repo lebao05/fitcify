@@ -55,14 +55,13 @@ const toggleSongLikeController = async (req, res) => {
   const { songId } = req.params;
 
   if (!songId) {
-    return res.status(400).json({ message: "Missing userId or songId" });
+    return res.status(400).json({ Message: "Missing userId or songId" });
   }
 
   try {
     const result = await musicService.toggleSongLike(userId, songId);
     res.status(200).json({
-      message: result.liked ? "Song liked" : "Song unliked",
-      liked: result.liked,
+      Message: result.liked ? "Song liked" : "Song unliked",
     });
   } catch (error) {
     console.error(error);
@@ -77,7 +76,9 @@ const getLikedTracksController = async (req, res) => {
   }
   try {
     const likedTracks = await musicService.getLikedTracks(userId);
-    res.status(200).json({ likedTracks });
+    res
+      .status(200)
+      .json({ Data: likedTracks, Message: "Successfully", Error: 0 });
   } catch (error) {
     console.error(error);
     res
@@ -289,7 +290,6 @@ const getCurrentSong = async (req, res) => {
   }
 };
 
-
 module.exports = {
   streamingAudio,
   toggleSongLikeController,
@@ -306,5 +306,5 @@ module.exports = {
   getTopArtists,
   getTopAlbums,
   search,
-  getCurrentSong
+  getCurrentSong,
 };

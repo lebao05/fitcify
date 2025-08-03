@@ -138,3 +138,32 @@ export const playNext = async () => {
     throw error;
   }
 };
+export const getCurrentPlayerSong = async () => {
+  try {
+    const response = await axiosInstance.get(`/music/current-song`);
+    return response.data;
+  } catch (error) {
+    console.error("Error going to next track:", error);
+    throw error;
+  }
+};
+export const getLikedSongs = async () => {
+  try {
+    const response = await axiosInstance.get(`/music/songs/liked`);
+    return response.data;
+  } catch (error) {
+    console.error("Error going to next track:", error);
+    throw error;
+  }
+};
+export const toggleLikeSong = async (songId) => {
+  try {
+    const response = await axiosInstance.post(
+      `/music/songs/${songId}/toggle-like`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error going to next track:", error);
+    throw error;
+  }
+};

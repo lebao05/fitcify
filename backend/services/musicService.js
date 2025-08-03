@@ -5,6 +5,7 @@ const ArtistProfile = require("../models/artistProfile");
 const mongoose = require("mongoose");
 const Player = require("../models/audioPlayer");
 const Playlist = require("../models/playlist");
+const User = require("../models/user");
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -21,15 +22,6 @@ function proxyStreamFromCloudinary(cloudinaryUrl, range) {
 async function getStream(songId, rangeHeader = "bytes=0-") {
   const song = await Song.findById(songId).select("audioUrl");
   if (!song) throw new Error("Song not found");
-
-  const album = await Album.findOne({ songs: songId }).select("_id");
-
-  // Fire-and-forget async updates (non-blocking)
-  Song.updateOne({ _id: songId }, { $inc: { playCount: 1 } }).exec();
-  if (album) {
-    Album.updateOne({ _id: album._id }, { $inc: { playCount: 1 } }).exec();
-  }
-
   const cloudRes = await proxyStreamFromCloudinary(song.audioUrl, rangeHeader);
   return cloudRes;
 }
@@ -68,7 +60,9 @@ const getLikedTracks = async (userId) => {
     throw err;
   }
   try {
-    const likedSongs = await Song.find({ likes: userId });
+    const likedSongs = await Song.find({ likes: userId })
+      .populate("artistId", "username")
+      .populate("albumId", "title");
     return likedSongs;
   } catch (error) {
     throw error;
@@ -160,7 +154,13 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     { upsert: true, new: true }
   );
 
-  return resultSongs[0];
+  const currentSong = resultSongs[0];
+  const song = await Song.findByIdAndUpdate(currentSong, {
+    $inc: { playCount: 1 },
+  });
+  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+  await Album.updateOne({ _id: albumId }, { $inc: { playCount: 1 } });
+  return currentSong;
 };
 
 const playAPlaylist = async (playlistId, songOrder = 0, user) => {
@@ -216,7 +216,12 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     { upsert: true, new: true }
   );
 
-  return resultSongs[0]; // First song to play
+  const currentSong = resultSongs[0]; // First song to play
+  const song = await Song.findByIdAndUpdate(currentSong, {
+    $inc: { playCount: 1 },
+  });
+  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+  return currentSong;
 };
 
 async function playAnArtist(user, artistId) {
@@ -240,8 +245,12 @@ async function playAnArtist(user, artistId) {
     },
     { upsert: true, new: true }
   ).populate("queue");
-
-  return shuffledSongs[0]._id;
+  const currentSong = shuffledSongs[0]._id;
+  const song = await Song.findByIdAndUpdate(currentSong, {
+    $inc: { playCount: 1 },
+  });
+  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+  return currentSong;
 }
 
 async function previousTrack(user) {
@@ -259,7 +268,10 @@ async function previousTrack(user) {
   const currentSong = player.queue[player.currentIndex];
 
   await player.save();
-
+  const song = await Song.findByIdAndUpdate(currentSong, {
+    $inc: { playCount: 1 },
+  });
+  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
   return currentSong;
 }
 
@@ -301,8 +313,10 @@ async function playASong(user, songId) {
     { upsert: true, new: true }
   );
 
-  await Song.findByIdAndUpdate(mainSong._id, { $inc: { playCount: 1 } });
-
+  const song = await Song.findByIdAndUpdate(mainSong._id, {
+    $inc: { playCount: 1 },
+  });
+  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
   return mainSong;
 }
 
@@ -336,8 +350,17 @@ async function nextTrack(user) {
   await player.save();
 
   const currentSongId = queue[currentIndex];
+
   const currentSong = await Song.findById(currentSongId);
   if (!currentSong) throw new Error("Next song not found.");
+
+  const song = await Song.findByIdAndUpdate(currentSongId, {
+    $inc: { playCount: 1 },
+  }).exec();
+  await User.updateOne(
+    { _id: song.artistId },
+    { $inc: { playCount: 1 } }
+  ).exec();
 
   return currentSong;
 }
@@ -349,8 +372,8 @@ const getTopSongs = async (limit = 10) => {
   return topSongs;
 };
 const getTopArtists = async (limit = 10) => {
-  const artists = await ArtistProfile.find({ totalPlays: { $gt: 0 } })
-    .sort({ totalPlays: -1 })
+  const artists = await ArtistProfile.find()
+    .sort({ playCount: -1 })
     .limit(limit)
     .populate({
       path: "userId",
@@ -362,10 +385,9 @@ const getTopArtists = async (limit = 10) => {
 };
 const getTopAlbums = async (limit = 10) => {
   return await Album.find({})
-    .sort({ viewCount: -1 })
+    .sort({ playCount: -1 })
     .limit(limit)
-    .select("title artistId imageUrl viewCount releaseDate");
-
+    .select("title artistId imageUrl playCount releaseDate");
 };
 
 const getCurrentSong = async (userId) => {
@@ -375,14 +397,13 @@ const getCurrentSong = async (userId) => {
     throw err;
   }
 
-  const player = await Player.findOne({ userId })
-    .populate({
-      path: "queue",
-      populate: {
-        path: "artistId",
-        select: "username", 
-      },
-    });
+  const player = await Player.findOne({ userId }).populate({
+    path: "queue",
+    populate: {
+      path: "artistId",
+      select: "username",
+    },
+  });
 
   if (!player || !player.queue || player.queue.length === 0) {
     const err = new Error("No active song in player");
@@ -394,18 +415,17 @@ const getCurrentSong = async (userId) => {
 
   let album = null;
   if (currentSong.albumId) {
-    album = await Album.findById(currentSong.albumId)
-      .select("title releaseDate imageUrl");
+    album = await Album.findById(currentSong.albumId).select(
+      "title releaseDate imageUrl"
+    );
   }
 
   return {
     ...currentSong.toObject(),
     artist: currentSong.artistId, // artistId đã populate username
-    album: album || null,
+    albumId: album || null,
   };
 };
-
-
 
 module.exports = {
   getAlbumsOfAnArtist,

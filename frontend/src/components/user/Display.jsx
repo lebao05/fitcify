@@ -11,14 +11,19 @@ import AudioPlayer from "./AudioPlayer";
 import SubscriptionPage from "../../pages/payment/SubscribePage";
 import PaymentSuccess from "../../pages/payment/paymentSuccess";
 import PaymentCancel from "../../pages/payment/paymentCancel";
+import DisplaySong from "./DisplaySong";
+import DisplayLikedSongs from "./DisplayLikedSongs";
 const Display = () => {
   const displayRef = useRef();
   const location = useLocation();
   const isAlbum = location.pathname.includes("album");
   const isPlaylist = location.pathname.includes("playlist");
+  const isSong = location.pathname.includes("song");
+  const isLikedTrack = location.pathname.includes("likedtrack");
+
   const nagivate = useNavigate();
   useEffect(() => {
-    if (isAlbum || isPlaylist) {
+    if (isAlbum || isPlaylist || isSong || isLikedTrack) {
       displayRef.current.style.background = `linear-gradient(${"#316369"},#121212)`;
     } else {
       displayRef.current.style.background = "#121212";
@@ -37,7 +42,9 @@ const Display = () => {
         <Route path="/album/:id" element={<DisplayAlbum />} />
         <Route path="/profile/:id" element={<UserProfile />} />
         <Route path="/playlist/:id" element={<DisplayPlaylist />} />
+        <Route path="/song/:id" element={<DisplaySong />} />
         <Route path="/search/*" element={<SearchResult />} />
+        <Route path="likedtrack" element={<DisplayLikedSongs />} />
       </Routes>{" "}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <AudioPlayer />

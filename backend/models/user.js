@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true },
     usernameNormalized: { type: String },
-
+    playCount: { type: Number, default: 0 },
     /* ───────── primary auth fields ───────── */
     role: {
       type: String,

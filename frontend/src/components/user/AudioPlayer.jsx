@@ -3,6 +3,7 @@ import { assets } from "../../assets/assets";
 import { fetchAudioStreamUrl } from "../../services/musicApi";
 import { useSelector, useDispatch } from "react-redux";
 import {
+  fetchCurrentSongThunk,
   playNextThunk,
   playPreviousThunk,
   togglePlay,
@@ -10,24 +11,15 @@ import {
 
 const AudioPlayer = () => {
   const dispatch = useDispatch();
-
   // Get Redux state
   const currentSong = useSelector((state) => state.player.currentSong);
-  const isPlaying = useSelector((state) => state.player.isPlaying);
-  const [autoPlay, setAutoPlay] = useState(false);
-  // Local UI state
+  const isPlaying = useSelector((state) => state.player.isPlaying); // Local UI state
   const [volume, setVolume] = useState(1);
   const [audioUrl, setAudioUrl] = useState(null);
-  const [track, setTrack] = useState({
-    image: "/placeholder.jpg",
-    name: "Demo Song",
-    desc: "Demo artist / album",
-  });
   const [time, setTime] = useState({
     currentTime: { minute: "00", second: "00" },
     totalTime: { minute: "00", second: "00" },
   });
-
   const audioRef = useRef(null);
   const seekBar = useRef(null);
   const seekBg = useRef(null);
@@ -43,7 +35,6 @@ const AudioPlayer = () => {
   useEffect(() => {
     const loadAudio = async () => {
       if (!currentSong) return;
-      setAutoPlay(true);
       try {
         const url = await fetchAudioStreamUrl(currentSong._id);
         setAudioUrl(url);
@@ -51,9 +42,8 @@ const AudioPlayer = () => {
         if (audioRef.current) {
           const audio = audioRef.current;
 
-          // Clean up existing event listener
           const handleCanPlay = async () => {
-            if (isPlaying || autoPlay) {
+            if (isPlaying) {
               try {
                 await audio.play();
               } catch (err) {
@@ -77,7 +67,9 @@ const AudioPlayer = () => {
 
     loadAudio();
   }, [currentSong]);
-
+  useEffect(() => {
+    dispatch(fetchCurrentSongThunk());
+  }, [fetchCurrentSongThunk]);
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
       .toString()
@@ -127,23 +119,22 @@ const AudioPlayer = () => {
   };
 
   const previous = async () => {
+    await audioRef.current.pause(); // Pause before going to previous track
     dispatch(playPreviousThunk());
-    if (currentSong) {
-      audioRef.current.currentTime = 0;
-      if (!isPlaying) dispatch(togglePlay());
-    }
   };
 
   const next = () => {
+    audioRef.current.pause(); // Pause before going to next track
     dispatch(playNextThunk());
   };
 
   const handleEnded = () => {
     dispatch(playNextThunk());
   };
+  if (!currentSong) return null;
 
   return (
-    <div className="fixed bottom-0 bg-gray-800 left-0 w-full h-[7%] text-white px-4 py-2 flex items-center justify-between border-t border-gray-700 z-50">
+    <div className="fixed bottom-0 bg-gray-800 left-0 w-full h-[7%] text-white px-4 py-10 flex items-center justify-between border-t border-gray-700 z-50">
       {/* Left: Song Info */}
       <div className="hidden lg:flex items-center gap-4 w-[25%]">
         <img
@@ -153,7 +144,9 @@ const AudioPlayer = () => {
         />
         <div>
           <p className="text-sm font-semibold">{currentSong?.title}</p>
-          <p className="text-xs text-gray-400">{track.desc.slice(0, 43)}</p>
+          <p className="text-xs text-gray-400">
+            {currentSong?.artistId?.username}
+          </p>
         </div>
       </div>
 
@@ -233,7 +226,6 @@ const AudioPlayer = () => {
         onTimeUpdate={updateProgress}
         onEnded={handleEnded}
         preload="auto"
-        autoPlay={autoPlay}
       />
     </div>
   );

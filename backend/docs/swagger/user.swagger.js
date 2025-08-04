@@ -44,6 +44,47 @@
  *       200:
  *         description: User profile
  */
+/**
+ * @swagger
+ * /api/user/profile/followed-artists:
+ *   get:
+ *     summary: Get list of artists followed by the authenticated user
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of followed artists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                   example: Followed artists fetched
+ *                 Error:
+ *                   type: integer
+ *                   example: 0
+ *                 Data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: Artist's user ID
+ *                         example: "64f88c2a9e1f3b0012345678"
+ *                       username:
+ *                         type: string
+ *                         example: "Artist One"
+ *                       avatarUrl:
+ *                         type: string
+ *                         format: uri
+ *                         example: "https://res.cloudinary.com/.../artist1.jpg"
+ *       401:
+ *         description: Unauthorized (no valid token)
+ */
 
 /**
  * @swagger

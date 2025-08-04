@@ -9,10 +9,9 @@ const upload = multer({ dest: "uploads/" });
 
 router.use(authMiddleware);
 router.get("/profile/all", userController.getAllUsers);
-router.get("/profile/:id", userController.getProfileInfo);
-router.get("/me", userController.getMyProfile);
-
 router.get("/profile/followed-artists", userController.getFollowedArtists);
+router.get("/me", userController.getMyProfile);
+router.get("/profile/:id", userController.getProfileInfo);
 
 router.put(
   "/profile",
@@ -27,7 +26,7 @@ router.get("/account", userController.getAccountInfo);
 
 router.patch("/account", userController.updateAccountInfo);
 
-router.post('/artists/:artistId/follow', userController.followArtist);
-router.delete('/artists/:artistId/follow', userController.unfollowArtist);
+router.post("/artists/:artistId/follow", userController.followArtist);
+router.delete("/artists/:artistId/follow", userController.unfollowArtist);
 
 module.exports = router;

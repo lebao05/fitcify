@@ -25,7 +25,7 @@ async function getFollowedArtists(userId) {
   if (!me || !me.followees.length) return [];
 
   return User.find({ _id: { $in: me.followees }, role: "artist" })
-    .select("username avatarUrl")
+    .select("_id username avatarUrl")
     .sort({ _id: -1 })
     .lean();
 }

@@ -49,7 +49,7 @@
  * /api/user/profile/followed-artists:
  *   get:
  *     summary: Get list of artists followed by the authenticated user
- *     tags: [User]
+ *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     responses:

@@ -48,7 +48,19 @@ const getFollowedArtists = async (req, res, next) => {
     next(err);
   }
 };
-
+const getArtistFollowers = async (req, res, next) => {
+  try {
+    const { artistId } = req.params;
+    const data = await userService.getArtistFollowers(artistId);
+    res.status(200).json({
+      Message: 'Artist followers fetched',
+      Error: 0,
+      Data: data,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 // Cập-nhật username / avatar
 const updateProfileInfo = async (req, res, next) => {
   try {
@@ -117,6 +129,7 @@ module.exports = {
   getAllUsers,
   getProfileInfo,
   getFollowedArtists,
+  getArtistFollowers,
   updateProfileInfo,
   deleteProfileAvatar,
   getAccountInfo,
@@ -124,4 +137,5 @@ module.exports = {
   getMyProfile,
   followArtist,
   unfollowArtist,
+  
 };

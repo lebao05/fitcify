@@ -28,5 +28,6 @@ router.patch("/account", userController.updateAccountInfo);
 
 router.post("/artists/:artistId/follow", userController.followArtist);
 router.delete("/artists/:artistId/follow", userController.unfollowArtist);
+router.get("/artists/:artistId/followers", userController.getArtistFollowers);
 
 module.exports = router;

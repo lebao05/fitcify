@@ -25,7 +25,25 @@ async function getFollowedArtists(userId) {
   if (!me || !me.followees.length) return [];
 
   return User.find({ _id: { $in: me.followees }, role: "artist" })
-    .select("username avatarUrl")
+    .select("_id username avatarUrl")
+    .sort({ _id: -1 })
+    .lean();
+}
+async function getArtistFollowers(artistId) {
+  if (!mongoose.isValidObjectId(artistId)) {
+    const err = new Error("Invalid artist id");
+    err.status = 400;
+    throw err;
+  }
+  const artist = await User.findById(artistId).select("followers");
+  if (!artist) {
+    const err = new Error("Artist not found");
+    err.status = 404;
+    throw err;
+  }
+  if (!artist.followers || !artist.followers.length) return [];
+  return User.find({ _id: { $in: artist.followers } })
+    .select("_id username avatarUrl")
     .sort({ _id: -1 })
     .lean();
 }
@@ -179,6 +197,7 @@ module.exports = {
   getAllUsers,
   getProfileInfo,
   getFollowedArtists,
+  getArtistFollowers,
   updateProfileInfo,
   deleteProfileAvatar,
   getAccountInfo,

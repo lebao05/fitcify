@@ -99,6 +99,7 @@ const Sidebar = () => {
               />
             </div>
           ))}
+          
           {user?.followees &&
             user.followees.map((item) => (
               <ArtistBar

@@ -1,17 +1,62 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getAlbumById } from "../../services/musicApi";
+import { getAlbumById, toggleLikeSong } from "../../services/musicApi";
 import { assets } from "../../assets/assets";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { playAlbumThunk } from "../../redux/slices/playerSlice";
 import { Play, Heart } from "lucide-react";
-
+import ContextMenu from "./ContextMenu";
+import { addSongToPlaylist } from "../../services/playlistApi";
+import {
+  fetchLikedSongs,
+  fetchUserPlaylists,
+} from "../../redux/slices/myCollectionSlice";
 const DisplayAlbum = () => {
+  const [contextMenu, setContextMenu] = useState(null);
+  const likedSongs = useSelector((state) => state.myCollection.likedSongs);
+  const dispatch = useDispatch();
+  const playlists = useSelector((state) => state.myCollection.playlists);
+  const handleRightClick = (e, song, isLiked) => {
+    e.preventDefault();
+    const options = [
+      {
+        label: "Add to playlist",
+        submenu: playlists.map((pl) => ({
+          label: pl.name,
+          onClick: async () => {
+            console.log(`Add song '${song.title}' to playlist '${pl.label}'`);
+            await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
+            await dispatch(fetchUserPlaylists());
+          },
+        })),
+      },
+      {
+        label: isLiked
+          ? "Remove from your Liked Songs"
+          : "Add to your Liked Songs",
+        onClick: async () => {
+          await toggleLikeSong(song._id);
+          await dispatch(fetchLikedSongs());
+        },
+      },
+      {
+        label: "Go to artist",
+        onClick: () => {
+          console.log("Go to artist", song.artistId?.username);
+        },
+      },
+    ];
+
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      options,
+    });
+  };
+
   const navigate = useNavigate();
   const { id } = useParams();
   const [album, setAlbum] = useState(null);
-  const dispatch = useDispatch();
-  const [liked, setLiked] = useState(false);
   const handlePlayAlbum = async (songOrder) => {
     if (!id) return;
     await dispatch(playAlbumThunk({ albumId: id, songOrder }));
@@ -95,75 +140,91 @@ const DisplayAlbum = () => {
         <hr />
 
         {/* Song Rows */}
-        {album.songs?.map((item, index) => (
-          <div
-            key={item._id}
-            className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
-          >
-            {/* Title + image */}
-            <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
+        {album.songs?.map((item, index) => {
+          const isLiked = likedSongs?.some((s) => s._id === item._id);
+          return (
+            <>
+              {" "}
               <div
-                className="w-5 text-right"
-                onClick={() => handlePlayAlbum(index)}
+                key={item._id}
+                onContextMenu={(e) => handleRightClick(e, item, isLiked)} // 👈 Add this line
+                className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
               >
-                <span className="group-hover:hidden block text-[#a7a7a7]">
-                  {index + 1}
-                </span>
-                <span className="hidden group-hover:block text-[#a7a7a7]">
-                  ▶
-                </span>
+                {/* Title + image */}
+                <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
+                  <div
+                    className="w-5 text-right"
+                    onClick={() => handlePlayAlbum(index)}
+                  >
+                    <span className="group-hover:hidden block text-[#a7a7a7]">
+                      {index + 1}
+                    </span>
+                    <span className="hidden group-hover:block text-[#a7a7a7]">
+                      ▶
+                    </span>
+                  </div>
+
+                  <img
+                    className="w-10 h-10 object-cover rounded"
+                    src={item.imageUrl}
+                    alt={item.title}
+                  />
+
+                  <div className="flex flex-col">
+                    <span>{item.title}</span>
+                    <span className="text-[#a7a7a7]">
+                      {album.artistId?.username}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[15px]">{album.title}</p>
+
+                <p className="text-[15px] hidden sm:block">
+                  {new Date(item.uploadedAt).toLocaleDateString()}
+                </p>
+
+                {/* Like Icon */}
+                <div className="hidden sm:flex justify-center items-center relative group z-10">
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await toggleLikeSong(item._id);
+                      await dispatch(fetchLikedSongs());
+                    }}
+                    className="p-1 rounded-full relative hover:bg-green-600/10"
+                    tabIndex={-1}
+                  >
+                    <Heart
+                      size={18}
+                      fill={isLiked ? "#1db954" : "none"}
+                      color={isLiked ? "#1db954" : "#fff"}
+                      className={isLiked ? "drop-shadow-[0_0_2px_#1db954]" : ""}
+                    />
+                    <span className="absolute left-[110%] top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded shadow-md opacity-0 pointer-events-none group-hover:opacity-100 whitespace-nowrap ml-2">
+                      {isLiked ? "Added to Liked Songs" : "Add to Liked Songs"}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Duration */}
+                <p className="text-[15px] text-center text-white">
+                  {Math.floor(item.duration / 60)}:
+                  {(item.duration % 60).toString().padStart(2, "0")}
+                </p>
               </div>
-
-              <img
-                className="w-10 h-10 object-cover rounded"
-                src={item.imageUrl}
-                alt={item.title}
-              />
-
-              <div className="flex flex-col">
-                <span>{item.title}</span>
-                <span className="text-[#a7a7a7]">
-                  {album.artistId?.username}
-                </span>
-              </div>
-            </div>
-
-            <p className="text-[15px]">{album.title}</p>
-
-            <p className="text-[15px] hidden sm:block">
-              {new Date(item.uploadedAt).toLocaleDateString()}
-            </p>
-
-            {/* Like Icon */}
-            <div className="hidden sm:flex justify-center items-center relative group z-10">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleLike();
-                }}
-                className="p-1 rounded-full relative hover:bg-green-600/10"
-                tabIndex={-1}
-              >
-                <Heart
-                  size={18}
-                  fill={liked ? "#1db954" : "none"}
-                  color={liked ? "#1db954" : "#fff"}
-                  className={liked ? "drop-shadow-[0_0_2px_#1db954]" : ""}
-                />
-                <span className="absolute left-[110%] top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded shadow-md opacity-0 pointer-events-none group-hover:opacity-100 whitespace-nowrap ml-2">
-                  {liked ? "Added to Liked Songs" : "Add to Liked Songs"}
-                </span>
-              </button>
-            </div>
-
-            {/* Duration */}
-            <p className="text-[15px] text-center text-white">
-              {Math.floor(item.duration / 60)}:
-              {(item.duration % 60).toString().padStart(2, "0")}
-            </p>
-          </div>
-        ))}
+            </>
+          );
+        })}
       </div>
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          options={contextMenu.options}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 };

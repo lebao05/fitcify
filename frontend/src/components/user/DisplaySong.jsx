@@ -1,23 +1,35 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { assets } from "../../assets/assets";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { playSongThunk } from "../../redux/slices/playerSlice";
 import { Play, Heart } from "lucide-react";
 import { getSongById } from "../../services/artistApi";
+import { toggleLikeSong } from "../../services/musicApi";
+import {
+  fetchLikedSongs,
+  fetchUserPlaylists,
+} from "../../redux/slices/myCollectionSlice";
+import { addSongToPlaylist } from "../../services/playlistApi";
+import ContextMenu from "./ContextMenu";
 
 const DisplaySong = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const [song, setSong] = useState(null);
-  const [liked, setLiked] = useState(false);
+  const [contextMenu, setContextMenu] = useState(null);
+
+  const likedSongs = useSelector((state) => state.myCollection.likedSongs);
+  const playlists = useSelector((state) => state.myCollection.playlists);
+  const liked = likedSongs?.some((s) => s._id === song?._id);
 
   useEffect(() => {
     if (id) {
       getSongById(id)
         .then((res) => {
-          if (res?.data.Data) {
+          if (res?.data?.Data) {
             setSong(res.data.Data);
           } else {
             navigate("/not-found");
@@ -27,21 +39,63 @@ const DisplaySong = () => {
           console.error("Failed to load song", err);
         });
     }
+    dispatch(fetchLikedSongs());
+    dispatch(fetchUserPlaylists());
   }, [id]);
 
-  const handlePlaySong = () => {
-    dispatch(playSongThunk(song._id));
+  const handlePlaySong = async () => {
+    await dispatch(playSongThunk(song._id));
   };
 
-  const toggleLike = () => {
-    setLiked((prev) => !prev);
+  const handleLikeToggle = async () => {
+    await toggleLikeSong(song._id);
+    await dispatch(fetchLikedSongs());
   };
 
-  if (!song) return <p className="text-white p-10">Loading...</p>;
+  const handleRightClick = (e) => {
+    e.preventDefault();
+
+    const options = [
+      {
+        label: "Add to playlist",
+        submenu: playlists.map((pl) => ({
+          label: pl.name,
+          onClick: async () => {
+            await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
+            await dispatch(fetchUserPlaylists());
+          },
+        })),
+      },
+      {
+        label: liked
+          ? "Remove from your Liked Songs"
+          : "Add to your Liked Songs",
+        onClick: handleLikeToggle,
+      },
+      {
+        label: "Go to artist",
+        onClick: () => {
+          navigate(`/artist/${song.artistId?._id}`);
+        },
+      },
+    ];
+
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      options,
+    });
+  };
+
+  if (!song) return null;
 
   return (
-    <div className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover">
+    <div
+      className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover"
+      onContextMenu={handleRightClick} // 👈 Apply right click handler on container
+    >
       <div className="flex-1 overflow-y-auto">
+        {/* Song Info */}
         <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-end">
           <img
             className="w-48 h-48 rounded object-cover"
@@ -121,7 +175,7 @@ const DisplaySong = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleLike();
+                handleLikeToggle();
               }}
               className="p-1 rounded-full relative hover:bg-green-600/10"
               tabIndex={-1}
@@ -144,6 +198,16 @@ const DisplaySong = () => {
           </p>
         </div>
       </div>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          options={contextMenu.options}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 };

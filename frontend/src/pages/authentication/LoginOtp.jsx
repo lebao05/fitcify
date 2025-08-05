@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import obfuscateEmail from "../../utils/obfuscateEmail";
+import obfuscateEmail from "../../styles/utils/obfuscateEmail";
 import { sendLoginOtp } from "../../services/authApi";
 import { useDispatch } from "react-redux";
 import { loginWithOtp } from "../../redux/slices/userSlice";

@@ -41,10 +41,11 @@ router.post("/previous", authMiddleware, musicController.previousTrack);
 router.post("/play-song", authMiddleware, musicController.playASong);
 router.post("/next", authMiddleware, musicController.nextTrack);
 
-router.get('/top/songs', musicController.getTopSongs);
-router.get('/top/artists', musicController.getTopArtists);
-router.get('/top/albums', musicController.getTopAlbums);
+router.get("/search", musicController.search);
+router.get("/top/songs", musicController.getTopSongs);
+router.get("/top/artists", musicController.getTopArtists);
+router.get("/top/albums", musicController.getTopAlbums);
 
-router.get("/current-song",authMiddleware,musicController.getCurrentSong);
+router.get("/current-song", authMiddleware, musicController.getCurrentSong);
 
 module.exports = router;

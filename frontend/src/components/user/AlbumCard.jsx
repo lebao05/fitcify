@@ -23,7 +23,9 @@ const AlbumCard = ({ album, isButton }) => {
       </div>
       <div className="album-info">
         <h3 className="album-name">{album.title}</h3>
-        <p className="album-artist">Album &#8901; {album.artist}</p>
+        <p className="album-artist">
+          Album &#8901; {album?.artistId?.username}
+        </p>
       </div>
     </div>
   );

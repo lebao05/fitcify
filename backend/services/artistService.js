@@ -168,10 +168,7 @@ async function deleteSong(songId, artistUserId) {
     { $pull: { songs: song._id } }
   );
 
-  await Album.updateMany(
-    { songs: song._id },
-    { $pull: { songs: song._id } }
-  );
+  await Album.updateMany({ songs: song._id }, { $pull: { songs: song._id } });
 
   await Song.findByIdAndDelete(song._id);
 
@@ -250,9 +247,11 @@ async function getAlbumsByArtist(artistUserId) {
   if (!user || !user.isVerified || user.role !== "artist") {
     throw new Error("Only verified artists can perform this action");
   }
-  const albums = await Album.find({ artistId: artistUserId }).sort({
-    createdAt: -1,
-  });
+  const albums = await Album.find({ artistId: artistUserId })
+    .populate("artistId", "username")
+    .sort({
+      createdAt: -1,
+    });
   return albums;
 }
 
@@ -469,10 +468,7 @@ async function getPlaylistById(playlistId) {
       path: "songs",
       model: "Song",
     })
-    .populate({
-      path: "ownerId",
-      model: "User",
-    });
+    .populate("ownerId", "username");
 
   if (!playlist) {
     const err = new Error("Playlist not found");
@@ -488,9 +484,14 @@ async function getPlaylistsByArtist(artistUserId) {
   if (!user || !user.isVerified || user.role !== "artist") {
     throw new Error("Only verified artists can perform this action");
   }
-  const playlists = await Playlist.find({ ownerId: artistUserId }).sort({
-    createdAt: -1,
-  });
+  const playlists = await Playlist.find({
+    ownerId: artistUserId,
+    isArtistPlaylist: true,
+  })
+    .populate("ownerId", "username")
+    .sort({
+      createdAt: -1,
+    });
   return playlists;
 }
 
@@ -539,6 +540,7 @@ async function createPlaylist({
     imageUrl,
     description: description || "",
     songs: songIdArr,
+    isArtistPlaylist: true,
   });
   return playlist;
 }
@@ -633,17 +635,11 @@ async function updatePlaylistMetadata({
   return updated;
 }
 
-async function getSongById(songId, artistUserId) {
-  const artist = await User.findById(artistUserId);
-  if (!artist || !artist.isVerified || artist.role !== "artist")
-    throw new Error("Only verified artists can delete songs");
-
-  const song = await Song.findById(songId);
+async function getSongById(songId) {
+  const song = await Song.findById(songId)
+    .populate("artistId", "username -_id")
+    .populate("albumId", "title _id");
   if (!song) throw new Error("Song not found");
-
-  if (!song.artistId.equals(artistUserId))
-    throw new Error("This is not your song");
-
   return song;
 }
 
@@ -652,10 +648,9 @@ async function getAllSongs(artistUserId) {
   if (!artist || !artist.isVerified || artist.role !== "artist") {
     throw new Error("Only verified artists can view their songs");
   }
-  return await Song.find({ artistId: artistUserId }).populate(
-    "artistId",
-    "-password -refreshToken -__v"
-  );
+  return await Song.find({ artistId: artistUserId })
+    .populate("albumId", "title _id")
+    .populate("artistId", "username -_id");
 }
 
 async function getArtistProfileById(userId) {

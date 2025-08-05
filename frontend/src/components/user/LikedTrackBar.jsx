@@ -1,4 +1,4 @@
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaPlay } from "react-icons/fa";
 
 const LikedTrackBar = ({ title, subtitle, onClick }) => {
   return (
@@ -15,6 +15,13 @@ const LikedTrackBar = ({ title, subtitle, onClick }) => {
       <div className="flex flex-col overflow-hidden">
         <p className="text-sm font-semibold truncate">{title}</p>
         <p className="text-xs text-gray-400 truncate">{subtitle}</p>
+      </div>
+      <div className="absolute right-3">
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button className="w-6 h-6 flex items-center justify-center bg-green-500 text-black rounded-full">
+            <FaPlay className="text-xs cursor-pointer" />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -7,34 +7,6 @@ import { fetchArtistSongs } from "../../redux/slices/artistSongSlice.js";
 import "./ArtistSection.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { getAlbumsOfAnArtist } from "../../redux/slices/artistAlbumSlice.js";
-const mockAlbums = [
-  {
-    id: 1,
-    name: "1989 (Taylor's Version)",
-    artist: "Taylor Swift",
-    image: testImg,
-    status: "draft",
-  },
-  {
-    id: 2,
-    name: "Chillies Album",
-    artist: "Chillies",
-    image: testImg,
-    status: "pending",
-  },
-  {
-    id: 3,
-    name: "The Best of 2025",
-    artist: "Various Artists",
-    image: testImg,
-    status: "approved",
-  },
-];
-const mockSongs = [
-  { id: 1, name: "Anti-Hero", artist: "Taylor Swift", duration: "3:20" },
-  { id: 2, name: "Mascara", artist: "Chillies", duration: "4:01" },
-  { id: 3, name: "Hẹn Một Mai", artist: "Bùi Anh Tuấn", duration: "5:00" },
-];
 const ArtistAlbum = () => {
   const dispatch = useDispatch();
   const albums = useSelector((state) => state.artistAlbum.albums);
@@ -43,21 +15,18 @@ const ArtistAlbum = () => {
 
   const [editAlbum, setEditAlbum] = useState(null);
   // Ensure all albums have a status for demo/testing
-  const data = (albums && albums.length > 0 ? albums : mockAlbums).map(
-    (album) => ({
-      ...album,
-      status: album.status || "draft",
-    })
-  );
-  const songList = songs.length > 0 ? songs : mockSongs;
+  const data = albums.map((album) => ({
+    ...album,
+    status: album.status || "draft",
+  }));
+  const songList = songs;
 
-  useEffect(() => {    
+  useEffect(() => {
     dispatch(fetchArtistSongs());
     dispatch(getAlbumsOfAnArtist());
   }, [fetchArtistSongs, getAlbumsOfAnArtist]);
 
-  const handleCreateAlbum = (albumData) => {
-    alert("Album created successfully!\n" + JSON.stringify(albumData, null, 2));
+  const handleCreateAlbum = () => {
     setShowForm(false);
   };
 

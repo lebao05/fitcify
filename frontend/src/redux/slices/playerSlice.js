@@ -6,6 +6,7 @@ import {
   playASong,
   playPrevious,
   playNext,
+  getCurrentPlayerSong,
 } from "../../services/musicApi";
 
 // ─── Thunks ───
@@ -37,7 +38,19 @@ export const playAlbumThunk = createAsyncThunk(
     }
   }
 );
-
+export const fetchCurrentSongThunk = createAsyncThunk(
+  "player/fetchCurrentSong",
+  async (_, thunkAPI) => {
+    try {
+      const data = await getCurrentPlayerSong();
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Fetch current song failed"
+      );
+    }
+  }
+);
 export const playPlaylistThunk = createAsyncThunk(
   "player/playPlaylist",
   async ({ playlistId, songOrder }, thunkAPI) => {
@@ -102,6 +115,7 @@ const playerSlice = createSlice({
     isPlaying: false,
     loading: false,
     error: null,
+    autoplay: false,
   },
   reducers: {
     togglePlay(state) {
@@ -109,26 +123,43 @@ const playerSlice = createSlice({
         state.isPlaying = !state.isPlaying;
       }
     },
+    setAutoplay(state, action) {
+      state.autoplay = action.payload;
+    },
   },
   extraReducers: (builder) => {
     const addCases = (thunk) => {
       builder
         .addCase(thunk.pending, (state) => {
-          state.isPlaying = false; 
+          state.isPlaying = false;
           state.loading = true;
           state.error = null;
         })
         .addCase(thunk.fulfilled, (state, action) => {
+          state.isPlaying = true;
           state.loading = false;
           state.currentSong = action.payload;
-          state.isPlaying = true;
         })
         .addCase(thunk.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload;
         });
     };
-
+    const addGetCurrentSongCases = (thunk) => {
+      builder
+        .addCase(thunk.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(thunk.fulfilled, (state, action) => {
+          state.loading = false;
+          state.currentSong = action.payload;
+        })
+        .addCase(thunk.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        });
+    };
     // Apply to all thunks
     addCases(playSongThunk);
     addCases(playAlbumThunk);
@@ -136,8 +167,9 @@ const playerSlice = createSlice({
     addCases(playArtistThunk);
     addCases(playPreviousThunk);
     addCases(playNextThunk);
+    addGetCurrentSongCases(fetchCurrentSongThunk);
   },
 });
 
 export default playerSlice.reducer;
-export const { togglePlay } = playerSlice.actions;
+export const { togglePlay, setAutoplay } = playerSlice.actions;

@@ -9,7 +9,6 @@ const SongManagingModal = ({ onUpdate, onCancel, track }) => {
   const [file, setFile] = useState(null);
   const [cover, setCover] = useState(null);
   const [title, setTitle] = useState("");
-  const [album, setAlbum] = useState("");
   const [error, setError] = useState("");
   const handleFile = (e) => setFile(e.target.files[0]);
   const handleCover = (e) => setCover(e.target.files[0]);
@@ -33,7 +32,6 @@ const SongManagingModal = ({ onUpdate, onCancel, track }) => {
   useEffect((e) => {
     if (track) {
       setTitle(track.title);
-      setAlbum(track.album);
     }
   }, []);
   return (
@@ -93,58 +91,6 @@ const SongManagingModal = ({ onUpdate, onCancel, track }) => {
           className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
         />
       </div>
-
-      {/* Genre (Optional UI) */}
-      {/* <div>
-        <label className="font-medium mb-1 block">Genre *</label>
-        <select
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-          required
-          className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
-        >
-          <option value="">Select genre</option>
-          <option value="Pop">Pop</option>
-          <option value="Rock">Rock</option>
-          <option value="Ballad">Ballad</option>
-          <option value="EDM">EDM</option>
-          <option value="Indie">Indie</option>
-          <option value="Other">Other</option>
-        </select>
-      </div> */}
-
-      {/* <div>
-        <label className="font-medium mb-1 block">Album (Optional)</label>
-        <input
-          type="text"
-          value={album}
-          onChange={(e) => setAlbum(e.target.value)}
-          placeholder="Enter album name"
-          className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
-        />
-      </div> */}
-
-      {/* <div>
-        <label className="font-medium mb-1 block">Release Date *</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-          className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
-        />
-      </div>
-
-      <div>
-        <label className="font-medium mb-1 block">Description (Optional)</label>
-        <textarea
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          placeholder="Enter song description"
-          rows={3}
-          className="w-full bg-[#23242b] text-white rounded-md px-4 py-2 outline-none focus:ring-2 focus:ring-[#7f7fd5]"
-        />
-      </div> */}
 
       {error && <div className="text-red-500 text-base">{error}</div>}
 

@@ -12,45 +12,35 @@ import "./UserProfile.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchCurrentProfileById } from "../../redux/slices/userSlice.js";
+import { getPlaylistsByUserId } from "../../services/playlistApi.js";
 
 const UserProfile = () => {
-  const [playingArtistId, setPlayingArtistId] = useState(null);
-  const [maxVisibleArtists, setMaxVisibleArtists] = useState(0);
-  const [maxVisiblePlaylists, setMaxVisiblePlaylists] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
-  const artistContainerRef = useRef();
-  const playlistContainerRef = useRef();
   const { id } = useParams();
-  const ditpatch = useDispatch();
-  const CARD_WIDTH = 180;
-  const GAP = 16;
-  const handleToggleEditModal = () => {
-    setShowEditModal((prev) => !prev);
-  };
+  const [playlists, setPlaylists] = useState(null);
+  const dispatch = useDispatch();
   const myAuth = useSelector((state) => state.user.myAuth);
   const user = useSelector((state) => state.user.currentProfile);
+  const fetchPlaylists = async (userId) => {
+    const res = await getPlaylistsByUserId(userId);
+    setPlaylists(res.Data);
+    console.log(res);
+    return res;
+  };
   useEffect(() => {
-    if(id)
-      ditpatch(fetchCurrentProfileById(id));
+    if (id) dispatch(fetchCurrentProfileById(id));
+    if (user?._id) {
+      fetchPlaylists(user._id);
+    }
   }, [id, fetchCurrentProfileById]);
   useEffect(() => {
-    const calcVisible = () => {
-      if (artistContainerRef.current) {
-        const containerWidth = artistContainerRef.current.offsetWidth;
-        const count = Math.floor((containerWidth + GAP) / (CARD_WIDTH + GAP));
-        setMaxVisibleArtists(count);
-      }
-
-      if (playlistContainerRef.current) {
-        const width = playlistContainerRef.current.offsetWidth;
-        const count = Math.floor((width + GAP) / (CARD_WIDTH + GAP));
-        setMaxVisiblePlaylists(count);
-      }
-    };
-    calcVisible();
-    window.addEventListener("resize", calcVisible);
-    return () => window.removeEventListener("resize", calcVisible);
-  }, []);
+    if (user?._id) {
+      fetchPlaylists(user._id);
+    }
+  }, [user]);
+  const handleToggleEditModal = () => {
+    if (myAuth._id === id) setShowEditModal((prev) => !prev);
+  };
   const topArtists = [
     { id: 1, name: "SOOBIN", image: testImg, type: "Artist" },
     { id: 2, name: "Sơn Tùng M-TP", image: testImg, type: "Artist" },
@@ -109,36 +99,10 @@ const UserProfile = () => {
     { id: 3, name: "Shawn Mendes", image: testImg, type: "Artist" },
     { id: 4, name: "Taylor Swift", image: testImg, type: "Artist" },
   ];
-
-  const playlists = [
-    {
-      id: 1,
-      name: "My Playlist #1",
-      creator: "Ngọc Hiếu",
-      image: testImg,
-    },
-  ];
-
-  const handlePlay = (artistId) => {
-    setPlayingArtistId(artistId);
-  };
-
-  const handleShowAll = (section) => {
-    console.log("Show all:", section);
-  };
-
-  const handlePlayTrack = (clickedTrack) => {
-    setTopTracks((prevTracks) =>
-      prevTracks.map((track) => ({
-        ...track,
-        isPlaying: track.id === clickedTrack.id,
-      }))
-    );
-  };
-  if( user === null)
-    return null
+  if (user === null) return null;
   return (
-    <div className="user-profile-content pb-10 h-full w-[75%] overflow-y-auto">
+    <div className="user-profile-content pb-10 h-full w-[80%] overflow-y-auto">
+      {" "}
       <ProfileHeader user={user} onEditClick={handleToggleEditModal} />
       {showEditModal && (
         <EditProfileDialog
@@ -154,16 +118,10 @@ const UserProfile = () => {
             title="Top artists this month"
             subtitle="Only visible to you"
             showAll={true}
-            onShowAll={() => handleShowAll("artists")}
           />
-          <div ref={artistContainerRef} className="artists-card-container">
-            {topArtists.slice(0, maxVisibleArtists).map((artist) => (
-              <ArtistCard
-                key={artist.id}
-                artist={artist}
-                onPlay={() => handlePlay(artist.id)}
-                showPlayingIndicator={playingArtistId === artist.id}
-              />
+          <div className="artists-card-container">
+            {topArtists.slice(0, 5).map((artist) => (
+              <ArtistCard key={artist.id} artist={artist} />
             ))}
           </div>
         </section>
@@ -173,28 +131,21 @@ const UserProfile = () => {
             title="Top tracks this month"
             subtitle="Only visible to you"
             showAll={true}
-            onShowAll={() => handleShowAll("tracks")}
           />
           <div className="tracks-item-container">
             {topTracks.map((track, index) => (
-              <TrackItem
-                key={track.id}
-                track={track}
-                index={index}
-                onPlay={handlePlayTrack}
-              />
+              <TrackItem key={track.id} track={track} index={index} />
             ))}
           </div>
         </section>
 
         <section className="playlists-section">
           <SectionHeader title="Public Playlists" showAll={true} />
-          <div ref={playlistContainerRef} className="playlists-container">
-            {playlists.slice(0, maxVisiblePlaylists).map((playlist) => (
+          <div className="playlists-container">
+            {playlists?.map((playlist) => (
               <PlaylistCard
-                key={playlist.id}
+                key={playlist._id}
                 playlist={playlist}
-                onPlay={handlePlay}
                 isButton="true"
               />
             ))}
@@ -203,14 +154,9 @@ const UserProfile = () => {
 
         <section className="following-artists-section">
           <SectionHeader title="Following" showAll={true} />
-          <div ref={artistContainerRef} className="following-artists-container">
-            {followingArtists.slice(0, maxVisibleArtists).map((artist) => (
-              <ArtistCard
-                key={artist.id}
-                artist={artist}
-                onPlay={handlePlay}
-                showPlayingIndicator={true}
-              />
+          <div className="following-artists-container">
+            {followingArtists.slice(0, 5).map((artist) => (
+              <ArtistCard key={artist.id} artist={artist} />
             ))}
           </div>
         </section>

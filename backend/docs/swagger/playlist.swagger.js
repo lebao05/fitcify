@@ -37,7 +37,7 @@
 /**
  * @swagger
  * /api/playlists/{playlistId}:
- *   patch:
+ *   put:
  *     summary: Update playlist details (name, description, cover, privacy)
  *     tags: [Playlists]
  *     parameters:

@@ -131,7 +131,6 @@
  *       404:
  *         description: Artist not found
  */
-
 /**
  * @swagger
  * /api/music/play/album/{albumId}:
@@ -160,7 +159,6 @@
  *             schema:
  *               $ref: '#/components/schemas/Song'
  */
-
 
 /**
  * @swagger
@@ -393,6 +391,31 @@
  *       401:
  *         description: Unauthorized
  */
+/**
+ * @swagger
+ * /api/music/search:
+ *   get:
+ *     summary: Search songs, albums, artists, or playlists
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The search term (e.g., keyword, song title, artist name)
+ *       - in: query
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [song, album, artist, playlist]
+ *         description: Type of content to search for (defaults to all)
+ *     responses:
+ *       200:
+ *         description: Search results
 
 /**
  * @swagger

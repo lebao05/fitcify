@@ -1,0 +1,226 @@
+// Màu sắc tinh chỉnh
+$primary-color: #1a8cff; // Xanh dương nhẹ
+$secondary-color: #4caf50; // Xanh lá dịu
+$dark-color: #2d3748;
+$light-color: #f8f9fa;
+$gray-color: #718096;
+$light-gray: #e2e8f0;
+
+// Base styles
+.music-premium {
+  height: 100%;
+  width: 100%;
+  border: 1px solid red;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: $light-color;
+  color: $dark-color;
+  min-height: 100vh;
+  padding-bottom: 60px;
+  line-height: 1.6;
+
+  .hero-section {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: rgba($primary-color, 0.05);
+    margin-bottom: 40px;
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: darken($primary-color, 10%);
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: $gray-color;
+    }
+  }
+
+  .plans-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    .plan-cards {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .plan-card {
+      background: white;
+      border-radius: 12px;
+      width: 350px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      position: relative;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      &.highlighted {
+        border: 2px solid $primary-color;
+      }
+
+      .popular-badge {
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: $primary-color;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .plan-header {
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid $light-gray;
+
+        h2 {
+          font-size: 1.8rem;
+          font-weight: 700;
+          margin-bottom: 10px;
+          color: $dark-color;
+        }
+
+        .price {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 5px;
+          color: $dark-color;
+
+          span {
+            font-size: 1rem;
+            color: $gray-color;
+            font-weight: 400;
+          }
+        }
+
+        .vat,
+        .member-count {
+          font-size: 0.9rem;
+          color: $gray-color;
+        }
+      }
+
+      .plan-features {
+        margin-bottom: 30px;
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 28px;
+
+            &::before {
+              content: "•";
+              position: absolute;
+              left: 10px;
+              color: $primary-color;
+              font-weight: bold;
+              font-size: 1.2rem;
+            }
+          }
+        }
+      }
+
+      .cta-button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 15px;
+
+        &.primary {
+          background: $primary-color;
+          color: white;
+
+          &:hover {
+            background: darken($primary-color, 8%);
+          }
+        }
+
+        &.secondary {
+          background: white;
+          color: $primary-color;
+          border: 1px solid $primary-color;
+
+          &:hover {
+            background: rgba($primary-color, 0.05);
+          }
+        }
+      }
+    }
+  }
+
+  .payment-info {
+    max-width: 1200px;
+    margin: 60px auto 0;
+    padding: 0 20px;
+    text-align: center;
+
+    p {
+      color: $gray-color;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+
+    .payment-methods {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .payment-icon {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 4px;
+        background: $light-gray;
+        color: $gray-color;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .music-premium {
+    .hero-section {
+      padding: 40px 20px;
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .plans-container {
+      .plan-cards {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .plan-card {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 30px;
+      }
+    }
+  }
+}

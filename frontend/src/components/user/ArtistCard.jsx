@@ -1,13 +1,10 @@
+import React, { useState, useRef } from "react";
+import { Play } from "lucide-react";
+import "./ArtistCard.scss";
+import PlayButton from "./PlayButton.jsx";
 
-import React, { useState, useRef } from 'react';
-import { Play } from 'lucide-react';
-import './ArtistCard.scss';
-import PlayButton from './PlayButton.jsx';
-
-const ArtistCard = ({ artist, showPlayingIndicator = false, onPlay }) => {
+const ArtistCard = ({ artist, onPlay }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const audioRef = useRef(null);
-
   const handlePlay = (e) => {
     e.stopPropagation();
     if (audioRef.current) {
@@ -25,17 +22,14 @@ const ArtistCard = ({ artist, showPlayingIndicator = false, onPlay }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="artist-image-container">
-        <img src={artist.image} alt={artist.name} className="artist-image"/>
+        <img src={artist.image} alt={artist.name} className="artist-image" />
         {isHovered && (
           <div className="artist-play-button" onClick={handlePlay}>
             <PlayButton />
           </div>
         )}
-        {artist.audio && (
-          <audio ref={audioRef} src={artist.audio} />
-        )}
       </div>
-      
+
       <div className="artist-info">
         <h3 className="artist-name">{artist.name}</h3>
         <p className="type">{artist.type}</p>

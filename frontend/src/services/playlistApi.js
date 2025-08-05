@@ -32,7 +32,6 @@ export const updatePlaylist = async ({
   if (description) formData.append("description", description);
   if (typeof isPublic !== "undefined") formData.append("isPublic", isPublic);
   if (cover) formData.append("cover", cover);
-
   const response = await axiosInstance.put(
     `/playlists/${playlistId}`,
     formData,
@@ -74,5 +73,9 @@ export const getUserPlaylists = async () => {
 // Get a specific playlist by ID
 export const getPlaylistById = async ({ playlistId }) => {
   const response = await axiosInstance.get(`/playlists/${playlistId}`);
+  return response.data;
+};
+export const getPlaylistsByUserId = async (userId) => {
+  const response = await axiosInstance.get(`/playlists/user/${userId}`);
   return response.data;
 };

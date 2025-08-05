@@ -1,16 +1,15 @@
-@use '../../styles/variables';
-@use '../../styles/mixins';
-
+@use "../../styles/variables";
+@use "../../styles/mixins";
 
 .artist-card {
   color: white;
   width: 175px;
   height: 250px;
   padding: 0.5rem 0rem;
-  
-  &:hover{
+
+  &:hover {
     cursor: pointer;
-    background-color: #252424; 
+    background-color: #252424;
   }
 
   .artist-image-container {
@@ -36,7 +35,7 @@
     pointer-events: auto;
   }
 
-  .artist-image{
+  .artist-image {
     width: 150px;
     object-fit: cover;
     height: 150px;
@@ -44,7 +43,7 @@
     z-index: 1;
   }
 
-  .artist-info{
+  .artist-info {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -56,10 +55,9 @@
       color: variables.$text-primary;
     }
 
-    .type{
+    .type {
       color: variables.$text-secondary;
       font-size: 13px;
     }
   }
 }
-

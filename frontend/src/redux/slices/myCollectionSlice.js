@@ -10,6 +10,7 @@ import {
   getTopSongs,
   getTopAlbums,
   getTopArtists,
+  getLikedSongs,
 } from "../../services/musicApi";
 // ───── THUNKS ─────
 // ─── THUNKS ───
@@ -72,10 +73,15 @@ export const fetchUserPlaylists = createAsyncThunk(
 // ── Create ──
 export const createUserPlaylist = createAsyncThunk(
   "myCollection/createUserPlaylist",
-  async (formData, thunkAPI) => {
+  async ({ name, description, isPublic, cover }, thunkAPI) => {
     try {
-      const newPlaylist = await apiCreatePlaylist(formData);
-      return newPlaylist;
+      const newPlaylist = await apiCreatePlaylist({
+        name,
+        description,
+        isPublic,
+        cover,
+      });
+      return newPlaylist.Data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "Create playlist failed"
@@ -87,9 +93,15 @@ export const createUserPlaylist = createAsyncThunk(
 // ── Update ──
 export const updateUserPlaylist = createAsyncThunk(
   "myCollection/updateUserPlaylist",
-  async (updateData, thunkAPI) => {
+  async ({ playlistId, name, description, isPublic, cover }, thunkAPI) => {
     try {
-      const updated = await apiUpdatePlaylist(updateData);
+      const updated = await apiUpdatePlaylist({
+        playlistId,
+        name,
+        description,
+        isPublic,
+        cover,
+      });
       return updated;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -128,10 +140,24 @@ export const fetchUserPlaylistById = createAsyncThunk(
     }
   }
 );
+export const fetchLikedSongs = createAsyncThunk(
+  "myCollection/fetchLikedSongs",
+  async (songId, thunkAPI) => {
+    try {
+      const data = await getLikedSongs(songId);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Fetch liked songs failed"
+      );
+    }
+  }
+);
 
 // ───── INITIAL STATE ─────
 const initialState = {
-  playlists: [], // store only playlist IDs
+  playlists: [],
+  likedSongs: [],
   topSongs: [],
   topAlbums: [],
   topArtists: [],
@@ -161,6 +187,10 @@ const myCollectionSlice = createSlice({
       })
 
       // ── Create ──
+      .addCase(createUserPlaylist.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(createUserPlaylist.fulfilled, (state, action) => {
         state.loading = false;
       })
@@ -170,8 +200,16 @@ const myCollectionSlice = createSlice({
       })
 
       // ── Update ──
+      .addCase(updateUserPlaylist.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserPlaylist.fulfilled, (state, action) => {
+        state.loading = false;
+      })
       .addCase(updateUserPlaylist.rejected, (state, action) => {
         state.error = action.payload;
+        state.loading = false;
       })
 
       // ── Delete ──
@@ -233,6 +271,18 @@ const myCollectionSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchTopArtists.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchLikedSongs.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchLikedSongs.fulfilled, (state, action) => {
+        state.likedSongs = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchLikedSongs.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

@@ -3,7 +3,7 @@ import AlbumItem from "./AlbumItem";
 import { songsData } from "../../assets/assets";
 import SongItem from "./SongItem";
 import ArtistItem from "./ArtistItem";
-import ShortcutGrid from "./ShortcutGrid";
+import ShortcutItem from "./ShortcutItem";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import {
@@ -26,50 +26,36 @@ const DisplayHome = () => {
   const topSongs = useSelector((state) => state.myCollection.topSongs);
   const topAlbums = useSelector((state) => state.myCollection.topAlbums);
   const topArtists = useSelector((state) => state.myCollection.topArtists);
+  const user = useSelector((state) => state.user.myAuth);
   useEffect(() => {
     // Fetch top songs, albums, and artists when the component mounts
     dispatch(fetchTopSongs());
     dispatch(fetchTopAlbums());
     dispatch(fetchTopArtists());
-    console.log("Top Songs:", topSongs);
-    console.log("Top Albums:", topAlbums);
-    console.log("Top Artists:", topArtists);
   }, [dispatch]);
   return (
     <div className="px-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 mb-6">
-        {shortcutItems.map((item) => (
-          <ShortcutGrid
-            key={item.id}
-            name={item.name}
-            image={item.image}
-            onClick={() => console.log("Clicked:", item.name)}
-          />
-        ))}
-      </div>
+      {user && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 mb-6">
+          {shortcutItems.map((item) => (
+            <ShortcutItem
+              key={item.id}
+              name={item.name}
+              image={item.image}
+              onClick={() => console.log("Clicked:", item.name)}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="mb-4">
         <h1 className="my-5 font-bold text-2xl">Trending Songs</h1>
         <div className="flex overflow-auto">
           {topSongs.map((item, index) => (
             <SongItem
-              key={item.index}
-              name={item.title}
-              desc={""}
-              id={item._id}
-              image={item.imageUrl}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="mb-4">
-        <h1 className="my-5 font-bold text-2xl">Featured Charts</h1>
-        <div className="flex overflow-auto">
-          {topAlbums.map((item, index) => (
-            <AlbumItem
               key={index}
               name={item.title}
-              desc={item.desc}
+              desc={""}
               id={item._id}
               image={item.imageUrl}
             />
@@ -100,20 +86,6 @@ const DisplayHome = () => {
               desc={item.desc}
               id={item._id}
               image={item.imageUrl}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="mb-4">
-        <h1 className="my-5 font-bold text-2xl">Top mixes</h1>
-        <div className="flex overflow-auto">
-          {albumsData.map((item, index) => (
-            <AlbumItem
-              key={index}
-              name={item.name}
-              desc={item.desc}
-              id={item.id}
-              image={item.image}
             />
           ))}
         </div>

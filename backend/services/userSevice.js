@@ -251,49 +251,6 @@ async function topSongThisMonth(limit = 10) {
   return results;
 }
 
-async function topArtistThisMonth(limit = 10) {
-  const now          = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNext  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
-  const history = await PlayHistory.find({
-    itemType: 'artist',
-    playedAt: { $gte: startOfMonth, $lt: startOfNext }
-  }).lean();
-
-  const countMap = {};
-  history.forEach(({ itemId, playCount }) => {
-    const key = itemId.toString();
-    countMap[key] = (countMap[key] || 0) + (playCount || 0);
-  });
-
-  const topEntries = Object.entries(countMap)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit);
-
-  const results = [];
-  for (const [artistId, viewsThisMonth] of topEntries) {
-    if (!mongoose.Types.ObjectId.isValid(artistId)) continue;
-    const profile = await ArtistProfile.findOne({ userId: artistId })
-      .select('userId isVerified totalPlays bio')
-      .lean();
-    if (!profile) continue;
-
-    results.push({
-      artist: {
-        userId:     profile.userId,
-        isVerified: profile.isVerified,
-        totalPlays: profile.totalPlays || 0,
-        bio:        profile.bio
-      },
-      viewsThisMonth
-    });
-  }
-
-  return results;
-}
-
-
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -306,5 +263,4 @@ module.exports = {
   followArtist,
   unfollowArtist,
   topSongThisMonth,
-  topArtistThisMonth,
 };

@@ -31,9 +31,7 @@ const DisplayAlbum = () => {
         })),
       },
       {
-        label: isLiked
-          ? "Remove from your Liked Songs"
-          : "Add to your Liked Songs",
+        label: isLiked ? "Unlike song" : "Like song",
         onClick: async () => {
           await toggleLikeSong(song._id);
           await dispatch(fetchLikedSongs());
@@ -77,13 +75,13 @@ const DisplayAlbum = () => {
     }
   }, [id]);
 
-  if (!album) return <p className="text-white p-10">Loading...</p>;
+  if (!album) return null;
 
   return (
     <div className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover">
       <div className="flex-1 overflow-y-auto">
         {/* Album Info */}
-        <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-end">
+        <div className="mt-10 flex gap-8 flex-col md:flex-row md:songs-end">
           <img
             className="w-48 h-48 rounded object-cover"
             src={album.imageUrl}
@@ -111,17 +109,17 @@ const DisplayAlbum = () => {
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-6 mt-8 mb-4 pl-2">
+        <div className="flex songs-center gap-6 mt-8 mb-4 pl-2">
           <button
             onClick={handlePlayAlbum}
-            className="bg-green-500 cursor-pointer w-14 h-14 text-black rounded-full flex items-center text-2xl justify-center hover:bg-green-400 hover:scale-105 transition-all"
+            className="bg-green-500 cursor-pointer w-14 h-14 text-black rounded-full flex items-center justify-center text-2xl hover:bg-green-400 hover:scale-105 transition-all"
           >
             ▶
           </button>
 
           {/* <button
             onClick={handleAddAlbum}
-            className="text-zinc-400 cursor-pointer text-4xl border-5 w-11 h-11 flex items-center justify-center border-zinc-400 hover:border-zinc-200 hover:text-zinc-200 rounded-full px-4 py-2 hover:scale-105 transition-all"
+            className="text-zinc-400 cursor-pointer text-4xl border-5 w-11 h-11 flex songs-center justify-center border-zinc-400 hover:border-zinc-200 hover:text-zinc-200 rounded-full px-4 py-2 hover:scale-105 transition-all"
           >
             +
           </button> */}
@@ -140,18 +138,18 @@ const DisplayAlbum = () => {
         <hr />
 
         {/* Song Rows */}
-        {album.songs?.map((item, index) => {
-          const isLiked = likedSongs?.some((s) => s._id === item._id);
+        {album.songs?.map((song, index) => {
+          const isLiked = likedSongs?.some((s) => s._id === song._id);
           return (
             <>
               {" "}
               <div
-                key={item._id}
-                onContextMenu={(e) => handleRightClick(e, item, isLiked)} // 👈 Add this line
-                className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
+                key={song._id}
+                onContextMenu={(e) => handleRightClick(e, song, isLiked)} // 👈 Add this line
+                className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 songs-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
               >
                 {/* Title + image */}
-                <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
+                <div className="flex songs-center gap-4 text-white text-sm md:text-[15px]">
                   <div
                     className="w-5 text-right"
                     onClick={() => handlePlayAlbum(index)}
@@ -166,12 +164,12 @@ const DisplayAlbum = () => {
 
                   <img
                     className="w-10 h-10 object-cover rounded"
-                    src={item.imageUrl}
-                    alt={item.title}
+                    src={song.imageUrl}
+                    alt={song.title}
                   />
 
                   <div className="flex flex-col">
-                    <span>{item.title}</span>
+                    <span>{song.title}</span>
                     <span className="text-[#a7a7a7]">
                       {album.artistId?.username}
                     </span>
@@ -181,15 +179,15 @@ const DisplayAlbum = () => {
                 <p className="text-[15px]">{album.title}</p>
 
                 <p className="text-[15px] hidden sm:block">
-                  {new Date(item.uploadedAt).toLocaleDateString()}
+                  {new Date(song.uploadedAt).toLocaleDateString()}
                 </p>
 
                 {/* Like Icon */}
-                <div className="hidden sm:flex justify-center items-center relative group z-10">
+                <div className="hidden sm:flex justify-center songs-center relative group z-10">
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
-                      await toggleLikeSong(item._id);
+                      await toggleLikeSong(song._id);
                       await dispatch(fetchLikedSongs());
                     }}
                     className="p-1 rounded-full relative hover:bg-green-600/10"
@@ -209,8 +207,8 @@ const DisplayAlbum = () => {
 
                 {/* Duration */}
                 <p className="text-[15px] text-center text-white">
-                  {Math.floor(item.duration / 60)}:
-                  {(item.duration % 60).toString().padStart(2, "0")}
+                  {Math.floor(song.duration / 60)}:
+                  {(song.duration % 60).toString().padStart(2, "0")}
                 </p>
               </div>
             </>

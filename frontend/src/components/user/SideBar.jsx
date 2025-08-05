@@ -12,6 +12,7 @@ import {
   fetchUserPlaylists,
 } from "../../redux/slices/myCollectionSlice.js";
 import ContextMenu from "./ContextMenu.jsx"; // ✅ Adjust this path if needed
+import { deletePlaylist } from "../../services/playlistApi.js";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -44,12 +45,34 @@ const Sidebar = () => {
     }
   };
 
-  const handleContextMenu = (e, item) => {
+  const handleContextMenu = (e, playlist) => {
     e.preventDefault();
+    const options = [
+      {
+        label: "Go to playlist",
+        onClick: async () => {
+          navigate(`/playlist/${playlist._id}`);
+        },
+      },
+      {
+        label: "Delete",
+        onClick: async () => {
+          await deletePlaylist({ playlistId: playlist._id });
+          await dispatch(fetchUserPlaylists());
+        },
+      },
+      {
+        label: "Create New Playlist",
+        onClick: async () => {
+          await handleCreatePlaylist();
+        },
+      },
+    ];
     setContextMenu({
       x: e.pageX,
       y: e.pageY,
-      playlist: item,
+      playlist,
+      options,
     });
   };
 
@@ -99,7 +122,7 @@ const Sidebar = () => {
               />
             </div>
           ))}
-          
+
           {user?.followees &&
             user.followees.map((item) => (
               <ArtistBar
@@ -117,26 +140,7 @@ const Sidebar = () => {
         <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
-          options={[
-            {
-              label: "Edit",
-              onClick: () => {
-                console.log("Edit", contextMenu.playlist);
-              },
-            },
-            {
-              label: "Delete",
-              onClick: () => {
-                console.log("Delete", contextMenu.playlist._id);
-              },
-            },
-            {
-              label: "Create New Playlist",
-              onClick: () => {
-                console.log("Delete", contextMenu.playlist._id);
-              },
-            },
-          ]}
+          options={contextMenu.options}
           onClose={closeContextMenu}
         />
       )}

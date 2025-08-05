@@ -54,7 +54,6 @@ const DisplaySong = () => {
 
   const handleRightClick = (e) => {
     e.preventDefault();
-
     const options = [
       {
         label: "Add to playlist",
@@ -67,9 +66,7 @@ const DisplaySong = () => {
         })),
       },
       {
-        label: liked
-          ? "Remove from your Liked Songs"
-          : "Add to your Liked Songs",
+        label: liked ? "Unlike song" : "Like song",
         onClick: handleLikeToggle,
       },
       {
@@ -173,9 +170,9 @@ const DisplaySong = () => {
 
           <div className="hidden sm:flex justify-center items-center relative group z-10">
             <button
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                handleLikeToggle();
+                await handleLikeToggle();
               }}
               className="p-1 rounded-full relative hover:bg-green-600/10"
               tabIndex={-1}

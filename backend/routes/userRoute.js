@@ -33,5 +33,7 @@ router.get("/artists/:artistId/followers", userController.getArtistFollowers);
 // top songs this month
 router.get('/music/top-songs-month', userController.topSongsThisMonth);
 
+// top artists this month
+router.get('/music/top-artists-month', userController.topArtistsThisMonth);
 
 module.exports = router;

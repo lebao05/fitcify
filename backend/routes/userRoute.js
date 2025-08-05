@@ -30,4 +30,8 @@ router.post("/artists/:artistId/follow", userController.followArtist);
 router.delete("/artists/:artistId/follow", userController.unfollowArtist);
 router.get("/artists/:artistId/followers", userController.getArtistFollowers);
 
+// top songs this month
+router.get('/music/top-songs-month', userController.topSongsThisMonth);
+
+
 module.exports = router;

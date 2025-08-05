@@ -67,5 +67,10 @@ router.get("/songs/:id", isArtist, artistController.getSongById);
 router.get('/profile', isArtist, artistController.getMyProfileById);
 // Edit own profile
 router.put('/profile', isArtist, artistController.editMyProfile);
+router.put(
+  "/profile/update-albums",
+  isArtist,
+  artistController.updateAlbumsInArtistProfile
+);
 
 module.exports = router;

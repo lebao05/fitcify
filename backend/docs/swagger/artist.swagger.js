@@ -616,3 +616,35 @@
  *       403:
  *         description: Forbidden (user is not an artist)
  */
+
+/**
+ * @swagger
+ * /api/artist/profile/update-albums:
+ *   put:
+ *     tags:
+ *       [Artist]
+ *     summary: Update artist profile with current albums
+ *     description: Finds all albums by the artist and updates the artist profile's albums list.
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Albums updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                   example: Albums updated in artist profile
+ *                 Error:
+ *                   type: integer
+ *                   example: 0
+ *                 Data:
+ *                   $ref: '#/components/schemas/ArtistProfile'
+ *       401:
+ *         description: Unauthorized (missing or invalid token)
+ *       500:
+ *         description: Internal server error
+ */

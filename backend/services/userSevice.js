@@ -175,159 +175,102 @@ const unfollowArtist = async (userId, artistId) => {
   return { userId: me._id, followees: me.followees };
 };
 
-async function getRecentlyPlayed(userId, limit = 3) {
-  if (!mongoose.isValidObjectId(userId)) throw new Error('Invalid user ID');
+async function topSongThisMonth(limit = 10) {
+  const now          = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfNext  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const history = await PlayHistory.find({ userId, itemType: 'song' })
-    .sort({ playedAt: -1 })
-    .lean();
+  const history = await PlayHistory.find({
+    itemType: 'song',
+    playedAt: { $gte: startOfMonth, $lt: startOfNext }
+  }).lean();
 
-  const seen = new Set();
+  const countMap = {};
+  history.forEach(({ itemId, playCount }) => {
+    const key = itemId.toString();
+    countMap[key] = (countMap[key] || 0) + (playCount || 0);
+  });
+
+  const topEntries = Object.entries(countMap)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit);
+
   const results = [];
-  for (const entry of history) {
-    const key = entry.itemId.toString();
-    if (seen.has(key)) continue;
-    seen.add(key);
-
-    const song = await Song.findById(entry.itemId)
-      .populate({ path: 'artistId', select: 'username' })
+  for (const [songId, playsThisMonth] of topEntries) {
+    if (!mongoose.Types.ObjectId.isValid(songId)) continue;
+    const song = await Song.findById(songId)
+      .select('title audioUrl imageUrl duration playCount artistId')
       .lean();
     if (!song) continue;
 
+    const artistProfile = await ArtistProfile.findOne({ userId: song.artistId })
+      .select('userId isVerified totalPlays bio')
+      .lean();
+
     results.push({
       song: {
-        _id: song._id,
-        title: song.title,
-        audioUrl: song.audioUrl,
-        imageUrl: song.imageUrl,
-        duration: song.duration,
-        playCount: song.playCount || 0,
-        artist: song.artistId
-          ? { _id: song.artistId._id, username: song.artistId.username }
-          : null,
+        _id:       song._id,
+        title:     song.title,
+        audioUrl:  song.audioUrl,
+        imageUrl:  song.imageUrl,
+        duration:  song.duration,
+        playCount: song.playCount || 0
       },
-      playedAt: entry.playedAt,
+      playsThisMonth,
+      artist: artistProfile && {
+        userId:     artistProfile.userId,
+        isVerified: artistProfile.isVerified,
+        totalPlays: artistProfile.totalPlays || 0,
+        bio:        artistProfile.bio
+      }
     });
-
-    if (results.length >= limit) break;
   }
 
   return results;
 }
 
-
-async function topSongThisMonth(limit = 10) {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-
-  const pipeline = [
-    {
-      $match: {
-        itemType: 'song',
-        playedAt: { $gte: startOfMonth, $lt: startOfNext },
-      },
-    },
-    { $group: { _id: '$itemId', playsThisMonth: { $sum: 1 } } },
-    { $sort: { playsThisMonth: -1 } },
-    { $limit: limit },
-    {
-      $lookup: {
-        from: 'songs',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'song',
-      },
-    },
-    { $unwind: '$song' },
-    {
-      $lookup: {
-        from: 'artistprofiles',
-        localField: 'song.artistId',
-        foreignField: 'userId',
-        as: 'artistProfile',
-      },
-    },
-    { $unwind: { path: '$artistProfile', preserveNullAndEmptyArrays: true } },
-    {
-      $project: {
-        song: {
-          _id: '$song._id',
-          title: '$song.title',
-          audioUrl: '$song.audioUrl',
-          imageUrl: '$song.imageUrl',
-          duration: '$song.duration',
-          playCount: '$song.playCount',
-        },
-        playsThisMonth: 1,
-        artist: {
-          userId: '$artistProfile.userId',
-          isVerified: '$artistProfile.isVerified',
-          totalPlays: '$artistProfile.totalPlays',
-          bio: '$artistProfile.bio',
-        },
-      },
-    },
-  ];
-
-  return await PlayHistory.aggregate(pipeline).exec();
-}
-
-
 async function topArtistThisMonth(limit = 10) {
-  const now = new Date();
+  const now          = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNext = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const startOfNext  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const pipeline = [
-    {
-      $match: {
-        itemType: 'song',
-        playedAt: { $gte: startOfMonth, $lt: startOfNext },
-      },
-    },
-    {
-      $lookup: {
-        from: 'songs',
-        localField: 'itemId',
-        foreignField: '_id',
-        as: 'song',
-      },
-    },
-    { $unwind: '$song' },
-    {
-      $group: {
-        _id: '$song.artistId',
-        playsThisMonth: { $sum: 1 },
-      },
-    },
-    { $sort: { playsThisMonth: -1 } },
-    { $limit: limit },
-    {
-      $lookup: {
-        from: 'artistprofiles',
-        localField: '_id',
-        foreignField: 'userId',
-        as: 'artistProfile',
-      },
-    },
-    { $unwind: { path: '$artistProfile', preserveNullAndEmptyArrays: true } },
-    {
-      $project: {
-        artist: '$artistProfile',
-        playsThisMonth: 1,
-        totalPlays: '$artistProfile.totalPlays',
-      },
-    },
-  ];
+  const history = await PlayHistory.find({
+    itemType: 'artist',
+    playedAt: { $gte: startOfMonth, $lt: startOfNext }
+  }).lean();
 
-  const aggregated = await PlayHistory.aggregate(pipeline).exec();
-  return aggregated.map((a) => ({
-    artist: a.artist,
-    playsThisMonth: a.playsThisMonth,
-    totalPlays: a.totalPlays || 0,
-  }));
+  const countMap = {};
+  history.forEach(({ itemId, playCount }) => {
+    const key = itemId.toString();
+    countMap[key] = (countMap[key] || 0) + (playCount || 0);
+  });
+
+  const topEntries = Object.entries(countMap)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit);
+
+  const results = [];
+  for (const [artistId, viewsThisMonth] of topEntries) {
+    if (!mongoose.Types.ObjectId.isValid(artistId)) continue;
+    const profile = await ArtistProfile.findOne({ userId: artistId })
+      .select('userId isVerified totalPlays bio')
+      .lean();
+    if (!profile) continue;
+
+    results.push({
+      artist: {
+        userId:     profile.userId,
+        isVerified: profile.isVerified,
+        totalPlays: profile.totalPlays || 0,
+        bio:        profile.bio
+      },
+      viewsThisMonth
+    });
+  }
+
+  return results;
 }
+
 
 module.exports = {
   getAllUsers,
@@ -339,7 +282,6 @@ module.exports = {
   updateAccountInfo,
   followArtist,
   unfollowArtist,
-  getRecentlyPlayed,
   topSongThisMonth,
   topArtistThisMonth,
 };

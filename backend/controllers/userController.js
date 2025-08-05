@@ -125,6 +125,17 @@ const unfollowArtist = async (req, res, next) => {
 };
 
 
+async function topSongsThisMonth(req, res, next) {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const data = await userService.topSongThisMonth(limit);
+    res.status(200).json({ Error: 0, Message: 'Top songs this month', Data: data });
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 module.exports = {
   getAllUsers,
   getProfileInfo,
@@ -137,4 +148,5 @@ module.exports = {
   getMyProfile,
   followArtist,
   unfollowArtist,
+  topSongsThisMonth,
 };

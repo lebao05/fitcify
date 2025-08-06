@@ -308,19 +308,57 @@ async function previousTrack(user) {
 
   // If already at the beginning of the queue
   if (player.currentIndex <= 0) {
-    return player.queue[0]; // Return the first song
+    const first = player.queue[0];
+    // ghi history cho lần phát lại đầu tiên
+    const now = new Date();
+    await Song.findByIdAndUpdate(first, { $inc: { playCount: 1 } });
+    await User.updateOne({ _id: first.artistId }, { $inc: { playCount: 1 } });
+    await PlayHistory.create({
+      userId:    user._id,
+      itemType:  "song",
+      itemId:    first._id,
+      playCount: 1,
+      playedAt:  now
+    });
+    await PlayHistory.create({
+      userId:    user._id,
+      itemType:  "artist",
+      itemId:    first.artistId,
+      playCount: 1,
+      playedAt:  now
+    });
+    return first;
   }
+
   player.currentIndex -= 1;
   const currentSong = player.queue[player.currentIndex];
-
   await player.save();
+
+  // increment counts
   const song = await Song.findByIdAndUpdate(currentSong, {
     $inc: { playCount: 1 },
   });
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  // record history
+  const now = new Date();
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    song._id,
+    playCount: 1,
+    playedAt:  now
+  });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    song.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
+
   return currentSong;
 }
-
 async function playASong(user, songId) {
   if (!user || !user._id) {
     const err = new Error("User not authenticated.");

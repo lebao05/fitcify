@@ -38,7 +38,7 @@ router.post(
 );
 
 router.post(
-  "/music/play/liked",
+  "/play/liked",
   authMiddleware,
   musicController.playLikedTrackController
 );

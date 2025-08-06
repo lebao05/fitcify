@@ -1,8 +1,5 @@
-// import { useContext } from "react";
-// import { PlayerContext } from "../context/PlayerContext";
 
 const ArtistItem = ({ name, image, desc, id }) => {
-  //   const { playWithId } = useContext(PlayerContext);
 
   return (
     <div

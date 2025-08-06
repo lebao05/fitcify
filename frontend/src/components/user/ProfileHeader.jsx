@@ -2,7 +2,6 @@ import "./ProfileHeader.scss";
 import image from "../../assets/unknown.jpg";
 
 const ProfileHeader = ({ user, onEditClick }) => {
-  console.log("ProfileHeader user:", user);
   return (
     <div>
       <div className="profile-header">
@@ -22,7 +21,6 @@ const ProfileHeader = ({ user, onEditClick }) => {
           <p>Profile</p>
           <p className="username">{user.username}</p>
           <p className="info">
-            <span>{user.publicPlaylists} Public Playlist</span>
             <span className="dot">•</span>
             <span className="following">
               <strong>{user.following} Following</strong>

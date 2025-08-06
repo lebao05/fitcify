@@ -124,8 +124,7 @@ const AudioPlayer = () => {
   };
 
   const next = () => {
-    audioRef.current.pause(); // Pause before going to next track
-    dispatch(playNextThunk());
+     dispatch(playNextThunk());
   };
 
   const handleEnded = () => {

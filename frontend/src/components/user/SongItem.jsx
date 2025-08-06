@@ -1,6 +1,3 @@
-// import { useContext } from "react";
-// import { PlayerContext } from "../context/PlayerContext";
-
 import { useNavigate } from "react-router-dom";
 
 const SongItem = ({ name, image, desc, id }) => {

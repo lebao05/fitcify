@@ -332,6 +332,20 @@ const updateAlbumsInArtistProfile = async (req, res, next) => {
   }
 };
 
+
+async function getPublicArtistProfile(req, res, next) {
+  try {
+    const { artistId } = req.params;
+    const profile = await artistService.getArtistProfileById(artistId);
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Profile fetched", Data: profile });
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 module.exports = {
   submitArtistVerification,
   uploadSong,
@@ -351,5 +365,6 @@ module.exports = {
   editMyProfile,
   getSongById,
   getAllSongs,
-  updateAlbumsInArtistProfile
+  updateAlbumsInArtistProfile,
+  getPublicArtistProfile
 };

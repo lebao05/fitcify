@@ -72,5 +72,6 @@ router.put(
   isArtist,
   artistController.updateAlbumsInArtistProfile
 );
+router.get('/:artistId', artistController.getPublicArtistProfile);
 
 module.exports = router;

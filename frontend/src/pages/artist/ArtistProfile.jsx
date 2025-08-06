@@ -6,44 +6,57 @@ import SectionHeader from "../../components/user/SectionHeader";
 import AlbumCard from "../../components/user/AlbumCard";
 import ArtistHorizontalDots from "../../components/artist/ArtistHorizontalDots";
 import ProfileHeader from "../../components/user/ProfileHeader";
+import { useParams } from "react-router-dom";
 
 const ArtistProfile = ({ isOwner }) => {
+  const { artistId } = useParams();
   const [artistData, setArtistData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [showAllSongs, setShowAllSongs] = useState(false);
+  const [isMyProfile, setIsMyProfile] = useState(false);
 
   useEffect(() => {
-    const fetchArtistProfile = async () => {
+    const fetchArtist = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/artist/profile", {
-          withCredentials: true
-        });
-        
-        if (response.data.Error === 0) {
-          setArtistData(response.data.Data);
+        let res;
+        let isOwnerProfile = false;
+
+        if (!artistId) {
+          res = await axios.get("http://localhost:5000/api/artist/profile", {
+            withCredentials: true,
+          });
+          isOwnerProfile = true;
         } else {
-          setError(response.data.Message);
+          res = await axios.get(`http://localhost:5000/api/artist/${artistId}`, {
+            withCredentials: true,
+          });
+        }
+
+        if (res.data.Error === 0) {
+          setArtistData(res.data.Data);
+          setIsMyProfile(isOwnerProfile);
+        } else {
+          setError(res.data.Message || "Unknown error occurred");
         }
       } catch (err) {
-        setError("Failed to fetch artist profile");
-        console.error("Error fetching artist profile:", err);
-        
-        if (err.response) {
-          if (err.response.status === 401) {
-            setError("Unauthorized - Please login");
-          } else if (err.response.status === 403) {
-            setError("Forbidden - You don't have permission");
-          }
+        if (err.response?.status === 400) {
+          setError("Invalid request");
+        } else if (err.response?.status === 404) {
+          setError("Artist not found");
+        } else if (err.response?.status === 401) {
+          setError("Unauthorized access");
+        } else {
+          setError("Failed to fetch artist profile");
         }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArtistProfile();
-  }, []);
+    fetchArtist();
+  }, [artistId]);
 
   if (loading) {
     return (
@@ -69,47 +82,55 @@ const ArtistProfile = ({ isOwner }) => {
     );
   }
 
-  const allSongs = artistData.songs.map((song) => ({
+  const allSongs = artistData?.songs?.map((song) => ({
     _id: song._id,
     title: song.title,
-    artist: artistData.userId.username || artistData.userId.email.split('@')[0],
-    // album: artistData.albums.find(album => album.songs.includes(song._id))?.title || "Single",
-    image: artistData.userId.avatarUrl || "", // Use artist avatar as fallback
-    duration: `${Math.floor(song.duration / 60)}:${(song.duration % 60).toString().padStart(2, '0')}`,
+    artist:
+      artistData.userId?.username ||
+      artistData.userId?.email?.split("@")[0] ||
+      "Unknown Artist",
+    image: artistData.userId?.avatarUrl || "",
+    duration: `${Math.floor(song.duration / 60)}:${(song.duration % 60)
+      .toString()
+      .padStart(2, "0")}`,
     isPlaying: false,
     plays: "0",
     audioUrl: song.audioUrl,
-  }));
+  })) || [];
 
   const getAlbumSongs = (albumId) => {
-    const album = artistData.albums.find(a => a._id === albumId);
-    if (!album) return [];
-    
+    const album = artistData?.albums?.find((a) => a._id === albumId);
+    if (!album || !artistData?.songs) return [];
+
     return artistData.songs
-      .filter(song => album.songs.includes(song._id))
-      .map(song => ({
+      .filter((song) => album.songs?.includes(song._id))
+      .map((song) => ({
         ...song,
-        duration: `${Math.floor(song.duration / 60)}:${(song.duration % 60).toString().padStart(2, '0')}`,
-        image: artistData.userId.avatarUrl || ""
+        duration: `${Math.floor(song.duration / 60)}:${(song.duration % 60)
+          .toString()
+          .padStart(2, "0")}`,
+        image: artistData.userId?.avatarUrl || "",
       }));
   };
 
   const userData = {
-    username: artistData.userId.username || artistData.userId.email.split('@')[0],
-    avatarUrl: artistData.userId.avatarUrl || "",
-    publicAlbums: artistData.albums?.length || 0,
+    username:
+      artistData?.userId?.username ||
+      artistData?.userId?.email?.split("@")[0] ||
+      "Unknown Artist",
+    avatarUrl: artistData?.userId?.avatarUrl || "",
+    publicAlbums: artistData?.albums?.length || 0,
     following: 0,
-    totalPlays: artistData.totalPlays || 0
+    totalPlays: artistData?.totalPlays || 0,
   };
 
   return (
     <div className="bg-gray-900 text-white min-h-screen pb-20">
-      <ProfileHeader 
-        user={userData} 
+      <ProfileHeader
+        user={userData}
         isArtist={true}
-        onEditClick={() => isOwner && console.log("Edit profile clicked")}
+        onEditClick={() => isMyProfile && console.log("Edit profile clicked")}
       />
-
       {/* Artist Header */}
       {/* <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 z-10"></div>
@@ -178,7 +199,7 @@ const ArtistProfile = ({ isOwner }) => {
       <div className="px-6 mt-10">
         <SectionHeader title="Albums" />
         <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {artistData.albums.map((album) => (
+          {artistData?.albums?.map((album) => (
             <div 
               key={album._id} 
               className="cursor-pointer"
@@ -188,10 +209,10 @@ const ArtistProfile = ({ isOwner }) => {
                 album={{
                   name: album.title,
                   artist: userData.username,
-                  imageUrl: album.imageUrl ||artistData.userId.avatarUrl, 
+                  imageUrl: album.imageUrl || artistData?.userId?.avatarUrl, 
                   year: new Date().getFullYear(),
                   type: "Album",
-                  songsCount: album.songs.length
+                  songsCount: album.songs?.length || 0
                 }}
               />
             </div>
@@ -227,14 +248,14 @@ const ArtistProfile = ({ isOwner }) => {
       )}
 
       {/* About Section */}
-{(artistData.bio || artistData.socialLinks) && (
+{(artistData?.bio || artistData?.socialLinks) && (
   <div className="px-6 mt-12">
     <SectionHeader title="About" />
 
     <div className="mt-6 relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 shadow-lg border border-gray-700 space-y-6">
       
       {/* Total Plays */}
-      {artistData.totalPlays !== undefined && (
+      {artistData?.totalPlays !== undefined && (
         <div className="flex items-center space-x-3">
           <div className="bg-green-600/10 text-green-400 p-2 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -242,20 +263,20 @@ const ArtistProfile = ({ isOwner }) => {
             </svg>
           </div>
           <p className="text-lg font-semibold text-white">
-            {artistData.totalPlays.toLocaleString()} total plays
+            {artistData?.totalPlays?.toLocaleString() || 0} total plays
           </p>
         </div>
       )}
 
       {/* Bio */}
-      {artistData.bio && (
+      {artistData?.bio && (
         <p className="text-gray-300 leading-relaxed whitespace-pre-line">
           {artistData.bio}
         </p>
       )}
 
       {/* Social Links */}
-      {artistData.socialLinks && (
+      {artistData?.socialLinks && (
         <div className="flex flex-wrap gap-4 mt-2">
           {artistData.socialLinks.spotify && (
             <a
@@ -268,9 +289,9 @@ const ArtistProfile = ({ isOwner }) => {
               <span>Spotify</span>
             </a>
           )}
-          {artistData.socialLinks.instagram && (
+          {artistData.socialLinks?.instagram && (
             <a
-              href={artistData.socialLinks.instagram}
+              href={artistData.socialLinks?.instagram}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 text-gray-300 hover:text-pink-400 transition"
@@ -281,9 +302,9 @@ const ArtistProfile = ({ isOwner }) => {
               <span>Instagram</span>
             </a>
           )}
-          {artistData.socialLinks.twitter && (
+          {artistData.socialLinks?.twitter && (
             <a
-              href={artistData.socialLinks.twitter}
+              href={artistData.socialLinks?.twitter}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 text-gray-300 hover:text-blue-400 transition"
@@ -294,9 +315,9 @@ const ArtistProfile = ({ isOwner }) => {
               <span>Twitter</span>
             </a>
           )}
-          {artistData.socialLinks.website && (
+          {artistData.socialLinks?.website && (
             <a
-              href={artistData.socialLinks.website}
+              href={artistData.socialLinks?.website}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 text-gray-300 hover:text-white transition"

@@ -280,22 +280,41 @@ async function playAnArtist(user, artistId) {
   const player = await Player.findOneAndUpdate(
     { userId: user._id },
     {
-      userId: user._id,
-      queue: shuffledSongs.map((s) => s._id),
-      currentSong: shuffledSongs[0]._id,
-      currentIndex: 0,
-      isPlaying: true,
-      repeatMode: false,
-      currentAlbum: null,
-      currentPlaylist: null,
+      userId:         user._id,
+      queue:          shuffledSongs.map((s) => s._id),
+      currentSong:    shuffledSongs[0]._id,
+      currentIndex:   0,
+      isPlaying:      true,
+      repeatMode:     false,
+      currentAlbum:   null,
+      currentPlaylist:null,
     },
     { upsert: true, new: true }
   ).populate("queue");
+
   const currentSong = shuffledSongs[0]._id;
   const song = await Song.findByIdAndUpdate(currentSong, {
     $inc: { playCount: 1 },
   });
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  // —— Bổ sung: ghi lịch sử cho song và artist ——  
+  const now = new Date();
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    song._id,
+    playCount: 1,
+    playedAt:  now
+  });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    song.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
+
   return currentSong;
 }
 

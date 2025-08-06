@@ -357,7 +357,7 @@ async function nextTrack(user) {
 
   if (currentIndex + 1 >= queue.length) {
     // End of queue: add 5 new random songs (excluding existing ones)
-    const excludedIds = queue.map((id) => new mongoose.Types.ObjectId(id));
+    const excludedIds = queue.map((id) => mongoose.Types.ObjectId(id));
 
     const additionalSongs = await Song.aggregate([
       { $match: { _id: { $nin: excludedIds } } },
@@ -381,13 +381,33 @@ async function nextTrack(user) {
   const currentSong = await Song.findById(currentSongId);
   if (!currentSong) throw new Error("Next song not found.");
 
-  const song = await Song.findByIdAndUpdate(currentSongId, {
-    $inc: { playCount: 1 },
-  }).exec();
+  // Increment play counts
+  const song = await Song.findByIdAndUpdate(
+    currentSongId,
+    { $inc: { playCount: 1 } },
+    { new: true }
+  ).exec();
   await User.updateOne(
     { _id: song.artistId },
     { $inc: { playCount: 1 } }
   ).exec();
+
+  // —— Bổ sung: ghi lịch sử cho song và artist ——  
+  const now = new Date();
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    song._id,
+    playCount: 1,
+    playedAt:  now
+  });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    song.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
 
   return currentSong;
 }

@@ -505,6 +505,78 @@ async function nextTrack(user) {
 
   return currentSong;
 }
+
+async function playLikedTrack(songOrder = 0, user) {
+  // 1) Load all liked songs
+  const likedSongs = await Song.find({ likes: user._id }).populate("artistId", "username");
+  if (!likedSongs.length) {
+    const err = new Error("No liked tracks found");
+    err.status = 404;
+    throw err;
+  }
+
+  // 2) Build queue
+  let resultSongs;
+  if (user.isPremium) {
+    resultSongs = likedSongs.slice(songOrder);
+  } else {
+    resultSongs = [...likedSongs];
+    for (let i = resultSongs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [resultSongs[i], resultSongs[j]] = [resultSongs[j], resultSongs[i]];
+    }
+  }
+
+  // 3) Save/update Player session
+  await Player.findOneAndUpdate(
+    { userId: user._id },
+    {
+      userId:         user._id,
+      queue:          resultSongs.map(s => s._id),
+      currentSong:    resultSongs[0]._id,
+      currentIndex:   0,
+      isPlaying:      true,
+      repeatMode:     false,
+      shuffle:        !user.isPremium,
+      currentAlbum:   null,
+      currentPlaylist:null,
+    },
+    { upsert: true, new: true }
+  );
+
+  // 4) Increment counts and record history for the first track
+  const now        = new Date();
+  const currentSong = resultSongs[0]._id;
+  const songDoc     = await Song.findByIdAndUpdate(
+    currentSong,
+    { $inc: { playCount: 1 } },
+    { new: true }
+  );
+
+  await User.updateOne(
+    { _id: songDoc.artistId },
+    { $inc: { playCount: 1 } }
+  );
+
+  // 5) Record PlayHistory for song and artist
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    songDoc._id,
+    playCount: 1,
+    playedAt:  now
+  });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    songDoc.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
+
+  return currentSong;
+}
+
 const getTopSongs = async (limit = 10) => {
   const topSongs = await Song.find({ isApproved: true })
     .sort({ playCount: -1 })
@@ -580,6 +652,7 @@ module.exports = {
   previousTrack,
   playASong,
   nextTrack,
+  playLikedTrack,
   getTopSongs,
   getTopArtists,
   getTopAlbums,

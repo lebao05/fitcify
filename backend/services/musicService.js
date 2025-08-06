@@ -199,7 +199,7 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
 
   const playlist = await Playlist.findById(playlistId).populate({
     path: "songs",
-    options: { sort: { createdAt: 1 } }, // ascending by creation date
+    options: { sort: { createdAt: 1 } },
   });
   if (!playlist) {
     const err = new Error("Playlist not found");
@@ -214,12 +214,10 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     throw err;
   }
 
-  let resultSongs = [];
-
+  let resultSongs;
   if (user?.isPremium) {
     resultSongs = songs.slice(songOrder);
   } else {
-    // Shuffle for non-premium users
     resultSongs = [...songs];
     for (let i = resultSongs.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -227,27 +225,48 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     }
   }
 
-  // Update or create a new player session
   await Player.findOneAndUpdate(
     { userId: user._id },
     {
-      userId: user._id,
-      queue: resultSongs.map((s) => s._id),
-      currentSong: resultSongs[0]._id,
-      currentIndex: 0,
-      isPlaying: true,
-      repeatMode: false,
-      currentAlbum: null,
+      userId:        user._id,
+      queue:         resultSongs.map(s => s._id),
+      currentSong:   resultSongs[0]._id,
+      currentIndex:  0,
+      isPlaying:     true,
+      repeatMode:    false,
+      currentAlbum:  null,
       currentPlaylist: playlist._id,
     },
     { upsert: true, new: true }
   );
 
-  const currentSong = resultSongs[0]; // First song to play
-  const song = await Song.findByIdAndUpdate(currentSong, {
-    $inc: { playCount: 1 },
+  const currentSong = resultSongs[0];
+  const song = await Song.findByIdAndUpdate(
+    currentSong,
+    { $inc: { playCount: 1 } },
+    { new: true }
+  );
+  await User.updateOne(
+    { _id: song.artistId },
+    { $inc: { playCount: 1 } }
+  );
+
+  //Record history for song & artist
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    song._id,
+    playCount: 1,
+    playedAt:  now
   });
-  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    song.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
+
   return currentSong;
 };
 

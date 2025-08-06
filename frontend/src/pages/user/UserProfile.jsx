@@ -13,18 +13,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchCurrentProfileById } from "../../redux/slices/userSlice.js";
 import { getPlaylistsByUserId } from "../../services/playlistApi.js";
+import { getFollowedArtists } from "../../services/userApi.js";
 
 const UserProfile = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const { id } = useParams();
   const [playlists, setPlaylists] = useState(null);
+  const [followingArtists, setFollowingArtists] = useState(null);
   const dispatch = useDispatch();
   const myAuth = useSelector((state) => state.user.myAuth);
   const user = useSelector((state) => state.user.currentProfile);
   const fetchPlaylists = async (userId) => {
     const res = await getPlaylistsByUserId(userId);
     setPlaylists(res.Data);
-    console.log(res);
+    return res;
+  };
+  const fetchFollowedArtists = async () => {
+    const res = await getFollowedArtists();
+    setFollowingArtists(res.Data);
     return res;
   };
   useEffect(() => {
@@ -36,6 +42,7 @@ const UserProfile = () => {
   useEffect(() => {
     if (user?._id) {
       fetchPlaylists(user._id);
+      fetchFollowedArtists();
     }
   }, [user]);
   const handleToggleEditModal = () => {
@@ -87,18 +94,6 @@ const UserProfile = () => {
     },
   ]);
 
-  const followingArtists = [
-    { id: 1, name: "Chillies", image: testImg, type: "Artist" },
-    {
-      id: 2,
-      name: "Hoàng Dũng",
-      image: testImg,
-      type: "Artist",
-      isPlaying: true,
-    },
-    { id: 3, name: "Shawn Mendes", image: testImg, type: "Artist" },
-    { id: 4, name: "Taylor Swift", image: testImg, type: "Artist" },
-  ];
   if (user === null) return null;
   return (
     <div className="user-profile-content pb-10 h-full w-[80%] overflow-y-auto">
@@ -109,7 +104,6 @@ const UserProfile = () => {
           user={user}
           open={showEditModal}
           onClose={handleToggleEditModal}
-          onSave={(value) => console.log("Saved name:", value)}
         />
       )}
       <div className="profile-content">
@@ -155,9 +149,12 @@ const UserProfile = () => {
         <section className="following-artists-section">
           <SectionHeader title="Following" showAll={true} />
           <div className="following-artists-container">
-            {followingArtists.slice(0, 5).map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
-            ))}
+            {followingArtists &&
+              followingArtists
+                .slice(0, 5)
+                .map((artist) => (
+                  <ArtistCard key={artist.id} artist={artist} />
+                ))}
           </div>
         </section>
         <ProfileFooter />

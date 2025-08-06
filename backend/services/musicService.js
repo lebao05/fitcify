@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const Player = require("../models/audioPlayer");
 const Playlist = require("../models/playlist");
 const User = require("../models/user");
+const { normalizeString } = require("../helpers/normolize");
+const { distance } = require("fastest-levenshtein");
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -245,7 +247,7 @@ async function playAnArtist(user, artistId) {
     },
     { upsert: true, new: true }
   ).populate("queue");
-  const currentSong = shuffledSongs[0]._id;
+  const currentSong = shuffledSongs[0];
   const song = await Song.findByIdAndUpdate(currentSong, {
     $inc: { playCount: 1 },
   });
@@ -426,8 +428,123 @@ const getCurrentSong = async (userId) => {
     albumId: album || null,
   };
 };
+async function search(query) {
+  const normalizedQuery = normalizeString(query);
+  const THRESHOLD = 5;
+
+  const fuzzyMatch = (input, target) => {
+    return distance(input.toLowerCase(), target.toLowerCase()) <= THRESHOLD;
+  };
+
+  const [albums, songs, playlists, users] = await Promise.all([
+    Album.find({}, "title imageUrl playCount artistId")
+      .populate("artistId", "username")
+      .lean(),
+    Song.find({}, "title audioUrl imageUrl playCount artistId")
+      .populate("artistId", "username")
+      .lean(),
+    Playlist.find({}, "name imageUrl playCount ownerId")
+      .populate("ownerId", "username")
+      .lean(),
+    User.find({}, "username role avatarUrl playCount").lean(),
+  ]);
+
+  // Step 1: Filter matches
+  const matchedAlbums = albums.filter((a) =>
+    fuzzyMatch(normalizedQuery, normalizeString(a.title))
+  );
+  const matchedSongs = songs.filter((s) =>
+    fuzzyMatch(normalizedQuery, normalizeString(s.title))
+  );
+  const matchedPlaylists = playlists.filter((p) =>
+    fuzzyMatch(normalizedQuery, normalizeString(p.name))
+  );
+  const matchedUsers = users.filter(
+    (u) =>
+      u.role !== "artist" &&
+      fuzzyMatch(normalizedQuery, normalizeString(u.username))
+  );
+  let matchedArtists = users.filter(
+    (u) =>
+      u.role === "artist" &&
+      fuzzyMatch(normalizedQuery, normalizeString(u.username))
+  );
+
+  // Step 2: Infer best artist
+  let bestArtist = matchedArtists.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  )[0];
+
+  if (!bestArtist) {
+    const bestAlbumFromMatch = matchedAlbums.sort(
+      (a, b) => (b.playCount || 0) - (a.playCount || 0)
+    )[0];
+    const bestSongFromMatch = matchedSongs.sort(
+      (a, b) => (b.playCount || 0) - (a.playCount || 0)
+    )[0];
+    const bestCreatorId =
+      bestSongFromMatch?.artistId._id || bestAlbumFromMatch?.artistId._id;
+
+    if (bestCreatorId) {
+      bestArtist = users.find(
+        (u) =>
+          u.role === "artist" && u._id.toString() === bestCreatorId.toString()
+      );
+    }
+  }
+
+  // Step 3: Get artist's content
+  let artistAlbums = [];
+  let artistSongs = [];
+  let artistPlaylists = [];
+
+  if (bestArtist) {
+    const artistId = bestArtist._id.toString();
+    artistAlbums = albums.filter(
+      (a) => a.artistId?._id.toString() === artistId
+    );
+    artistSongs = songs.filter((s) => s.artistId?._id.toString() === artistId);
+    artistPlaylists = playlists.filter(
+      (p) => p.ownerId?._id.toString() === artistId
+    );
+  }
+
+  // Step 4: Deduplicate content
+  const uniqueById = (arr) => {
+    const seen = new Map();
+    for (const item of arr) {
+      seen.set(item._id.toString(), item);
+    }
+    console.log(Array.from(seen.values()));
+    return Array.from(seen.values());
+  };
+
+  const allAlbums = uniqueById([...matchedAlbums, ...artistAlbums]);
+  const allSongs = uniqueById([...matchedSongs, ...artistSongs]);
+  const allPlaylists = uniqueById([...matchedPlaylists, ...artistPlaylists]);
+
+  // Step 5: Pick best of each
+  const bestAlbums = allAlbums.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  );
+  const bestSongs = allSongs.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  );
+  const bestPlaylists = allPlaylists.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  );
+  const bestArtists = uniqueById([...matchedArtists, bestArtist]);
+  return {
+    artists: bestArtists,
+    albums: bestAlbums,
+    songs: bestSongs,
+    playlists: bestPlaylists,
+    users: matchedUsers,
+  };
+}
 
 module.exports = {
+  search,
   getAlbumsOfAnArtist,
   toggleSongLike,
   getStream,

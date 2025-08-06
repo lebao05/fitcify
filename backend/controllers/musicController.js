@@ -15,12 +15,7 @@ const search = async (req, res, next) => {
     res.status(200).json({
       Message: "Search results",
       Error: 0,
-      Data: {
-        songs: data.songs,
-        albums: data.albums,
-        playlists: data.playlists,
-        artists: data.artists,
-      },
+      Data: { ...data },
     });
   } catch (err) {
     next(err);

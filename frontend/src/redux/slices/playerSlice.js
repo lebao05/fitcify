@@ -70,6 +70,7 @@ export const playArtistThunk = createAsyncThunk(
   async (artistId, thunkAPI) => {
     try {
       const data = await playAnArtist(artistId);
+      console.log(data);
       return data.Data;
     } catch (error) {
       return thunkAPI.rejectWithValue(

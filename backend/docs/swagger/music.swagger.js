@@ -416,6 +416,7 @@
  *     responses:
  *       200:
  *         description: Search results
+ */
 
 /**
  * @swagger

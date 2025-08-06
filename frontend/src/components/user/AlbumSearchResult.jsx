@@ -1,4 +1,6 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const albums = [
   {
@@ -6,7 +8,8 @@ const albums = [
     title: "m-tp M-TP",
     artist: "Sơn Tùng M-TP",
     year: 2017,
-    image: "https://tse2.mm.bing.net/th/id/OIP.JHicrcPTxcYi-Uo-FkpPQQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
+    image:
+      "https://tse2.mm.bing.net/th/id/OIP.JHicrcPTxcYi-Uo-FkpPQQHaHa?rs=1&pid=ImgDetMain&o=7&rm=3",
   },
   {
     id: 2,
@@ -73,17 +76,19 @@ const albums = [
   },
 ];
 
-export default function AlbumSearchResult() {
+export default function AlbumSearchResult({ searchResult }) {
+  const navigate = useNavigate();
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6">
-      {albums.map((album) => (
+      {searchResult?.albums.map((album) => (
         <div
-          key={album.id}
+          key={album._id}
+          onClick={() => navigate(`/album/${album._id}`)}
           className="bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition duration-200 cursor-pointer"
         >
           <div className="w-full aspect-square overflow-hidden rounded">
             <img
-              src={album.image}
+              src={album.imageUrl}
               alt={album.title}
               className="w-full h-full object-cover"
             />
@@ -92,7 +97,7 @@ export default function AlbumSearchResult() {
             {album.title}
           </div>
           <div className="text-xs text-gray-400 mt-1">
-            {album.year} · {album.artist}
+            By {album.artistId.username}
           </div>
         </div>
       ))}

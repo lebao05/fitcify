@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const playlists = [
   {
@@ -40,25 +41,29 @@ const playlists = [
   },
 ];
 
-export default function PlaylistSearchResult() {
+export default function PlaylistSearchResult({ searchResult }) {
+  const navigate = useNavigate();
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-6">
-      {playlists.map((playlist) => (
+      {searchResult?.playlists.map((playlist) => (
         <div
-          key={playlist.id}
+          key={playlist._id}
+          onClick={() => navigate(`/playlist/${playlist._id}`)}
           className="bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition duration-200 cursor-pointer"
         >
           <div className="w-full aspect-square overflow-hidden rounded">
             <img
-              src={playlist.image}
-              alt={playlist.title}
+              src={playlist.imageUrl}
+              alt={playlist.name}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="mt-3 text-white font-semibold text-sm line-clamp-2">
             {playlist.title}
           </div>
-          <div className="text-xs text-gray-400 mt-1">{playlist.author}</div>
+          <div className="text-xs text-gray-400 mt-1">
+            By {playlist.ownerId.username}
+          </div>
         </div>
       ))}
     </div>

@@ -385,13 +385,13 @@ async function playASong(user, songId) {
   await Player.findOneAndUpdate(
     { userId: user._id },
     {
-      userId: user._id,
+      userId:        user._id,
       queue,
-      currentIndex: 0,
-      isPlaying: true,
-      repeatMode: false,
-      shuffle: true,
-      currentAlbum: null,
+      currentIndex:  0,
+      isPlaying:     true,
+      repeatMode:    false,
+      shuffle:       true,
+      currentAlbum:  null,
       currentPlaylist: null,
     },
     { upsert: true, new: true }
@@ -401,6 +401,24 @@ async function playASong(user, songId) {
     $inc: { playCount: 1 },
   });
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  // record history
+  const now = new Date();
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    song._id,
+    playCount: 1,
+    playedAt:  now
+  });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    song.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
+
   return mainSong;
 }
 

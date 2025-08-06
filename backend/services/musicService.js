@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const Player = require("../models/audioPlayer");
 const Playlist = require("../models/playlist");
 const User = require("../models/user");
+const PlayHistory = require("../models/playHistory");
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -120,6 +121,15 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     throw err;
   }
 
+  const now = new Date();
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "album",
+    itemId:    album._id,
+    playCount: 1,
+    playedAt:  now
+  });
+
   const songs = album.songs;
   if (!songs || songs.length === 0) {
     const err = new Error("No songs in album");
@@ -155,13 +165,30 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
   );
 
   const currentSong = resultSongs[0];
-  const song = await Song.findByIdAndUpdate(currentSong, {
+  const songDoc = await Song.findByIdAndUpdate(currentSong, {
     $inc: { playCount: 1 },
   });
-  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+  await User.updateOne({ _id: songDoc.artistId }, { $inc: { playCount: 1 } });
   await Album.updateOne({ _id: albumId }, { $inc: { playCount: 1 } });
+
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "song",
+    itemId:    songDoc._id,
+    playCount: 1,
+    playedAt:  now
+  });
+  await PlayHistory.create({
+    userId:    user._id,
+    itemType:  "artist",
+    itemId:    songDoc.artistId,
+    playCount: 1,
+    playedAt:  now
+  });
+
   return currentSong;
 };
+
 
 const playAPlaylist = async (playlistId, songOrder = 0, user) => {
   if (!mongoose.isValidObjectId(playlistId)) {

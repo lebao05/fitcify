@@ -51,14 +51,17 @@ const HeaderBar = () => {
               <Search
                 className="text-[#b3b3b3] mr-3 cursor-pointer"
                 size={25}
-                onClick={() => navigate(`/search`)}
+                onClick={() => navigate(`/search/?q=${searchValue}`)}
               />
               <input
                 type="text"
                 placeholder="What do you want to play?"
                 className="bg-transparent border-none outline-none text-white w-full placeholder-[#b3b3b3] text-[18px]"
                 value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
+                onChange={(e) => {
+                  setSearchValue(e.target.value);
+                  navigate(`/search/?q=${searchValue}`);
+                }}
               />
             </div>
           </div>

@@ -28,9 +28,6 @@ router.delete(
 router.delete("/:playlistId", playlistController.deletePlaylist);
 
 router.get("/", playlistController.getUserPlaylists);
-router.get(
-  "/user/:userId",
-  playlistController.getUserPlaylistsOfAUser
-);
+router.get("/user/:userId", playlistController.getUserPlaylistsOfAUser);
 router.get("/:playlistId", playlistController.getPlaylistById);
 module.exports = router;

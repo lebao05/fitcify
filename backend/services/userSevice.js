@@ -198,100 +198,53 @@ const unfollowArtist = async (userId, artistId) => {
 };
 
 async function topSongThisMonth(limit = 10) {
-  const now          = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNext  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const now         = new Date();
+  const monthStart  = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonth   = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const history = await PlayHistory.find({
-    itemType: 'song',
-    playedAt: { $gte: startOfMonth, $lt: startOfNext }
-  }).lean();
+  const histories = await PlayHistory.find({
+    itemType: "song",
+    playedAt: { $gte: monthStart, $lt: nextMonth }
+  })
+    .sort({ playCount: -1 })
+    .limit(limit)
+    .populate({
+      path: "itemId",
+      select: "title audioUrl imageUrl artistId",
+      model: "Song"
+    })
+    .lean();
 
-  const countMap = {};
-  history.forEach(({ itemId, playCount }) => {
-    const key = itemId.toString();
-    countMap[key] = (countMap[key] || 0) + (playCount || 0);
-  });
-
-  const topEntries = Object.entries(countMap)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit);
-
-  const results = [];
-  for (const [songId, playsThisMonth] of topEntries) {
-    if (!mongoose.Types.ObjectId.isValid(songId)) continue;
-    const song = await Song.findById(songId)
-      .select('title audioUrl imageUrl duration playCount artistId')
-      .lean();
-    if (!song) continue;
-
-    const artistProfile = await ArtistProfile.findOne({ userId: song.artistId })
-      .select('userId isVerified totalPlays bio')
-      .lean();
-
-    results.push({
-      song: {
-        _id:       song._id,
-        title:     song.title,
-        audioUrl:  song.audioUrl,
-        imageUrl:  song.imageUrl,
-        duration:  song.duration,
-        playCount: song.playCount || 0
-      },
-      playsThisMonth,
-      artist: artistProfile && {
-        userId:     artistProfile.userId,
-        isVerified: artistProfile.isVerified,
-        totalPlays: artistProfile.totalPlays || 0,
-        bio:        artistProfile.bio
-      }
-    });
-  }
-
-  return results;
+  return histories.map(h => ({
+    song:      h.itemId,
+    playCount: h.playCount
+  }));
 }
 
 async function topArtistThisMonth(limit = 10) {
-  const now          = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNext  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const now        = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonth  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const history = await PlayHistory.find({
-    itemType: 'artist',
-    playedAt: { $gte: startOfMonth, $lt: startOfNext }
-  }).lean();
+  const histories = await PlayHistory.find({
+    itemType: "artist",
+    playedAt: { $gte: monthStart, $lt: nextMonth }
+  })
+    .sort({ playCount: -1 })
+    .limit(limit)
+    .populate({
+      path: "itemId",
+      model: "User",
+      select: "username avatarUrl"
+    })
+    .lean();
 
-  const countMap = {};
-  history.forEach(({ itemId, playCount }) => {
-    const key = itemId.toString();
-    countMap[key] = (countMap[key] || 0) + (playCount || 0);
-  });
-
-  const topEntries = Object.entries(countMap)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit);
-
-  const results = [];
-  for (const [artistId, viewsThisMonth] of topEntries) {
-    if (!mongoose.Types.ObjectId.isValid(artistId)) continue;
-    const profile = await ArtistProfile.findOne({ userId: artistId })
-      .select('userId isVerified totalPlays bio')
-      .lean();
-    if (!profile) continue;
-
-    results.push({
-      artist: {
-        userId:     profile.userId,
-        isVerified: profile.isVerified,
-        totalPlays: profile.totalPlays || 0,
-        bio:        profile.bio
-      },
-      viewsThisMonth
-    });
-  }
-
-  return results;
+  return histories.map(h => ({
+    artist:    h.itemId,           
+    playCount: h.playCount
+  }));
 }
+
 
 
 module.exports = {

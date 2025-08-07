@@ -752,6 +752,19 @@ async function search(query) {
   };
 }
 
+// Toggle repeat mode for the current user's player
+const toggleRepeatMode = async (userId) => {
+  if (!userId) throw new Error("User ID is required");
+
+  const player = await Player.findOne({ userId });
+  if (!player) throw new Error("Player not found");
+
+  player.repeatMode = !player.repeatMode;
+  await player.save();
+
+  return { repeatMode: player.repeatMode };
+};
+
 module.exports = {
   search,
   getAlbumsOfAnArtist,
@@ -770,4 +783,5 @@ module.exports = {
   getTopArtists,
   getTopAlbums,
   getCurrentSong,
+  toggleRepeatMode,
 };

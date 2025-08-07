@@ -301,6 +301,22 @@ const getCurrentSong = async (req, res) => {
   }
 };
 
+const toggleRepeatMode = async (req, res) => {
+  const userId = req.user && req.user._id;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    const result = await musicService.toggleRepeatMode(userId);
+    res.status(200).json({
+      Message: result.repeatMode ? "Repeat mode enabled" : "Repeat mode disabled",
+      repeatMode: result.repeatMode,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   streamingAudio,
   toggleSongLikeController,
@@ -319,4 +335,5 @@ module.exports = {
   getTopAlbums,
   search,
   getCurrentSong,
+  toggleRepeatMode,
 };

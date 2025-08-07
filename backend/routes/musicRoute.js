@@ -45,6 +45,7 @@ router.post(
 
 router.post("/previous", authMiddleware, musicController.previousTrack);
 router.post("/play-song", authMiddleware, musicController.playASong);
+router.post("/toggle-repeat", authMiddleware, musicController.toggleRepeatMode);
 router.post("/next", authMiddleware, musicController.nextTrack);
 
 router.get("/search", musicController.search);

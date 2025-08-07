@@ -13,7 +13,7 @@ import {
 } from "../../redux/slices/myCollectionSlice.js";
 import ContextMenu from "./ContextMenu.jsx"; // ✅ Adjust this path if needed
 import { deletePlaylist } from "../../services/playlistApi.js";
-
+import default_music from "../../assets/default-music.png";
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -115,10 +115,11 @@ const Sidebar = () => {
               onContextMenu={(e) => handleContextMenu(e, item)} // ✅ Right-click
             >
               <PlayplistBar
-                cover={item.imageUrl || assets.music_placeholder}
+                cover={item.imageUrl || default_music}
                 title={item.name}
                 subtitle={`Playlist • ${item.owner?.name || "You"}`}
                 onClick={() => navigate(`/playlist/${item._id}`)}
+                id={item._id}
               />
             </div>
           ))}
@@ -128,6 +129,7 @@ const Sidebar = () => {
               <ArtistBar
                 key={item._id}
                 avatar={item.avatarUrl}
+                id={item._id}
                 name={item.username}
                 onClick={() => console.log("Playlist clicked", item.username)}
               />

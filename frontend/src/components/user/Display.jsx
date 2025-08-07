@@ -23,11 +23,7 @@ const Display = () => {
 
   const nagivate = useNavigate();
   useEffect(() => {
-    if (isAlbum || isPlaylist || isSong || isLikedTrack) {
-      displayRef.current.style.background = `linear-gradient(${"#316369"},#121212)`;
-    } else {
-      displayRef.current.style.background = "#121212";
-    }
+    displayRef.current.style.background = `linear-gradient(${"#3d4e56"},#070606)`;
   });
   return (
     <div

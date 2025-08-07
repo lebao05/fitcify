@@ -13,9 +13,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchCurrentProfileById } from "../../redux/slices/userSlice.js";
 import { getPlaylistsByUserId } from "../../services/playlistApi.js";
+import {
+  fetchTopArtistsThisMonth,
+  fetchTopSongsThisMonth,
+} from "../../redux/slices/myCollectionSlice.js";
 import { getFollowedArtists } from "../../services/userApi.js";
 
 const UserProfile = () => {
+  const [isYou, setIsYou] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const { id } = useParams();
   const [playlists, setPlaylists] = useState(null);
@@ -23,6 +28,8 @@ const UserProfile = () => {
   const dispatch = useDispatch();
   const myAuth = useSelector((state) => state.user.myAuth);
   const user = useSelector((state) => state.user.currentProfile);
+  const topSongs = useSelector((state) => state.myCollection.topSongsMonth);
+  const topArtists = useSelector((state) => state.myCollection.topArtistsMonth);
   const fetchPlaylists = async (userId) => {
     const res = await getPlaylistsByUserId(userId);
     setPlaylists(res.Data);
@@ -32,6 +39,16 @@ const UserProfile = () => {
     const res = await getFollowedArtists();
     setFollowingArtists(res.Data);
     return res;
+  };
+  const fetchTopContent = async () => {
+    try {
+      await Promise.all([
+        dispatch(fetchTopSongsThisMonth({ limit: 5 })).unwrap(),
+        dispatch(fetchTopArtistsThisMonth({ limit: 5 })).unwrap(),
+      ]);
+    } catch (err) {
+      console.error("Failed to fetch top content:", err);
+    }
   };
   useEffect(() => {
     if (id) dispatch(fetchCurrentProfileById(id));
@@ -43,57 +60,15 @@ const UserProfile = () => {
     if (user?._id) {
       fetchPlaylists(user._id);
       fetchFollowedArtists();
+      setIsYou(myAuth._id === user._id);
     }
   }, [user]);
+  useEffect(() => {
+    if (myAuth) fetchTopContent();
+  }, [myAuth]);
   const handleToggleEditModal = () => {
     if (myAuth._id === id) setShowEditModal((prev) => !prev);
   };
-  const topArtists = [
-    { id: 1, name: "SOOBIN", image: testImg, type: "Artist" },
-    { id: 2, name: "Sơn Tùng M-TP", image: testImg, type: "Artist" },
-    { id: 3, name: "AMEE", image: testImg, type: "Artist" },
-    { id: 4, name: "Vũ", image: testImg, type: "Artist" },
-    { id: 5, name: "HIEUTHUHAI", image: testImg, type: "Artist" },
-    { id: 6, name: "JustaTee", image: testImg, type: "Artist" },
-    { id: 7, name: "Da LAB", image: testImg, type: "Artist" },
-    { id: 8, name: "Dương Domic", image: testImg, type: "Artist" },
-  ];
-
-  const [topTracks, setTopTracks] = useState([
-    {
-      id: 1,
-      title: 'Hẹn Một Mai - From "4 Năm 2 Chàng 1 Tình Yêu"',
-      artist: "Bùi Lan Hương",
-      album: 'Hẹn Một Mai - From "4 Năm 2 Chàng 1 Tình Yêu"',
-      duration: "4:19",
-      image: testImg,
-    },
-    {
-      id: 2,
-      title: "Nếu Biết Đó Là Lần Cuối",
-      artist: "Đức Trường, BMZ",
-      album: "Nếu Biết Đó Là Lần Cuối",
-      duration: "4:00",
-      image: testImg,
-    },
-    {
-      id: 3,
-      title: "Pháp Màu - Đàn Ca Gỗ Original Soundtrack",
-      artist: "MAYDAYs, Minh Tốc & Lam",
-      album: "Pháp Màu - Đàn Ca Gỗ Original Soundtrack",
-      duration: "4:26",
-      image: testImg,
-    },
-    {
-      id: 4,
-      title: "Nơi Này Có Anh",
-      artist: "Sơn Tùng M-TP",
-      album: "mtp M-TP",
-      duration: "4:20",
-      image: testImg,
-    },
-  ]);
-
   if (user === null) return null;
   return (
     <div className="user-profile-content pb-10 h-full w-[80%] overflow-y-auto">
@@ -107,32 +82,35 @@ const UserProfile = () => {
         />
       )}
       <div className="profile-content">
-        <section className="artist-section">
-          <SectionHeader
-            title="Top artists this month"
-            subtitle="Only visible to you"
-            showAll={true}
-          />
-          <div className="artists-card-container">
-            {topArtists.slice(0, 5).map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
-            ))}
-          </div>
-        </section>
-
-        <section className="tracks-section">
-          <SectionHeader
-            title="Top tracks this month"
-            subtitle="Only visible to you"
-            showAll={true}
-          />
-          <div className="tracks-item-container">
-            {topTracks.map((track, index) => (
-              <TrackItem key={track.id} track={track} index={index} />
-            ))}
-          </div>
-        </section>
-
+        {isYou && (
+          <>
+            {" "}
+            <section className="artist-section">
+              <SectionHeader
+                title="Top artists this month"
+                subtitle="Only visible to you"
+                showAll={false}
+              />
+              <div className="artists-card-container">
+                {topArtists.slice(0, 10).map((artist, index) => (
+                  <ArtistCard key={index} artist={artist} />
+                ))}
+              </div>
+            </section>
+            <section className="tracks-section">
+              <SectionHeader
+                title="Top tracks this month"
+                subtitle="Only visible to you"
+                showAll={false}
+              />
+              <div className="tracks-item-container">
+                {topSongs.map((track, index) => (
+                  <TrackItem key={index} track={track} index={index} />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
         <section className="playlists-section">
           <SectionHeader title="Public Playlists" showAll={true} />
           <div className="playlists-container">
@@ -152,8 +130,8 @@ const UserProfile = () => {
             {followingArtists &&
               followingArtists
                 .slice(0, 5)
-                .map((artist) => (
-                  <ArtistCard key={artist.id} artist={artist} />
+                .map((artist, index) => (
+                  <ArtistCard key={index} artist={artist} />
                 ))}
           </div>
         </section>

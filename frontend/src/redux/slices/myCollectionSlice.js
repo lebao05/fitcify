@@ -12,6 +12,10 @@ import {
   getTopArtists,
   getLikedSongs,
 } from "../../services/musicApi";
+import {
+  getTopArtistsThisMonth,
+  getTopSongsThisMonth,
+} from "../../services/userApi";
 // ───── THUNKS ─────
 // ─── THUNKS ───
 export const fetchTopSongs = createAsyncThunk(
@@ -153,9 +157,39 @@ export const fetchLikedSongs = createAsyncThunk(
     }
   }
 );
+export const fetchTopSongsThisMonth = createAsyncThunk(
+  "music/fetchTopSongsThisMonth",
+  async ({ limit = 5 }, thunkAPI) => {
+    try {
+      const data = await getTopSongsThisMonth(limit);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Failed to fetch top songs this month"
+      );
+    }
+  }
+);
 
+// Fetch Top Artists This Month (New)
+export const fetchTopArtistsThisMonth = createAsyncThunk(
+  "music/fetchTopArtistsThisMonth",
+  async ({ limit = 5 }, thunkAPI) => {
+    try {
+      const data = await getTopArtistsThisMonth(limit);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message ||
+          "Failed to fetch top artists this month"
+      );
+    }
+  }
+);
 // ───── INITIAL STATE ─────
 const initialState = {
+  topArtistsMonth: [],
+  topSongsMonth: [],
   playlists: [],
   likedSongs: [],
   topSongs: [],
@@ -284,6 +318,33 @@ const myCollectionSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchLikedSongs.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      .addCase(fetchTopSongsThisMonth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopSongsThisMonth.fulfilled, (state, action) => {
+        state.topSongsMonth = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopSongsThisMonth.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // Fetch Top Artists This Month
+      .addCase(fetchTopArtistsThisMonth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopArtistsThisMonth.fulfilled, (state, action) => {
+        state.topArtistsMonth = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopArtistsThisMonth.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });

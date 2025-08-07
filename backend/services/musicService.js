@@ -178,14 +178,14 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     itemType: "song",
     itemId: songDoc._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: songDoc.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return currentSong;
@@ -255,14 +255,14 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     itemType: "song",
     itemId: song._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: song.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return currentSong;
@@ -303,14 +303,14 @@ async function playAnArtist(user, artistId) {
     itemType: "song",
     itemId: song._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: song.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return currentSong;
@@ -364,14 +364,14 @@ async function previousTrack(user) {
     itemType: "song",
     itemId: song._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: song.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return currentSong;
@@ -426,14 +426,14 @@ async function playASong(user, songId) {
     itemType: "song",
     itemId: song._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: song.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return mainSong;
@@ -491,14 +491,14 @@ async function nextTrack(user) {
     itemType: "song",
     itemId: song._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: song.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return currentSong;
@@ -547,9 +547,9 @@ async function playLikedTrack(songOrder = 0, user) {
 
   // 4) Increment counts and record history for the first track
   const now = new Date();
-  const currentSong = resultSongs[0]._id;
+  const currentSong = resultSongs[0];
   const songDoc = await Song.findByIdAndUpdate(
-    currentSong,
+    currentSong._id,
     { $inc: { playCount: 1 } },
     { new: true }
   );
@@ -562,14 +562,14 @@ async function playLikedTrack(songOrder = 0, user) {
     itemType: "song",
     itemId: songDoc._id,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
   await PlayHistory.create({
     userId: user._id,
     itemType: "artist",
     itemId: songDoc.artistId,
     playCount: 1,
-    playedAt: now,
+    playedAt: Date.now(),
   });
 
   return currentSong;

@@ -97,7 +97,7 @@ const HeaderBar = () => {
                 Premium
               </button>
               <div className="w-px h-6 bg-[#404040]" />
-              <div className="relative">
+              {/* <div className="relative">
                 <button className="w-8 h-8 bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all relative">
                   <Bell size={20} />
                   <div className="absolute top-1 right-1 w-2 h-2 bg-[#1db954] rounded-full"></div>
@@ -107,7 +107,7 @@ const HeaderBar = () => {
                 <button className="w-8 h-8 bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all">
                   <Users size={20} />
                 </button>
-              </div>
+              </div> */}
               <div className="relative">
                 <button
                   onClick={toggleNav}

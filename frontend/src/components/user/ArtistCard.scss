@@ -6,6 +6,12 @@
   width: 175px;
   height: 250px;
   padding: 0.5rem 0rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; // ⬅️ center horizontally
+  justify-content: center; // ⬅️ center vertically (if needed)
+  text-align: center;
+  transition: background-color 0.2s ease;
 
   &:hover {
     cursor: pointer;
@@ -15,44 +21,46 @@
   .artist-image-container {
     position: relative;
     overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+
+    .artist-image {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 100%;
+      z-index: 1;
+    }
 
     .artist-play-button {
       position: absolute;
       bottom: 1px;
       right: 12px;
-      top: auto;
-      left: auto;
-      transform: none;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s;
       z-index: 2;
     }
-  }
 
-  .artist-image-container:hover .artist-play-button {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .artist-image {
-    width: 150px;
-    object-fit: cover;
-    height: 150px;
-    border-radius: 100%;
-    z-index: 1;
+    &:hover .artist-play-button {
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 
   .artist-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    height: 50px;
+    align-items: center; // ⬅️ center horizontally
     text-align: center;
 
     .artist-name {
       margin-top: 0.5rem;
       color: variables.$text-primary;
+      font-size: 1rem;
+      font-weight: 500;
     }
 
     .type {

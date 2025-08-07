@@ -14,7 +14,7 @@ export default function SearchPage() {
   const query = searchParams.get("q");
   const [searchResult, setSearchResult] = useState(null);
   useEffect(() => {
-    if (!query) return;
+    if (!query && query != "") return;
     const fetchSearchResult = async () => {
       try {
         const res = await searchAll(query);

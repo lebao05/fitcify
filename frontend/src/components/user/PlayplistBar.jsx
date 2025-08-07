@@ -1,6 +1,13 @@
 import { FaPlay } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { playPlaylistThunk } from "../../redux/slices/playerSlice";
 
-const PlaylistBar = ({ cover, title, subtitle, onClick }) => {
+const PlaylistBar = ({ cover, title, subtitle, onClick, id }) => {
+  const dispatch = useDispatch();
+  const playPlaylist = async (e) => {
+    e.stopPropagation();
+    await dispatch(playPlaylistThunk({ playlistId: id }));
+  };
   return (
     <div
       className="relative group flex items-center gap-4 p-2 hover:bg-[#2a2a2a] cursor-pointer rounded"
@@ -18,10 +25,10 @@ const PlaylistBar = ({ cover, title, subtitle, onClick }) => {
       </div>
 
       {/* Play icon on hover */}
-      <div className="absolute right-3">
+      <div onClick={playPlaylist} className="absolute right-3">
         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <button className="w-6 h-6 flex items-center justify-center bg-green-500 text-black rounded-full">
-            <FaPlay className="text-xs cursor-pointer" />
+          <button className="w-6 h-6 cursor-pointer flex items-center justify-center bg-green-500 text-black rounded-full">
+            <FaPlay className="text-xs" />
           </button>
         </div>
       </div>

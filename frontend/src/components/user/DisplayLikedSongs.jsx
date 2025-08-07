@@ -2,7 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { assets } from "../../assets/assets";
 import { useDispatch, useSelector } from "react-redux";
-import { playAlbumThunk } from "../../redux/slices/playerSlice";
+import {
+  playAlbumThunk,
+  playLikedTrackThunk,
+} from "../../redux/slices/playerSlice";
 import { Play, Heart } from "lucide-react";
 import { FaHeart } from "react-icons/fa";
 import {
@@ -35,15 +38,15 @@ const DisplayLikedSongs = () => {
     dispatch(fetchUserPlaylists());
   }, [likedSongs]);
 
-  const handlePlayLikedTracks = () => {
+  const handlePlayLikedTracks = async () => {
     if (likedSongs.length > 0) {
-      dispatch(playAlbumThunk({ songs: likedSongs, startIndex: 0 }));
+      await dispatch(playLikedTrackThunk());
     }
   };
 
   const toggleLike = async (songId) => {
     await toggleLikeSong(songId);
-    dispatch(fetchLikedSongs());
+    await dispatch(fetchLikedSongs());
   };
 
   const handleRightClick = (e, song) => {

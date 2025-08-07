@@ -217,6 +217,22 @@ const nextTrack = async (req, res) => {
     });
   }
 };
+
+async function playLikedTrackController(req, res, next) {
+  try {
+    const songOrder = parseInt(req.query.songOrder) || 0;
+    const user      = req.user;
+    const songId    = await musicService.playLikedTrack(songOrder, user);
+    res.status(200).json({
+      Message: "Liked tracks are now playing",
+      Error:   0,
+      Data:    { currentSong: songId }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 const getTopSongs = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
@@ -297,6 +313,7 @@ module.exports = {
   playAnArtistController,
   previousTrack,
   nextTrack,
+  playLikedTrackController,
   getTopSongs,
   getTopArtists,
   getTopAlbums,

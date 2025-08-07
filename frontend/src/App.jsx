@@ -28,7 +28,16 @@ function App() {
   const [email, setEmail] = useState("");
 
   const isInitialized = useSelector((state) => state.user.isInitialized);
+  useEffect(() => {
+    const handleRightClick = (e) => {
+      e.preventDefault();
+    };
+    document.addEventListener("contextmenu", handleRightClick);
 
+    return () => {
+      document.removeEventListener("contextmenu", handleRightClick);
+    };
+  }, []);
   useEffect(() => {
     dispatch(fetchUserFromCookie());
   }, [dispatch]);

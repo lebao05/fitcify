@@ -5,13 +5,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { playAlbumThunk } from "../../redux/slices/playerSlice";
 import { Play, Heart } from "lucide-react";
 import { FaHeart } from "react-icons/fa";
+import {
+  fetchLikedSongs,
+  fetchUserPlaylists,
+} from "../../redux/slices/myCollectionSlice";
+import { toggleLikeSong } from "../../services/musicApi";
+import { addSongToPlaylist } from "../../services/playlistApi";
+import ContextMenu from "./ContextMenu"; // 👈 Make sure this is correct
+
 const DisplayLikedSongs = () => {
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
+  const playlists = useSelector((state) => state.myCollection.playlists);
   const user = useSelector((state) => state.user.myAuth);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [likedMap, setLikedMap] = useState({});
+  const [contextMenu, setContextMenu] = useState(null);
 
   useEffect(() => {
     if (likedSongs) {
@@ -21,6 +32,7 @@ const DisplayLikedSongs = () => {
       });
       setLikedMap(initialLikes);
     }
+    dispatch(fetchUserPlaylists());
   }, [likedSongs]);
 
   const handlePlayLikedTracks = () => {
@@ -29,11 +41,42 @@ const DisplayLikedSongs = () => {
     }
   };
 
-  const toggleLike = (songId) => {
-    setLikedMap((prev) => ({
-      ...prev,
-      [songId]: !prev[songId],
-    }));
+  const toggleLike = async (songId) => {
+    await toggleLikeSong(songId);
+    dispatch(fetchLikedSongs());
+  };
+
+  const handleRightClick = (e, song) => {
+    e.preventDefault();
+
+    const options = [
+      {
+        label: "Add to playlist",
+        submenu: playlists.map((pl) => ({
+          label: pl.name,
+          onClick: async () => {
+            await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
+            dispatch(fetchUserPlaylists());
+          },
+        })),
+      },
+      {
+        label: likedMap[song._id] ? "Unlike song" : "Like song",
+        onClick: () => toggleLike(song._id),
+      },
+      {
+        label: "Go to artist",
+        onClick: () => {
+          navigate(`/artist/${song.artistId?._id}`);
+        },
+      },
+    ];
+
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      options,
+    });
   };
 
   const totalDuration = likedSongs.reduce(
@@ -89,7 +132,7 @@ const DisplayLikedSongs = () => {
             <b className="mr-4">#</b>Title
           </p>
           <p>Album</p>
-          <p className="hidden sm:block">Date Added</p>
+          <p className="hidden sm:block">Date</p>
           <p className="text-center hidden sm:block">Like</p>
           <img className="m-auto w-4" src={assets.clock_icon} alt="Duration" />
         </div>
@@ -99,6 +142,7 @@ const DisplayLikedSongs = () => {
         {likedSongs.map((item, index) => (
           <div
             key={item._id}
+            onContextMenu={(e) => handleRightClick(e, item)} // 👈 Add right click here
             className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
           >
             <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
@@ -167,6 +211,16 @@ const DisplayLikedSongs = () => {
             </p>
           </div>
         ))}
+
+        {/* Context Menu */}
+        {contextMenu && (
+          <ContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            options={contextMenu.options}
+            onClose={() => setContextMenu(null)}
+          />
+        )}
       </div>
     </div>
   );

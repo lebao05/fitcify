@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const Player = require("../models/audioPlayer");
 const Playlist = require("../models/playlist");
 const User = require("../models/user");
+const PlayHistory = require("../models/playHistory");
+const { normalizeString } = require("../helpers/normolize");
+const { distance } = require("fastest-levenshtein");
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -120,6 +123,15 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     throw err;
   }
 
+  const now = new Date();
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "album",
+    itemId: album._id,
+    playCount: 1,
+    playedAt: now,
+  });
+
   const songs = album.songs;
   if (!songs || songs.length === 0) {
     const err = new Error("No songs in album");
@@ -155,11 +167,27 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
   );
 
   const currentSong = resultSongs[0];
-  const song = await Song.findByIdAndUpdate(currentSong, {
+  const songDoc = await Song.findByIdAndUpdate(currentSong, {
     $inc: { playCount: 1 },
   });
-  await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+  await User.updateOne({ _id: songDoc.artistId }, { $inc: { playCount: 1 } });
   await Album.updateOne({ _id: albumId }, { $inc: { playCount: 1 } });
+
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: songDoc._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: songDoc.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
   return currentSong;
 };
 
@@ -172,7 +200,7 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
 
   const playlist = await Playlist.findById(playlistId).populate({
     path: "songs",
-    options: { sort: { createdAt: 1 } }, // ascending by creation date
+    options: { sort: { createdAt: 1 } },
   });
   if (!playlist) {
     const err = new Error("Playlist not found");
@@ -187,12 +215,10 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     throw err;
   }
 
-  let resultSongs = [];
-
+  let resultSongs;
   if (user?.isPremium) {
     resultSongs = songs.slice(songOrder);
   } else {
-    // Shuffle for non-premium users
     resultSongs = [...songs];
     for (let i = resultSongs.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -200,7 +226,6 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     }
   }
 
-  // Update or create a new player session
   await Player.findOneAndUpdate(
     { userId: user._id },
     {
@@ -216,11 +241,30 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     { upsert: true, new: true }
   );
 
-  const currentSong = resultSongs[0]; // First song to play
-  const song = await Song.findByIdAndUpdate(currentSong, {
-    $inc: { playCount: 1 },
-  });
+  const currentSong = resultSongs[0];
+  const song = await Song.findByIdAndUpdate(
+    currentSong,
+    { $inc: { playCount: 1 } },
+    { new: true }
+  );
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  //Record history for song & artist
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: song._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: song.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
   return currentSong;
 };
 
@@ -245,11 +289,30 @@ async function playAnArtist(user, artistId) {
     },
     { upsert: true, new: true }
   ).populate("queue");
-  const currentSong = shuffledSongs[0]._id;
-  const song = await Song.findByIdAndUpdate(currentSong, {
+
+  const currentSong = shuffledSongs[0];
+  const song = await Song.findByIdAndUpdate(currentSong._id, {
     $inc: { playCount: 1 },
   });
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  // —— Bổ sung: ghi lịch sử cho song và artist ——
+  const now = new Date();
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: song._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: song.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
   return currentSong;
 }
 
@@ -262,19 +325,57 @@ async function previousTrack(user) {
 
   // If already at the beginning of the queue
   if (player.currentIndex <= 0) {
-    return player.queue[0]; // Return the first song
+    const first = player.queue[0];
+    // ghi history cho lần phát lại đầu tiên
+    const now = new Date();
+    await Song.findByIdAndUpdate(first, { $inc: { playCount: 1 } });
+    await User.updateOne({ _id: first.artistId }, { $inc: { playCount: 1 } });
+    await PlayHistory.create({
+      userId: user._id,
+      itemType: "song",
+      itemId: first._id,
+      playCount: 1,
+      playedAt: now,
+    });
+    await PlayHistory.create({
+      userId: user._id,
+      itemType: "artist",
+      itemId: first.artistId,
+      playCount: 1,
+      playedAt: now,
+    });
+    return first;
   }
+
   player.currentIndex -= 1;
   const currentSong = player.queue[player.currentIndex];
-
   await player.save();
+
+  // increment counts
   const song = await Song.findByIdAndUpdate(currentSong, {
     $inc: { playCount: 1 },
   });
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  // record history
+  const now = new Date();
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: song._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: song.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
   return currentSong;
 }
-
 async function playASong(user, songId) {
   if (!user || !user._id) {
     const err = new Error("User not authenticated.");
@@ -317,6 +418,24 @@ async function playASong(user, songId) {
     $inc: { playCount: 1 },
   });
   await User.updateOne({ _id: song.artistId }, { $inc: { playCount: 1 } });
+
+  // record history
+  const now = new Date();
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: song._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: song.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
   return mainSong;
 }
 
@@ -330,7 +449,7 @@ async function nextTrack(user) {
 
   if (currentIndex + 1 >= queue.length) {
     // End of queue: add 5 new random songs (excluding existing ones)
-    const excludedIds = queue.map((id) => new mongoose.Types.ObjectId(id));
+    const excludedIds = queue.map((id) => mongoose.Types.ObjectId(id));
 
     const additionalSongs = await Song.aggregate([
       { $match: { _id: { $nin: excludedIds } } },
@@ -354,16 +473,108 @@ async function nextTrack(user) {
   const currentSong = await Song.findById(currentSongId);
   if (!currentSong) throw new Error("Next song not found.");
 
-  const song = await Song.findByIdAndUpdate(currentSongId, {
-    $inc: { playCount: 1 },
-  }).exec();
+  // Increment play counts
+  const song = await Song.findByIdAndUpdate(
+    currentSongId,
+    { $inc: { playCount: 1 } },
+    { new: true }
+  ).exec();
   await User.updateOne(
     { _id: song.artistId },
     { $inc: { playCount: 1 } }
   ).exec();
 
+  // —— Bổ sung: ghi lịch sử cho song và artist ——
+  const now = new Date();
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: song._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: song.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
   return currentSong;
 }
+
+async function playLikedTrack(songOrder = 0, user) {
+  // 1) Load all liked songs
+  const likedSongs = await Song.find({ likes: user._id }).populate(
+    "artistId",
+    "username"
+  );
+  if (!likedSongs.length) {
+    const err = new Error("No liked tracks found");
+    err.status = 404;
+    throw err;
+  }
+
+  // 2) Build queue
+  let resultSongs;
+  if (user.isPremium) {
+    resultSongs = likedSongs.slice(songOrder);
+  } else {
+    resultSongs = [...likedSongs];
+    for (let i = resultSongs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [resultSongs[i], resultSongs[j]] = [resultSongs[j], resultSongs[i]];
+    }
+  }
+
+  // 3) Save/update Player session
+  await Player.findOneAndUpdate(
+    { userId: user._id },
+    {
+      userId: user._id,
+      queue: resultSongs.map((s) => s._id),
+      currentSong: resultSongs[0]._id,
+      currentIndex: 0,
+      isPlaying: true,
+      repeatMode: false,
+      shuffle: !user.isPremium,
+      currentAlbum: null,
+      currentPlaylist: null,
+    },
+    { upsert: true, new: true }
+  );
+
+  // 4) Increment counts and record history for the first track
+  const now = new Date();
+  const currentSong = resultSongs[0]._id;
+  const songDoc = await Song.findByIdAndUpdate(
+    currentSong,
+    { $inc: { playCount: 1 } },
+    { new: true }
+  );
+
+  await User.updateOne({ _id: songDoc.artistId }, { $inc: { playCount: 1 } });
+
+  // 5) Record PlayHistory for song and artist
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "song",
+    itemId: songDoc._id,
+    playCount: 1,
+    playedAt: now,
+  });
+  await PlayHistory.create({
+    userId: user._id,
+    itemType: "artist",
+    itemId: songDoc.artistId,
+    playCount: 1,
+    playedAt: now,
+  });
+
+  return currentSong;
+}
+
 const getTopSongs = async (limit = 10) => {
   const topSongs = await Song.find({ isApproved: true })
     .sort({ playCount: -1 })
@@ -426,8 +637,123 @@ const getCurrentSong = async (userId) => {
     albumId: album || null,
   };
 };
+async function search(query) {
+  const normalizedQuery = normalizeString(query);
+  const THRESHOLD = 5;
+
+  const fuzzyMatch = (input, target) => {
+    return distance(input.toLowerCase(), target.toLowerCase()) <= THRESHOLD;
+  };
+
+  const [albums, songs, playlists, users] = await Promise.all([
+    Album.find({}, "title imageUrl playCount artistId")
+      .populate("artistId", "username")
+      .lean(),
+    Song.find({}, "title audioUrl imageUrl playCount artistId")
+      .populate("artistId", "username")
+      .lean(),
+    Playlist.find({}, "name imageUrl playCount ownerId")
+      .populate("ownerId", "username")
+      .lean(),
+    User.find({}, "username role avatarUrl playCount").lean(),
+  ]);
+
+  // Step 1: Filter matches
+  const matchedAlbums = albums.filter((a) =>
+    fuzzyMatch(normalizedQuery, normalizeString(a.title))
+  );
+  const matchedSongs = songs.filter((s) =>
+    fuzzyMatch(normalizedQuery, normalizeString(s.title))
+  );
+  const matchedPlaylists = playlists.filter((p) =>
+    fuzzyMatch(normalizedQuery, normalizeString(p.name))
+  );
+  const matchedUsers = users.filter(
+    (u) =>
+      u.role !== "artist" &&
+      fuzzyMatch(normalizedQuery, normalizeString(u.username))
+  );
+  let matchedArtists = users.filter(
+    (u) =>
+      u.role === "artist" &&
+      fuzzyMatch(normalizedQuery, normalizeString(u.username))
+  );
+
+  // Step 2: Infer best artist
+  let bestArtist = matchedArtists.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  )[0];
+
+  if (!bestArtist) {
+    const bestAlbumFromMatch = matchedAlbums.sort(
+      (a, b) => (b.playCount || 0) - (a.playCount || 0)
+    )[0];
+    const bestSongFromMatch = matchedSongs.sort(
+      (a, b) => (b.playCount || 0) - (a.playCount || 0)
+    )[0];
+    const bestCreatorId =
+      bestSongFromMatch?.artistId._id || bestAlbumFromMatch?.artistId._id;
+
+    if (bestCreatorId) {
+      bestArtist = users.find(
+        (u) =>
+          u.role === "artist" && u._id.toString() === bestCreatorId.toString()
+      );
+    }
+  }
+
+  // Step 3: Get artist's content
+  let artistAlbums = [];
+  let artistSongs = [];
+  let artistPlaylists = [];
+
+  if (bestArtist) {
+    const artistId = bestArtist._id.toString();
+    artistAlbums = albums.filter(
+      (a) => a.artistId?._id.toString() === artistId
+    );
+    artistSongs = songs.filter((s) => s.artistId?._id.toString() === artistId);
+    artistPlaylists = playlists.filter(
+      (p) => p.ownerId?._id.toString() === artistId
+    );
+  }
+
+  // Step 4: Deduplicate content
+  const uniqueById = (arr) => {
+    const seen = new Map();
+    for (const item of arr) {
+      seen.set(item._id.toString(), item);
+    }
+    console.log(Array.from(seen.values()));
+    return Array.from(seen.values());
+  };
+
+  const allAlbums = uniqueById([...matchedAlbums, ...artistAlbums]);
+  const allSongs = uniqueById([...matchedSongs, ...artistSongs]);
+  const allPlaylists = uniqueById([...matchedPlaylists, ...artistPlaylists]);
+
+  // Step 5: Pick best of each
+  const bestAlbums = allAlbums.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  );
+  const bestSongs = allSongs.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  );
+  const bestPlaylists = allPlaylists.sort(
+    (a, b) => (b.playCount || 0) - (a.playCount || 0)
+  );
+  const bestArtists = uniqueById([...matchedArtists, bestArtist]);
+  return {
+    artists: bestArtists,
+    albums: bestAlbums,
+    songs: bestSongs,
+    playlists: bestPlaylists,
+    users: matchedUsers,
+  };
+}
 
 module.exports = {
+  search,
   getAlbumsOfAnArtist,
   toggleSongLike,
   getStream,
@@ -439,6 +765,7 @@ module.exports = {
   previousTrack,
   playASong,
   nextTrack,
+  playLikedTrack,
   getTopSongs,
   getTopArtists,
   getTopAlbums,

@@ -1,6 +1,7 @@
 import image from "../../assets/unknown.jpg";
 
 const ProfileHeader = ({ user, onEditClick, isArtist = false }) => {
+
   return (
     <div className="px-6 pt-6">
       <div className="flex items-center space-x-6">
@@ -33,6 +34,7 @@ const ProfileHeader = ({ user, onEditClick, isArtist = false }) => {
             <span className="text-white text-sm mt-1">Choose Photo</span>
           </div>
         </div>
+
 
         {/* Profile Info */}
         <div className="flex flex-col justify-center">

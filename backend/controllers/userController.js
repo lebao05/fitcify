@@ -158,5 +158,5 @@ module.exports = {
   followArtist,
   unfollowArtist,
   topSongsThisMonth,
-  topArtistsThisMonth,
+  topArtistsThisMonth
 };

@@ -33,7 +33,6 @@ const ArtistProfile = ({ isOwner }) => {
             withCredentials: true,
           });
         }
-
         if (res.data.Error === 0) {
           setArtistData(res.data.Data);
           setIsMyProfile(isOwnerProfile);

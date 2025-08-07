@@ -7,6 +7,8 @@ import SignupStep1 from "./pages/authentication/SignupStep1";
 import SignupStep2 from "./pages/authentication/SignupStep2";
 import LoginOtp from "./pages/authentication/LoginOtp";
 import MainPlayout from "./pages/user/MainPlayout";
+import ProtectedRoute from './components/user/ProtectedRoute';
+import AccessDenied from "./components/user/AccessDenied";
 import ArtistLayout from "./components/artist/ArtistLayout";
 import ArtistProfile from "./pages/artist/ArtistProfile";
 import ArtistDashboard from "./pages/artist/ArtistDashboard";
@@ -16,6 +18,7 @@ import ArtistSong from "./components/artist/ArtistSong";
 import { Navigate } from "react-router-dom";
 
 import { useState, useEffect } from "react";
+import { getCurrentUserRole } from "./services/userApi";
 import NotFound from "./pages/NotFound";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +29,7 @@ import ForgotPassword from "./pages/authentication/ForgotPassword";
 function App() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
+  const [userRole, setUserRole] = useState(null);
 
   const isInitialized = useSelector((state) => state.user.isInitialized);
   useEffect(() => {
@@ -42,7 +46,19 @@ function App() {
     dispatch(fetchUserFromCookie());
   }, [dispatch]);
 
-  if (!isInitialized) {
+  useEffect(() => {
+    async function fetchRole() {
+      try {
+        const res = await getCurrentUserRole();
+        setUserRole(res.Role);
+      } catch {
+        setUserRole(null);
+      }
+    }
+    fetchRole();
+  }, [isInitialized]);
+
+  if (!isInitialized || userRole === null) {
     return (
       <div className="flex items-center justify-center h-screen bg-neutral-900">
         <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
@@ -62,15 +78,22 @@ function App() {
         <Route path="/signup-step1" element={<SignupStep1 />} />
         <Route path="/signup-step2" element={<SignupStep2 />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/artist" element={<ArtistLayout />}>
-          <Route path="profile" element={<ArtistProfile isOwner={true} />} />
-          {/* <Route index element={<Navigate to="dashboard" replace />} /> */}
-          <Route path="dashboard" element={<ArtistDashboard />} />
-          <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />
-          <Route path="albums" element={<ArtistAlbum />} />
-          <Route path="music" element={<ArtistSong songs={[]} />} />
-          <Route index element={<Navigate to="dashboard" replace />} />
+        <Route 
+          path="/artist" 
+          element={
+            <ProtectedRoute allowedRoles={['artist']} userRole={userRole}>
+              <ArtistLayout />
+            </ProtectedRoute>
+          }
+        >           
+          <Route path="profile" element={<ArtistProfile isOwner={true} />} />           
+          <Route path="dashboard" element={<ArtistDashboard />} />           
+          <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />           
+          <Route path="albums" element={<ArtistAlbum />} />           
+          <Route path="music" element={<ArtistSong songs={[]} />} />           
+          <Route index element={<Navigate to="dashboard" replace />} />         
         </Route>
+        <Route path="/access-denied" element={<AccessDenied />} />
         <Route path="/*" element={<MainPlayout />} />
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />

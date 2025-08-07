@@ -8,6 +8,12 @@ const PlayHistory = require('../models/playHistory');
 const mongoose = require("mongoose");
 const { normalizeString } = require("../helpers/normolize");
 /** ------------------------- PUBLIC API ------------------------- **/
+// Lấy role của user hiện tại
+async function getCurrentUserRole(userId) {
+  const user = await User.findById(userId).select("role");
+  if (!user) throw new Error("User not found");
+  return user.role;
+}
 
 async function getProfileInfo(userId) {
   const user = await User.findById(userId).populate("followees").lean();
@@ -307,4 +313,5 @@ module.exports = {
   unfollowArtist,
   topSongThisMonth,
   topArtistThisMonth,
+  getCurrentUserRole,
 };

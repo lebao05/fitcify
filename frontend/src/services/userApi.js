@@ -1,6 +1,10 @@
 import axiosInstance from "../configs/axios";
 
 /* ───── Profile Info ───── */
+export const getCurrentUserRole = async () => {
+  const res = await axiosInstance.get("/user/role");
+  return res.data;
+};
 export const getMyProfile = async () => {
   const res = await axiosInstance.get("/user/me");
   return res.data;

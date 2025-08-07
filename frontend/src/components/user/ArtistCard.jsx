@@ -2,19 +2,17 @@ import React, { useState, useRef } from "react";
 import { Play } from "lucide-react";
 import "./ArtistCard.scss";
 import PlayButton from "./PlayButton.jsx";
+import { playArtistThunk } from "../../redux/slices/playerSlice.js";
+import { useDispatch } from "react-redux";
 
-const ArtistCard = ({ artist, onPlay }) => {
+const ArtistCard = ({ artist }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const handlePlay = (e) => {
+  const dispatch = useDispatch();
+  const handlePlay = async (e) => {
     e.stopPropagation();
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
-    if (onPlay) {
-      onPlay(artist);
-    }
+    await dispatch(playArtistThunk(artist._id));
   };
-
+  console.log(artist);
   return (
     <div
       className="artist-card"
@@ -22,7 +20,11 @@ const ArtistCard = ({ artist, onPlay }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="artist-image-container">
-        <img src={artist.image} alt={artist.name} className="artist-image" />
+        <img
+          src={artist.avatarUrl}
+          alt={artist.name}
+          className="artist-image"
+        />
         {isHovered && (
           <div className="artist-play-button" onClick={handlePlay}>
             <PlayButton />
@@ -31,8 +33,8 @@ const ArtistCard = ({ artist, onPlay }) => {
       </div>
 
       <div className="artist-info">
-        <h3 className="artist-name">{artist.name}</h3>
-        <p className="type">{artist.type}</p>
+        <h3 className="artist-name">{artist.username}</h3>
+        <p className="type">Artist</p>
       </div>
     </div>
   );

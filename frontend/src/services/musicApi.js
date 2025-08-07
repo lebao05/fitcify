@@ -167,3 +167,13 @@ export const toggleLikeSong = async (songId) => {
     throw error;
   }
 };
+export const searchAll = async (query) => {
+  try {
+    console.log(query);
+    const response = await axiosInstance.get(`/music/search?q=${query}`);
+    return response.data;
+  } catch (error) {
+    console.error("Search failed:", error);
+    throw error;
+  }
+};

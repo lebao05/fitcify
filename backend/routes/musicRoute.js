@@ -37,6 +37,12 @@ router.post(
   musicController.playAnArtistController
 );
 
+router.post(
+  "/play/liked",
+  authMiddleware,
+  musicController.playLikedTrackController
+);
+
 router.post("/previous", authMiddleware, musicController.previousTrack);
 router.post("/play-song", authMiddleware, musicController.playASong);
 router.post("/next", authMiddleware, musicController.nextTrack);

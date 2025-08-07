@@ -32,7 +32,7 @@ const ContextMenu = ({ x, y, options, onClose }) => {
             </button>
 
             {opt.submenu && hoveredIndex === idx && (
-              <div className="absolute top-0 left-full ml-1 bg-[#282828] w-52 py-1 rounded shadow-lg z-50">
+              <div className="absolute top-0 left-[95%] ml-1 bg-[#282828] w-52 py-1 rounded shadow-lg z-50">
                 {opt.submenu.map((sub, i) => (
                   <button
                     key={i}

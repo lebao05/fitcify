@@ -161,6 +161,7 @@ const initialState = {
   topSongs: [],
   topAlbums: [],
   topArtists: [],
+  followee: [],
   loading: false,
   error: null,
 };

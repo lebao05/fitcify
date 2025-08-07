@@ -222,7 +222,8 @@ const getUserPlaylists = async (ownerId) => {
       path: "songs",
       select: "title artistId duration imageUrl",
       options: { sort: { addedAt: 1 } },
-    });
+    })
+    .populate("ownerId", "username _id");
   return playlists;
 };
 

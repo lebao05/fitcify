@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import './HorizontalDots.scss';
+import React, { useState, useRef, useEffect } from "react";
+import "./HorizontalDots.scss";
 
 const EditProfileDialog = ({ user, open, onClose, onSave }) => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
   const [avatar, setAvatar] = useState(user.avatar);
   const dialogRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -25,7 +25,7 @@ const EditProfileDialog = ({ user, open, onClose, onSave }) => {
 
   useEffect(() => {
     if (open) {
-      setValue(user?.name || '');
+      setValue(user?.name || "");
     }
   }, [open, user]);
 
@@ -36,38 +36,59 @@ const EditProfileDialog = ({ user, open, onClose, onSave }) => {
       }
     }
     if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open, onClose]);
 
   if (!open) return null;
   return (
-    <div className="edit-dialog-backdrop" style={{zIndex: 2000}}>
+    <div className="edit-dialog-backdrop" style={{ zIndex: 2000 }}>
       <div className="edit-dialog" ref={dialogRef}>
-        <div className="edit-dialog-header" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16}}>
-          <h3 style={{margin: 0}}>Profile details</h3>
+        <div
+          className="edit-dialog-header"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
+          <h3 style={{ margin: 0 }}>Profile details</h3>
           <button
             className="edit-dialog-close"
-            style={{background: 'none', border: 'none', fontSize: 28, color: '#fff', cursor: 'pointer', lineHeight: 1, padding: 0}}
+            style={{
+              background: "none",
+              border: "none",
+              fontSize: 28,
+              color: "#fff",
+              cursor: "pointer",
+              lineHeight: 1,
+              padding: 0,
+            }}
             onClick={onClose}
             aria-label="Close"
           >
             ×
           </button>
         </div>
-        <div className="edit-dialog-info"> 
+        <div className="edit-dialog-info">
           <div className="avatar-section">
             <img src={avatar} alt="avatar" className="avatar" />
-            <div className="avatar-overlay" onClick={() => fileInputRef.current && fileInputRef.current.click()}>
+            <div
+              className="avatar-overlay"
+              onClick={() =>
+                fileInputRef.current && fileInputRef.current.click()
+              }
+            >
               <i className="fas fa-pencil-alt" aria-hidden="true"></i>
               <span>Choose Photo</span>
               <input
                 type="file"
                 accept="image/*"
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 ref={fileInputRef}
                 onChange={handleAvatarChange}
               />
@@ -80,17 +101,25 @@ const EditProfileDialog = ({ user, open, onClose, onSave }) => {
               id="edit-name"
               type="text"
               value={value}
-              onChange={e => setValue(e.target.value)}
+              onChange={(e) => setValue(e.target.value)}
               placeholder={user.name}
               autoFocus
             />
           </div>
         </div>
 
-        <div className="edit-dialog-actions" style={{display: 'flex', justifyContent: 'flex-end', marginTop: 24}}>
+        <div
+          className="edit-dialog-actions"
+          style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}
+        >
           <button
-            onClick={() => { onSave(value); onClose(); }}
-          >Save</button>
+            onClick={() => {
+              onSave(value);
+              onClose();
+            }}
+          >
+            Save
+          </button>
         </div>
       </div>
     </div>
@@ -100,25 +129,25 @@ const EditProfileDialog = ({ user, open, onClose, onSave }) => {
 // Edit Personal Info Dialog
 function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
   const [form, setForm] = useState({
-    username: user.username || '',
-    email: user.email || '',
-    password: '',
-    gender: user.gender || '',
-    day: user.day || '',
-    month: user.month || '',
-    year: user.year || '',
+    username: user.username || "",
+    email: user.email || "",
+    password: "",
+    gender: user.gender || "",
+    day: user.day || "",
+    month: user.month || "",
+    year: user.year || "",
   });
 
   useEffect(() => {
     if (open) {
       setForm({
-        username: user.username || '',
-        email: user.email || '',
-        password: '',
-        gender: user.gender || '',
-        day: user.day || '',
-        month: user.month || '',
-        year: user.year || '',
+        username: user.username || "",
+        email: user.email || "",
+        password: "",
+        gender: user.gender || "",
+        day: user.day || "",
+        month: user.month || "",
+        year: user.year || "",
       });
     }
   }, [open, user]);
@@ -138,7 +167,7 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
           </button>
         </div>
         <form
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault();
             onSave(form);
             onClose();
@@ -147,18 +176,16 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
           <div className="edit-dialog-fields">
             <div>
               <label>Username</label>
-              <input
-                type="text"
-                value={form.username}
-                placeholder="Username"
-              />
+              <input type="text" value={form.username} placeholder="Username" />
             </div>
             <div>
               <label>Email</label>
               <input
                 type="email"
                 value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
                 placeholder="Email"
               />
             </div>
@@ -167,7 +194,9 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
               <input
                 type="password"
                 value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, password: e.target.value }))
+                }
                 placeholder="Password"
               />
             </div>
@@ -175,7 +204,9 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
               <label>Gender</label>
               <select
                 value={form.gender}
-                onChange={e => setForm(f => ({ ...f, gender: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, gender: e.target.value }))
+                }
               >
                 <option value="">Select gender</option>
                 <option value="Male">Male</option>
@@ -194,11 +225,15 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
                   max="31"
                   placeholder="Day"
                   value={form.day}
-                  onChange={e => setForm(f => ({ ...f, day: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, day: e.target.value }))
+                  }
                 />
                 <select
                   value={form.month}
-                  onChange={e => setForm(f => ({ ...f, month: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, month: e.target.value }))
+                  }
                 >
                   <option value="">Month</option>
                   <option value="1">January</option>
@@ -222,7 +257,9 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
                   max="2025"
                   placeholder="Year"
                   value={form.year}
-                  onChange={e => setForm(f => ({ ...f, year: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, year: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -237,7 +274,7 @@ function EditPersonalInfoDialog({ open, onClose, onSave, user }) {
     </div>
   );
 }
-const HorizontalDots = ({user}) => {
+const HorizontalDots = ({ user }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [personalDialogOpen, setPersonalDialogOpen] = useState(false);
@@ -250,10 +287,10 @@ const HorizontalDots = ({user}) => {
       }
     }
     if (menuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuOpen]);
 
@@ -264,7 +301,7 @@ const HorizontalDots = ({user}) => {
 
   const handleSave = (value) => {
     // Handle save logic here
-    alert('Saved: ' + value);
+    alert("Saved: " + value);
   };
 
   return (
@@ -274,13 +311,33 @@ const HorizontalDots = ({user}) => {
       </div>
       {menuOpen && (
         <div className="dots-menu" ref={menuRef}>
-          <div className="dots-menu-item" onClick={handleEdit}>Edit profile</div>
-          <div className="dots-menu-item" onClick={() => { setPersonalDialogOpen(true); setMenuOpen(false); }}>Edit personal information</div>
+          <div className="dots-menu-item" onClick={handleEdit}>
+            Edit profile
+          </div>
+          <div
+            className="dots-menu-item"
+            onClick={() => {
+              setPersonalDialogOpen(true);
+              setMenuOpen(false);
+            }}
+          >
+            Edit personal information
+          </div>
           <div className="dots-menu-item">Copy link to profile</div>
         </div>
       )}
-      <EditProfileDialog user={user} open={dialogOpen} onClose={() => setDialogOpen(false)} onSave={handleSave} />
-      <EditPersonalInfoDialog user={user} open={personalDialogOpen} onClose={() => setPersonalDialogOpen(false)} onSave={data => alert('Saved: ' + JSON.stringify(data))} />
+      <EditProfileDialog
+        user={user}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSave={handleSave}
+      />
+      <EditPersonalInfoDialog
+        user={user}
+        open={personalDialogOpen}
+        onClose={() => setPersonalDialogOpen(false)}
+        onSave={(data) => alert("Saved: " + JSON.stringify(data))}
+      />
     </div>
   );
 };

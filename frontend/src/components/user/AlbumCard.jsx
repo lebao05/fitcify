@@ -22,10 +22,12 @@ const AlbumCard = ({ album, isButton }) => {
         )}
       </div>
       <div className="album-info">
-        <h3 className="album-name">{album.title}</h3>
-        <p className="album-artist">
-          Album &#8901; {album?.artistId?.username}
-        </p>
+      <h3 className="album-name">{album.name}</h3>
+      <p className="album-artist">
+        Album
+        {album.artist && ` \u2022 ${album.year}`} {}
+      </p>
+
       </div>
     </div>
   );

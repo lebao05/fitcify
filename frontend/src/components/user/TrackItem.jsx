@@ -58,7 +58,7 @@ const TrackItem = ({ track, index, onLike, showLikeButton = true }) => {
         <div className="flex flex-col mr-4 overflow-hidden">
           <div className={`truncate font-medium `}>{track.title}</div>
           <div className={`truncate text-gray-400 text-sm `}>
-            {track.artistId.username}
+            {track.artistId?.username}
           </div>
         </div>
 

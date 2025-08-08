@@ -170,7 +170,7 @@
  *     responses:
  *       200:
  *         description: Account details
- *   patch:
+ *   put:
  *     summary: Update account info
  *     tags: [Users]
  *     requestBody:

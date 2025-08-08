@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { albumsData } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import UserProfile from "../../pages/user/UserProfile";
+import AccountPage from "../../pages/user/AccountPage";
+import ArtistProfile from "../../pages/artist/ArtistProfile"
 import DisplayPlaylist from "./DisplayPlayplist";
 import SearchResult from "./SearchPage";
 import AudioPlayer from "./AudioPlayer";
@@ -35,7 +37,9 @@ const Display = () => {
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route path="/album/:id" element={<DisplayAlbum />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route path="/profile/:id" element={<UserProfile />} />
+        <Route path="/artist/:artistId" element={<ArtistProfile />} />
         <Route path="/playlist/:id" element={<DisplayPlaylist />} />
         <Route path="/song/:id" element={<DisplaySong />} />
         <Route path="/search/*" element={<SearchResult />} />

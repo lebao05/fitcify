@@ -319,6 +319,33 @@ const updatePlaylistMetadata = async (req, res, next) => {
   }
 };
 
+const updateAlbumsInArtistProfile = async (req, res, next) => {
+  try {
+    const updatedProfile = await artistService.updateAlbumsInArtistProfile(req.user._id);
+    res.status(200).json({
+      Message: "Albums updated in artist profile",
+      Error: 0,
+      Data: updatedProfile,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+async function getPublicArtistProfile(req, res, next) {
+  try {
+    const { artistId } = req.params;
+    const profile = await artistService.getArtistProfileById(artistId);
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Profile fetched", Data: profile });
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 module.exports = {
   submitArtistVerification,
   uploadSong,
@@ -338,4 +365,6 @@ module.exports = {
   editMyProfile,
   getSongById,
   getAllSongs,
+  updateAlbumsInArtistProfile,
+  getPublicArtistProfile
 };

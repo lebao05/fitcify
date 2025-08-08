@@ -116,5 +116,12 @@ router.put(
   isArtist,
   artistController.editMyProfile
 );
+router.put(
+  "/profile/update-albums",
+  isArtist,
+  artistController.updateAlbumsInArtistProfile
+);
+
+router.get('/:artistId', artistController.getPublicArtistProfile);///
 
 module.exports = router;

@@ -62,10 +62,14 @@ router.delete("/albums/:albumId", isArtist, artistController.deleteAlbum);
 router.delete("/playlists/:playlistId", isArtist, artistController.deletePlaylist);
 router.get("/songs", isArtist, artistController.getAllSongs);
 router.get("/songs/:id", isArtist, artistController.getSongById);
-
-// View own profile
 router.get('/profile', isArtist, artistController.getMyProfileById);
-// Edit own profile
 router.put('/profile', isArtist, artistController.editMyProfile);
+router.put(
+  "/profile/update-albums",
+  isArtist,
+  artistController.updateAlbumsInArtistProfile
+);
+
+router.get('/:artistId', artistController.getPublicArtistProfile);///
 
 module.exports = router;

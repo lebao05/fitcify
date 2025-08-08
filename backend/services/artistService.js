@@ -320,6 +320,11 @@ async function createAlbum({
     { $set: { albumId: album._id } }
   );
 
+  await ArtistProfile.findOneAndUpdate(
+  { userId: artistUserId },
+  { $push: { albums: album._id } }
+  );
+
   return album;
 }
 
@@ -658,8 +663,8 @@ async function getArtistProfileById(userId) {
     throw new Error("Invalid user ID");
   }
   const profile = await ArtistProfile.findOne({ userId })
-    .populate("userId", "name email")
-    .populate("albums", "title imageUrl")
+    .populate("userId", "username email avatarUrl")
+    .populate("albums", "title imageUrl songs")
     .populate("songs", "title audioUrl imageUrl duration");
 
   if (!profile) {
@@ -696,6 +701,26 @@ async function updateArtistProfile(userId, data) {
   return updated;
 }
 
+async function updateAlbumsInArtistProfile(artistUserId) {
+  if (!mongoose.isValidObjectId(artistUserId)) {
+    throw new Error("Invalid artist user ID");
+  }
+
+  const albums = await Album.find({ artistId: artistUserId }, "_id");
+  const albumIds = albums.map((album) => album._id);
+
+  const profile = await ArtistProfile.findOneAndUpdate(
+    { userId: artistUserId },
+    { albums: albumIds },
+    { new: true }
+  );
+
+  if (!profile) {
+    throw new Error("Artist profile not found");
+  }
+
+  return profile;
+}
 module.exports = {
   submitArtistVerificationRequest,
   uploadSong,
@@ -715,4 +740,5 @@ module.exports = {
   getAllSongs,
   getArtistProfileById,
   updateArtistProfile,
+  updateAlbumsInArtistProfile
 };

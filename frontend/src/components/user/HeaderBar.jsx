@@ -126,9 +126,13 @@ const HeaderBar = () => {
                       : "opacity-0 invisible -translate-y-2"
                   }`}
                 >
-                  <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
+                  <button
+                    onClick={() => navigate("/account")}
+                    className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"
+                  >
                     Account
                   </button>
+
                   <button
                     onClick={() => navigate(`/profile/${user._id}`)}
                     className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"

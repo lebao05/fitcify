@@ -40,6 +40,6 @@ export const getAccountInfo = async () => {
 };
 
 export const updateAccountInfo = async (payload) => {
-  const res = await axiosInstance.patch("/user/account", payload);
+  const res = await axiosInstance.put("/user/account", payload);
   return res.data;
 };

@@ -11,6 +11,8 @@ import {
   fetchLikedSongs,
   fetchUserPlaylists,
 } from "../../redux/slices/myCollectionSlice";
+import applogo from "../../assets/applogo.jpg";
+
 const DisplayAlbum = () => {
   const [contextMenu, setContextMenu] = useState(null);
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
@@ -94,8 +96,8 @@ const DisplayAlbum = () => {
             </h2>
             <p className="mt-1">
               <img
-                className="inline-block w-5"
-                src={assets.spotify_logo}
+                className="inline-block rounded-full w-5"
+                src={applogo}
                 alt="logo"
               />
               <b> {album.artistId?.username || "Unknown"} </b>

@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { playAPlaylist } from "../../services/musicApi.js";
 import { playPlaylistThunk } from "../../redux/slices/playerSlice.js";
 import { useNavigate } from "react-router-dom";
-
+import default_music from "../../assets/default-music.png";
 const PlaylistCard = ({ playlist, isButton }) => {
   const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ const PlaylistCard = ({ playlist, isButton }) => {
     >
       <div className="playlist-image-container">
         <img
-          src={playlist.imageUrl}
+          src={playlist.imageUrl || default_music}
           alt={playlist.name}
           className="playlist-image"
         />

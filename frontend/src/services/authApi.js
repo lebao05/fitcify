@@ -70,3 +70,8 @@ export const getMe = async () => {
   const res = await axiosInstance.get("/auth/me");
   return res.data;
 };
+
+export const checkEmailExists = async (email) => {
+  const res = await axiosInstance.post("/auth/check-user-exists", { email });
+  return res.data;
+};

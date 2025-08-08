@@ -718,7 +718,6 @@ async function updateAlbumsInArtistProfile(artistUserId) {
   if (!profile) {
     throw new Error("Artist profile not found");
   }
-
   return profile;
 }
 module.exports = {

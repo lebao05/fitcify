@@ -43,3 +43,12 @@ export const updateAccountInfo = async (payload) => {
   const res = await axiosInstance.put("/user/account", payload);
   return res.data;
 };
+export const getTopSongsThisMonth = async () => {
+  const res = await axiosInstance.get("/user/music/top-songs-month");
+  console.log("123");
+  return res.data;
+};
+export const getTopArtistsThisMonth = async () => {
+  const res = await axiosInstance.get("/user/music/top-artists-month");
+  return res.data;
+};

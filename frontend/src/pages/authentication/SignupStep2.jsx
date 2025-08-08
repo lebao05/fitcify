@@ -23,8 +23,18 @@ export default function SignupStep2() {
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const handleDOBChange = (key, value) => {
@@ -183,13 +193,12 @@ export default function SignupStep2() {
         <div>
           <label className="block text-sm font-medium mb-1">Gender</label>
           <p className="text-xs text-gray-400 mb-4">
-            We use your gender to help personalize our content recommendations and ads for you.
+            We use your gender to help personalize our content recommendations
+            and ads for you.
           </p>
           <div className="space-y-3">
             <div className="flex flex-wrap gap-x-8 gap-y-3">
-              {[
-                "man", "woman", "non-binary", "something-else", "prefer-not-to-say"
-              ].map((g) => (
+              {["man", "woman", "other"].map((g) => (
                 <label key={g} className="flex items-center cursor-pointer">
                   <input
                     type="radio"
@@ -235,8 +244,14 @@ export default function SignupStep2() {
       <div className="mt-16 text-center">
         <p className="text-xs text-gray-500">
           This site is protected by reCAPTCHA and the Google{" "}
-          <a href="#" className="underline hover:text-gray-400">Privacy Policy</a> and{" "}
-          <a href="#" className="underline hover:text-gray-400">Terms of Service</a> apply.
+          <a href="#" className="underline hover:text-gray-400">
+            Privacy Policy
+          </a>{" "}
+          and{" "}
+          <a href="#" className="underline hover:text-gray-400">
+            Terms of Service
+          </a>{" "}
+          apply.
         </p>
       </div>
     </div>

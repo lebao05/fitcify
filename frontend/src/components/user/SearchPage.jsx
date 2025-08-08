@@ -30,9 +30,9 @@ export default function SearchPage() {
       <h1 className="text-2xl font-bold mb-4">Search Results</h1>
       <FilterBar />
       <Routes>
-        <Route index element={<Navigate to="all" replace />} />
+        {/* <Route index element={<Navigate to="all" replace />} /> */}
         <Route
-          path="/all"
+          path="/"
           element={<AllSearchResult searchResult={searchResult} />}
         />
         <Route

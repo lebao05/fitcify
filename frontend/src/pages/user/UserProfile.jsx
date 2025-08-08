@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import testImg from "../../assets/test.jpg";
-import doremonImg from "../../assets/doremon.svg";
 import ProfileHeader from "../../components/user/ProfileHeader.jsx";
 import SectionHeader from "../../components/user/SectionHeader.jsx";
 import ArtistCard from "../../components/user/ArtistCard.jsx";
@@ -51,6 +49,7 @@ const UserProfile = () => {
     }
   };
   useEffect(() => {
+    setPlaylists(null);
     if (id) dispatch(fetchCurrentProfileById(id));
     if (user?._id) {
       fetchPlaylists(user._id);
@@ -69,11 +68,15 @@ const UserProfile = () => {
   const handleToggleEditModal = () => {
     if (myAuth._id === id) setShowEditModal((prev) => !prev);
   };
-  if (user === null) return null;
+  if (user === null && playlists === null) return null;
   return (
     <div className="user-profile-content pb-10 h-full w-[80%] overflow-y-auto">
       {" "}
-      <ProfileHeader user={user} onEditClick={handleToggleEditModal} />
+      <ProfileHeader
+        user={user}
+        isYou={isYou}
+        onEditClick={handleToggleEditModal}
+      />
       {showEditModal && (
         <EditProfileDialog
           user={user}
@@ -112,7 +115,7 @@ const UserProfile = () => {
           </>
         )}
         <section className="playlists-section">
-          <SectionHeader title="Public Playlists" showAll={true} />
+          <SectionHeader title="Public Playlists" showAll={false} />
           <div className="playlists-container">
             {playlists?.map((playlist) => (
               <PlaylistCard
@@ -125,7 +128,7 @@ const UserProfile = () => {
         </section>
 
         <section className="following-artists-section">
-          <SectionHeader title="Following" showAll={true} />
+          <SectionHeader title="Following" showAll={false} />
           <div className="following-artists-container">
             {followingArtists &&
               followingArtists

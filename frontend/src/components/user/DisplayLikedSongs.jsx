@@ -15,7 +15,7 @@ import {
 import { toggleLikeSong } from "../../services/musicApi";
 import { addSongToPlaylist } from "../../services/playlistApi";
 import ContextMenu from "./ContextMenu"; // 👈 Make sure this is correct
-
+import applogo from "../../assets/applogo.jpg";
 const DisplayLikedSongs = () => {
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
   const playlists = useSelector((state) => state.myCollection.playlists);
@@ -87,9 +87,6 @@ const DisplayLikedSongs = () => {
     0
   );
 
-  if (!likedSongs || likedSongs.length === 0)
-    return <p className="text-white p-10">No liked songs yet.</p>;
-
   return (
     <div className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover">
       <div className="flex-1 overflow-y-auto">
@@ -105,8 +102,8 @@ const DisplayLikedSongs = () => {
             </h2>
             <p className="mt-1">
               <img
-                className="inline-block w-5"
-                src={assets.spotify_logo}
+                className="inline-block rounded-full w-5"
+                src={applogo}
                 alt="logo"
               />
               <b> {user?.username || "Unknown"} </b>

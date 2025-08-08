@@ -21,7 +21,6 @@ const Display = () => {
   const isSong = location.pathname.includes("song");
   const isLikedTrack = location.pathname.includes("likedtrack");
 
-  const nagivate = useNavigate();
   useEffect(() => {
     displayRef.current.style.background = `linear-gradient(${"#3d4e56"},#070606)`;
   });

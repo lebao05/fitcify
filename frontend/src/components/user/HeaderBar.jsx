@@ -55,6 +55,11 @@ const HeaderBar = () => {
               />
               <input
                 type="text"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/search/?q=${searchValue}`);
+                  }
+                }}
                 placeholder="What do you want to play?"
                 className="bg-transparent border-none outline-none text-white w-full placeholder-[#b3b3b3] text-[18px]"
                 value={searchValue}
@@ -149,9 +154,6 @@ const HeaderBar = () => {
                       For Artist
                     </button>
                   )}
-                  <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
-                    Support
-                  </button>
                   <div className="h-px bg-[#404040] my-2" />
                   <button
                     onClick={handleLogout}

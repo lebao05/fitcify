@@ -235,7 +235,7 @@ async function playLikedTrackController(req, res, next) {
 
 const getTopSongs = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const limit = parseInt(req.query.limit, 15) || 15;
     const data = await musicService.getTopSongs(limit);
     res
       .status(200)
@@ -246,7 +246,7 @@ const getTopSongs = async (req, res, next) => {
 };
 const getTopArtists = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const limit = parseInt(req.query.limit, 15) || 15;
     const artistProfiles = await musicService.getTopArtists(limit);
     const data = artistProfiles.map((profile) => ({
       _id: profile._id,
@@ -264,7 +264,7 @@ const getTopArtists = async (req, res, next) => {
 };
 const getTopAlbums = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const limit = parseInt(req.query.limit, 15) || 15;
     const data = await musicService.getTopAlbums(limit);
     res
       .status(200)

@@ -163,7 +163,7 @@ export default function SpotifyLogin({ email, setEmail }) {
               disabled={isLoading}
               aria-label={isLoading ? "Logging in..." : "Continue"}
             >
-              {isLoading ? "Logging in..." : "Continue"}
+              {isLoading ? "Logging in..." : "Continue to log in"}
             </button>
           </div>
           {loginError && (

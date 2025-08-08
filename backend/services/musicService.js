@@ -724,7 +724,6 @@ async function search(query) {
     for (const item of arr) {
       seen.set(item._id.toString(), item);
     }
-    console.log(Array.from(seen.values()));
     return Array.from(seen.values());
   };
 

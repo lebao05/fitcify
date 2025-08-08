@@ -47,7 +47,6 @@ export const fetchCurrentProfileById = createAsyncThunk(
   "user/fetchCurrentProfileById",
   async (userId, thunkAPI) => {
     try {
-      console.log("Fetching profile for userId:", userId);
       const res = await getUserProfileById(userId);
       return res.Data;
     } catch (error) {

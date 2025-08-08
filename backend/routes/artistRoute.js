@@ -4,30 +4,46 @@ const artistController = require("../controllers/artistController");
 const { authMiddleware, isArtist } = require("../middlewares/authMiddleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
-
-router.use(authMiddleware);
-
-router.post("/verification-request",isArtist, artistController.submitArtistVerification);
+router.post(
+  "/verification-request",
+  authMiddleware,
+  isArtist,
+  artistController.submitArtistVerification
+);
 
 router.post(
-    "/songs",
-    isArtist,
-  upload.fields([{ name: "audio", maxCount: 1 }, { name: "image", maxCount: 1 }]),
+  "/songs",
+  authMiddleware,
+  isArtist,
+  upload.fields([
+    { name: "audio", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+  ]),
   artistController.uploadSong
 );
 
 router.put(
-    "/songs/:id",
-    isArtist,
-  upload.fields([{ name: "audio", maxCount: 1 }, { name: "image", maxCount: 1 }]),
+  "/songs/:id",
+  authMiddleware,
+  isArtist,
+  upload.fields([
+    { name: "audio", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+  ]),
   artistController.updateSong
 );
 
-router.get("/albums/me", isArtist, artistController.getAlbumsByArtist);
+router.get(
+  "/albums/me",
+  authMiddleware,
+  isArtist,
+  artistController.getAlbumsByArtist
+);
 router.get("/albums/:albumId", isArtist, artistController.getAlbumById);
 
 router.post(
   "/albums",
+  authMiddleware,
   isArtist,
   upload.fields([{ name: "coverImage", maxCount: 1 }]),
   artistController.createAlbum
@@ -35,16 +51,23 @@ router.post(
 
 router.put(
   "/albums/:albumId",
+  authMiddleware,
   isArtist,
   upload.fields([{ name: "coverImage", maxCount: 1 }]),
   artistController.updateAlbumMetadata
 );
 
 router.get("/playlists/me", isArtist, artistController.getPlaylistsByArtist);
-router.get("/playlists/:playlistId", isArtist, artistController.getPlaylistById);
+router.get(
+  "/playlists/:playlistId",
+  authMiddleware,
+  isArtist,
+  artistController.getPlaylistById
+);
 
 router.post(
   "/playlists",
+  authMiddleware,
   isArtist,
   upload.fields([{ name: "coverImage", maxCount: 1 }]),
   artistController.createPlaylist
@@ -52,20 +75,46 @@ router.post(
 
 router.put(
   "/playlists/:playlistId",
+  authMiddleware,
   isArtist,
   upload.fields([{ name: "coverImage", maxCount: 1 }]),
   artistController.updatePlaylistMetadata
 );
 
-router.delete("/songs/:songId",isArtist, artistController.deleteSong);
-router.delete("/albums/:albumId", isArtist, artistController.deleteAlbum);
-router.delete("/playlists/:playlistId", isArtist, artistController.deletePlaylist);
-router.get("/songs", isArtist, artistController.getAllSongs);
-router.get("/songs/:id", isArtist, artistController.getSongById);
+router.delete(
+  "/songs/:songId",
+  authMiddleware,
+  isArtist,
+  artistController.deleteSong
+);
+router.delete(
+  "/albums/:albumId",
+  authMiddleware,
+  isArtist,
+  artistController.deleteAlbum
+);
+router.delete(
+  "/playlists/:playlistId",
+  authMiddleware,
+  isArtist,
+  artistController.deletePlaylist
+);
+router.get("/songs", authMiddleware, isArtist, artistController.getAllSongs);
+router.get("/songs/:id", artistController.getSongById);
 
 // View own profile
-router.get('/profile', isArtist, artistController.getMyProfileById);
+router.get(
+  "/profile",
+  authMiddleware,
+  isArtist,
+  artistController.getMyProfileById
+);
 // Edit own profile
-router.put('/profile', isArtist, artistController.editMyProfile);
+router.put(
+  "/profile",
+  authMiddleware,
+  isArtist,
+  artistController.editMyProfile
+);
 
 module.exports = router;

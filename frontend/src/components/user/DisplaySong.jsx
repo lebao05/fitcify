@@ -12,6 +12,7 @@ import {
 } from "../../redux/slices/myCollectionSlice";
 import { addSongToPlaylist } from "../../services/playlistApi";
 import ContextMenu from "./ContextMenu";
+import applogo from "../../assets/applogo.jpg";
 
 const DisplaySong = () => {
   const { id } = useParams();
@@ -106,8 +107,8 @@ const DisplaySong = () => {
             </h2>
             <p className="mt-1">
               <img
-                className="inline-block w-5"
-                src={assets.spotify_logo}
+                className="inline-block rounded-full w-5"
+                src={applogo}
                 alt="logo"
               />
               <b> {song?.artistId?.username || "Unknown"} </b>

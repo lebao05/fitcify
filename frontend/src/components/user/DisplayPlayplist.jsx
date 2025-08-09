@@ -224,7 +224,7 @@ const DisplayPlaylist = () => {
             <p className="text-[15px]">{song.albumId?.title || ""}</p>
 
             <p className="text-[15px] hidden sm:block">
-              {new Date(song.uploadedAt).toLocaleDateString()}
+              {new Date(song.updatedAt).toLocaleDateString()}
             </p>
 
             {/* Like Icon */}

@@ -58,7 +58,6 @@ async function loginWithEmailPassword({ email, password }) {
 
   const ok = await user.comparePassword(password);
   if (!ok) throw new Error("Invalid credentials");
-
   const accessToken = generateAccessToken({
     id: user._id,
     role: user.role,

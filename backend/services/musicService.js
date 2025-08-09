@@ -192,7 +192,7 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -206,7 +206,7 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -287,7 +287,7 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -301,7 +301,7 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -351,7 +351,7 @@ async function playAnArtist(user, artistId) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -365,7 +365,7 @@ async function playAnArtist(user, artistId) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -399,7 +399,7 @@ async function previousTrack(user) {
       },
       {
         $inc: { playCount: 1 }, 
-        $set: { playedAt: now }
+        $set: { playedAt: Date.now() }
       },
       { upsert: true }  
     );
@@ -413,7 +413,7 @@ async function previousTrack(user) {
       },
       {
         $inc: { playCount: 1 }, 
-        $set: { playedAt: now }
+        $set: { playedAt: Date.now() }
       },
       { upsert: true }  
     );
@@ -444,7 +444,7 @@ async function previousTrack(user) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -458,7 +458,7 @@ async function previousTrack(user) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -522,7 +522,7 @@ async function playASong(user, songId) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -536,7 +536,7 @@ async function playASong(user, songId) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -603,7 +603,7 @@ async function nextTrack(user) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -617,7 +617,7 @@ async function nextTrack(user) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -690,7 +690,7 @@ async function playLikedTrack(songOrder = 0, user) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );
@@ -704,7 +704,7 @@ async function playLikedTrack(songOrder = 0, user) {
     },
     {
       $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $set: { playedAt: Date.now() }
     },
     { upsert: true }  
   );

@@ -44,6 +44,7 @@
  *       200:
  *         description: User profile
  */
+
 /**
  * @swagger
  * /api/user/profile/followed-artists:

@@ -8,4 +8,11 @@ const ProtectedRoute = ({ children, allowedRoles, userRole }) => {
   return children;
 };
 
-export default ProtectedRoute;
+function GuestRoute({ children, user }) {
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
+export { ProtectedRoute, GuestRoute };

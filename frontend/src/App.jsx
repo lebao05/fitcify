@@ -7,7 +7,7 @@ import SignupStep1 from "./pages/authentication/SignupStep1";
 import SignupStep2 from "./pages/authentication/SignupStep2";
 import LoginOtp from "./pages/authentication/LoginOtp";
 import MainPlayout from "./pages/user/MainPlayout";
-import ProtectedRoute from './components/user/ProtectedRoute';
+import {ProtectedRoute, GuestRoute} from './components/user/ProtectedRoute';
 import AccessDenied from "./components/user/AccessDenied";
 import ArtistLayout from "./components/artist/ArtistLayout";
 import ArtistProfile from "./pages/artist/ArtistProfile";
@@ -58,9 +58,17 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={<LoginPage email={email} setEmail={setEmail} />}
+          element={
+            <GuestRoute user={user}>
+              <LoginPage email={email} setEmail={setEmail} />
+            </GuestRoute>
+          }
         />
-        <Route path="/loginotp" element={<LoginOtp email={email} />} />
+        <Route path="/loginotp" element={
+          <GuestRoute user={user}>
+            <LoginOtp email={email}/>
+          </GuestRoute>
+        } />
         <Route path="/signup" element={<Signuppage />} />
         <Route path="/signup-step1" element={<SignupStep1 />} />
         <Route path="/signup-step2" element={<SignupStep2 />} />
@@ -68,7 +76,7 @@ function App() {
         <Route 
           path="/artist" 
           element={
-            <ProtectedRoute allowedRoles={['artist']} userRole={user.role}>
+            <ProtectedRoute allowedRoles={['artist']} userRole={user?.role}>
               <ArtistLayout />
             </ProtectedRoute>
           }

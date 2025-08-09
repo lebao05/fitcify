@@ -1,7 +1,9 @@
 import "./ProfileHeader.scss";
 import image from "../../assets/unknown.jpg";
+import { useSelector } from "react-redux";
 
 const ProfileHeader = ({ user, isYou, onEditClick }) => {
+  const followees = useSelector((state) => state.myCollection.followees);
   return (
     <div>
       <div className="profile-header">
@@ -25,9 +27,9 @@ const ProfileHeader = ({ user, isYou, onEditClick }) => {
             {user.username}
           </p>
           <p className="info">
-            <span className="dot">•</span>
+            <span className="dot">{followees.length}•</span>
             <span className="following">
-              <strong>{user.following} Following</strong>
+              <strong>Following</strong>
             </span>
           </p>
         </div>

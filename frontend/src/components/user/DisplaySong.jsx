@@ -40,8 +40,8 @@ const DisplaySong = () => {
           console.error("Failed to load song", err);
         });
     }
-    dispatch(fetchLikedSongs());
-    dispatch(fetchUserPlaylists());
+    // dispatch(fetchLikedSongs());
+    // dispatch(fetchUserPlaylists());
   }, [id]);
 
   const handlePlaySong = async () => {
@@ -111,7 +111,15 @@ const DisplaySong = () => {
                 src={applogo}
                 alt="logo"
               />
-              <b> {song?.artistId?.username || "Unknown"} </b>
+              <b
+                onClick={() => {
+                  navigate(`/artist/${song?.artistId?._id}`);
+                }}
+                className="hover:underline cursor-pointer"
+              >
+                {" "}
+                {song?.artistId?.username || "Unknown"}{" "}
+              </b>
               <b> • 1 song</b>
               <span className="text-[#a7a7a7]">
                 {" "}
@@ -144,9 +152,12 @@ const DisplaySong = () => {
         <hr />
 
         {/* Song Row */}
-        <div className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded">
+        <div
+          onClick={handlePlaySong}
+          className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
+        >
           <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
-            <div className="w-5 text-right" onClick={handlePlaySong}>
+            <div className="w-5 text-right">
               <span className="group-hover:hidden block text-[#a7a7a7]">1</span>
               <span className="hidden group-hover:block text-[#a7a7a7]">▶</span>
             </div>

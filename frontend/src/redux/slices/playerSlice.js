@@ -81,9 +81,9 @@ export const playArtistThunk = createAsyncThunk(
 );
 export const playLikedTrackThunk = createAsyncThunk(
   "player/playLikedTrack",
-  async (thunkAPI) => {
+  async (songOrder, thunkAPI) => {
     try {
-      const data = await playLikedTrack();
+      const data = await playLikedTrack(songOrder);
       return data.Data;
     } catch (error) {
       return thunkAPI.rejectWithValue(

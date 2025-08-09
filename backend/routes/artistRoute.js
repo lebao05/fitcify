@@ -57,7 +57,12 @@ router.put(
   artistController.updateAlbumMetadata
 );
 
-router.get("/playlists/me", isArtist, artistController.getPlaylistsByArtist);
+router.get(
+  "/playlists/me",
+  authMiddleware,
+  isArtist,
+  artistController.getPlaylistsByArtist
+);
 router.get(
   "/playlists/:playlistId",
   authMiddleware,
@@ -122,6 +127,6 @@ router.put(
   artistController.updateAlbumsInArtistProfile
 );
 
-router.get('/:artistId', artistController.getPublicArtistProfile);///
+router.get("/:artistId", artistController.getPublicArtistProfile); ///
 
 module.exports = router;

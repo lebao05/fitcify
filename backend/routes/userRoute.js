@@ -9,7 +9,10 @@ const upload = multer({ dest: "uploads/" });
 
 router.use(authMiddleware);
 router.get("/profile/all", userController.getAllUsers);
-router.get("/profile/followed-artists", userController.getFollowedArtists);
+router.get(
+  "/profile/followed-artists/:userId",
+  userController.getFollowedArtists
+);
 router.get("/me", userController.getMyProfile);
 router.get("/profile/:id", userController.getProfileInfo);
 
@@ -31,9 +34,9 @@ router.delete("/artists/:artistId/follow", userController.unfollowArtist);
 router.get("/artists/:artistId/followers", userController.getArtistFollowers);
 
 // top songs this month
-router.get('/music/top-songs-month', userController.topSongsThisMonth);
+router.get("/music/top-songs-month", userController.topSongsThisMonth);
 
 // top artists this month
-router.get('/music/top-artists-month', userController.topArtistsThisMonth);
+router.get("/music/top-artists-month", userController.topArtistsThisMonth);
 
 module.exports = router;

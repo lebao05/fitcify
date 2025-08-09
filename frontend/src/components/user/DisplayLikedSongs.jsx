@@ -38,9 +38,9 @@ const DisplayLikedSongs = () => {
     dispatch(fetchUserPlaylists());
   }, [likedSongs]);
 
-  const handlePlayLikedTracks = async () => {
+  const handlePlayLikedTracks = async (songOrder) => {
     if (likedSongs.length > 0) {
-      await dispatch(playLikedTrackThunk());
+      await dispatch(playLikedTrackThunk(songOrder));
     }
   };
 
@@ -148,11 +148,7 @@ const DisplayLikedSongs = () => {
             <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
               <div
                 className="w-5 text-right"
-                onClick={() =>
-                  dispatch(
-                    playAlbumThunk({ songs: likedSongs, startIndex: index })
-                  )
-                }
+                onClick={async () => await handlePlayLikedTracks(index)}
               >
                 <span className="group-hover:hidden block text-[#a7a7a7]">
                   {index + 1}

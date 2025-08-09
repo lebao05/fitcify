@@ -18,7 +18,6 @@ import ArtistSong from "./components/artist/ArtistSong";
 import { Navigate } from "react-router-dom";
 
 import { useState, useEffect } from "react";
-import { getCurrentUserRole } from "./services/userApi";
 import NotFound from "./pages/NotFound";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -29,7 +28,7 @@ import ForgotPassword from "./pages/authentication/ForgotPassword";
 function App() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
-  const [userRole, setUserRole] = useState(null);
+  const user = useSelector((state) => state.user.myAuth);
 
   const isInitialized = useSelector((state) => state.user.isInitialized);
   useEffect(() => {
@@ -46,19 +45,7 @@ function App() {
     dispatch(fetchUserFromCookie());
   }, [dispatch]);
 
-  useEffect(() => {
-    async function fetchRole() {
-      try {
-        const res = await getCurrentUserRole();
-        setUserRole(res.Role);
-      } catch {
-        setUserRole(null);
-      }
-    }
-    fetchRole();
-  }, [isInitialized]);
-
-  if (!isInitialized || userRole === null) {
+  if (!isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-neutral-900">
         <div className="w-12 h-12 border-4 border-t-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
@@ -81,7 +68,7 @@ function App() {
         <Route 
           path="/artist" 
           element={
-            <ProtectedRoute allowedRoles={['artist']} userRole={userRole}>
+            <ProtectedRoute allowedRoles={['artist']} userRole={user.role}>
               <ArtistLayout />
             </ProtectedRoute>
           }

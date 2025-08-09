@@ -4,45 +4,6 @@
  *   name: Users
  *   description: User-related routes
  */
-
-/**
- * @swagger
- * /api/user/role:
- *   get:
- *     summary: Get the current user's role
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: The current user's role
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 Message:
- *                   type: string
- *                   example: Role fetched
- *                 Error:
- *                   type: integer
- *                   example: 0
- *                 Data:
- *                   type: string
- *                   example: artist
- *       401:
- *         description: Unauthorized – missing or invalid token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Unauthorized
- *       500:
- *         description: Internal server error
- */
 /**
  * @swagger
  * /api/user/profile/all:

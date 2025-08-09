@@ -1,16 +1,5 @@
 const userService = require("../services/userSevice");
 
-// Lấy role của user hiện tại
-const getCurrentUserRole = async (req, res, next) => {
-  try {
-    const userId = req.user._id;
-    const role = await userService.getCurrentUserRole(userId);
-    res.status(200).json({ Message: "Role fetched", Error: 0, Role: role });
-  } catch (err) {
-    next(err);
-  }
-};
-
 // Lấy thông tin hồ sơ
 const getProfileInfo = async (req, res, next) => {
   try {
@@ -170,5 +159,4 @@ module.exports = {
   unfollowArtist,
   topSongsThisMonth,
   topArtistsThisMonth,
-  getCurrentUserRole,
 };

@@ -12,7 +12,6 @@ router.get("/profile/all", userController.getAllUsers);
 router.get("/profile/followed-artists", userController.getFollowedArtists);
 router.get("/me", userController.getMyProfile);
 router.get("/profile/:id", userController.getProfileInfo);
-router.get("/role", userController.getCurrentUserRole);
 
 router.put(
   "/profile",

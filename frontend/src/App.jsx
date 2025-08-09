@@ -68,7 +68,7 @@ function App() {
         <Route 
           path="/artist" 
           element={
-            <ProtectedRoute allowedRoles={['artist']} userRole={user.role}>
+            <ProtectedRoute allowedRoles={['artist']} userRole={user?.role}>
               <ArtistLayout />
             </ProtectedRoute>
           }

@@ -642,7 +642,7 @@ async function updatePlaylistMetadata({
 
 async function getSongById(songId) {
   const song = await Song.findById(songId)
-    .populate("artistId", "username -_id")
+    .populate("artistId", "username _id")
     .populate("albumId", "title _id");
   if (!song) throw new Error("Song not found");
   return song;

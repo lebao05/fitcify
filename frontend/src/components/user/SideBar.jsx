@@ -8,18 +8,21 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   createUserPlaylist,
+  fetchFollowee,
   fetchLikedSongs,
   fetchUserPlaylists,
 } from "../../redux/slices/myCollectionSlice.js";
 import ContextMenu from "./ContextMenu.jsx"; // ✅ Adjust this path if needed
 import { deletePlaylist } from "../../services/playlistApi.js";
 import default_music from "../../assets/default-music.png";
+import { unfollowArtist } from "../../services/userApi.js";
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const playlist = useSelector((state) => state.myCollection.playlists);
   const user = useSelector((state) => state.user.myAuth);
   const likedTracks = useSelector((state) => state.myCollection.likedSongs);
+  const followees = useSelector((state) => state.myCollection.followees);
   const likedItem = {
     cover: assets.liked_icon,
     title: "Liked Songs",
@@ -44,8 +47,31 @@ const Sidebar = () => {
       console.error("Failed to create playlist");
     }
   };
-
-  const handleContextMenu = (e, playlist) => {
+  const handleArtistContextMenu = (e, artist) => {
+    e.preventDefault();
+    const options = [
+      {
+        label: "Go to artist",
+        onClick: () => {
+          navigate(`/artist/${artist._id}`);
+        },
+      },
+      {
+        label: "Unfollow",
+        onClick: async () => {
+          await unfollowArtist(artist._id); // call API to unfollow
+          await dispatch(fetchFollowee(user._id)); // refresh followee list
+        },
+      },
+    ];
+    setContextMenu({
+      x: e.pageX,
+      y: e.pageY,
+      artist,
+      options,
+    });
+  };
+  const handlePlaylistContextMenu = (e, playlist) => {
     e.preventDefault();
     const options = [
       {
@@ -79,9 +105,10 @@ const Sidebar = () => {
   const closeContextMenu = () => setContextMenu(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && user?._id) {
       dispatch(fetchUserPlaylists());
       dispatch(fetchLikedSongs());
+      dispatch(fetchFollowee(user._id));
     }
   }, [user, dispatch]);
 
@@ -124,7 +151,7 @@ const Sidebar = () => {
             {playlist?.map((item) => (
               <div
                 key={item._id}
-                onContextMenu={(e) => handleContextMenu(e, item)} // ✅ Right-click
+                onContextMenu={(e) => handlePlaylistContextMenu(e, item)} // ✅ Right-click
               >
                 <PlayplistBar
                   cover={item.imageUrl || default_music}
@@ -136,16 +163,19 @@ const Sidebar = () => {
               </div>
             ))}
 
-            {user?.followees &&
-              user.followees.map((item) => (
+            {followees?.map((item) => (
+              <div
+                key={item._id}
+                onContextMenu={(e) => handleArtistContextMenu(e, item)}
+              >
                 <ArtistBar
-                  key={item._id}
                   avatar={item.avatarUrl}
                   id={item._id}
                   name={item.username}
-                  onClick={() => console.log("Playlist clicked", item.username)}
+                  onClick={() => navigate(`/artist/${item._id}`)}
                 />
-              ))}
+              </div>
+            ))}
           </div>
         )}
       </div>

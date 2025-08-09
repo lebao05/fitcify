@@ -6,7 +6,7 @@ import { albumsData } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import UserProfile from "../../pages/user/UserProfile";
 import AccountPage from "../../pages/user/AccountPage";
-import ArtistProfile from "../../pages/artist/ArtistProfile"
+import ArtistProfile from "../../pages/artist/ArtistProfile";
 import DisplayPlaylist from "./DisplayPlayplist";
 import SearchResult from "./SearchPage";
 import AudioPlayer from "./AudioPlayer";
@@ -44,7 +44,7 @@ const Display = () => {
         <Route path="/song/:id" element={<DisplaySong />} />
         <Route path="/search/*" element={<SearchResult />} />
         <Route path="likedtrack" element={<DisplayLikedSongs />} />
-      </Routes>{" "}
+      </Routes>
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <AudioPlayer />
       </div>

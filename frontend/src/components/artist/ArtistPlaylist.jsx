@@ -71,9 +71,15 @@ const ArtistPlaylist = () => {
           <div
             key={index}
             style={{ cursor: "pointer" }}
-            onClick={() => handleEditClick(playlist)}
+            onClick={() => {
+              handleEditClick(playlist);
+            }}
           >
-            <PlaylistCard playlist={playlist} isButton="" />
+            <PlaylistCard
+              playlist={playlist}
+              disableNavigate={true}
+              isButton=""
+            />
           </div>
         ))}
       </div>

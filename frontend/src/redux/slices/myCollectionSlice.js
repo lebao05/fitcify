@@ -13,6 +13,7 @@ import {
   getLikedSongs,
 } from "../../services/musicApi";
 import {
+  getFollowedArtists,
   getTopArtistsThisMonth,
   getTopSongsThisMonth,
 } from "../../services/userApi";
@@ -186,6 +187,21 @@ export const fetchTopArtistsThisMonth = createAsyncThunk(
     }
   }
 );
+export const fetchFollowee = createAsyncThunk(
+  "music/fetchFollowee",
+  async (userId, thunkAPI) => {
+    try {
+      const data = await getFollowedArtists(userId);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message ||
+          "Failed to fetch top artists this month"
+      );
+    }
+  }
+);
+
 // ───── INITIAL STATE ─────
 const initialState = {
   topArtistsMonth: [],
@@ -195,7 +211,7 @@ const initialState = {
   topSongs: [],
   topAlbums: [],
   topArtists: [],
-  followee: [],
+  followees: [],
   loading: false,
   error: null,
 };
@@ -331,6 +347,19 @@ const myCollectionSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchTopSongsThisMonth.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      .addCase(fetchFollowee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFollowee.fulfilled, (state, action) => {
+        state.followees = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchFollowee.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       })

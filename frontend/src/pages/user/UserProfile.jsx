@@ -33,8 +33,8 @@ const UserProfile = () => {
     setPlaylists(res.Data);
     return res;
   };
-  const fetchFollowedArtists = async () => {
-    const res = await getFollowedArtists();
+  const fetchFollowedArtists = async (userId) => {
+    const res = await getFollowedArtists(userId);
     setFollowingArtists(res.Data);
     return res;
   };
@@ -49,19 +49,24 @@ const UserProfile = () => {
     }
   };
   useEffect(() => {
+    if (!id) return;
     setPlaylists(null);
-    if (id) dispatch(fetchCurrentProfileById(id));
-    if (user?._id) {
-      fetchPlaylists(user._id);
-    }
-  }, [id, fetchCurrentProfileById]);
+    setFollowingArtists(null);
+
+    // First: get profile
+    dispatch(fetchCurrentProfileById(id));
+  }, [id, dispatch]);
+
   useEffect(() => {
-    if (user?._id) {
-      fetchPlaylists(user._id);
-      fetchFollowedArtists();
-      setIsYou(myAuth._id === user._id);
-    }
-  }, [user]);
+    if (!user?._id) return;
+
+    // Fetch playlists and following artists
+    fetchPlaylists(user._id);
+    fetchFollowedArtists(user._id);
+
+    // Determine if it's your own profile
+    setIsYou(myAuth?._id === user._id);
+  }, [user, myAuth]);
   useEffect(() => {
     if (myAuth) fetchTopContent();
   }, [myAuth]);

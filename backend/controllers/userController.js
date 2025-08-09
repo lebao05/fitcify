@@ -42,7 +42,7 @@ const getMyProfile = async (req, res, next) => {
 // Danh sách nghệ sĩ đã follow
 const getFollowedArtists = async (req, res, next) => {
   try {
-    const data = await userService.getFollowedArtists(req.user._id);
+    const data = await userService.getFollowedArtists(req.params.userId);
     res.status(200).json({ Message: "Artists fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);

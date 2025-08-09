@@ -100,7 +100,15 @@ const DisplayAlbum = () => {
                 src={applogo}
                 alt="logo"
               />
-              <b> {album.artistId?.username || "Unknown"} </b>
+              <b
+                onClick={() => {
+                  navigate(`artist/${album.artistId._id}`);
+                }}
+                className="hover:underline cursor-pointer"
+              >
+                {" "}
+                {album.artistId?.username || "Unknown"}{" "}
+              </b>
               <b>• {album.songs?.length || 0} songs,</b>
               <span className="text-[#a7a7a7]">
                 {" "}
@@ -147,15 +155,13 @@ const DisplayAlbum = () => {
               {" "}
               <div
                 key={song._id}
+                onClick={() => handlePlayAlbum(index)}
                 onContextMenu={(e) => handleRightClick(e, song, isLiked)} // 👈 Add this line
                 className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 songs-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
               >
                 {/* Title + image */}
                 <div className="flex songs-center gap-4 text-white text-sm md:text-[15px]">
-                  <div
-                    className="w-5 text-right"
-                    onClick={() => handlePlayAlbum(index)}
-                  >
+                  <div className="w-5 text-right">
                     <span className="group-hover:hidden block text-[#a7a7a7]">
                       {index + 1}
                     </span>

@@ -10,7 +10,7 @@ const { normalizeString } = require("../helpers/normolize");
 /** ------------------------- PUBLIC API ------------------------- **/
 
 async function getProfileInfo(userId) {
-  const user = await User.findById(userId).populate("followees").lean();
+  const user = await User.findById(userId).lean();
   if (!user) throw new Error("User not found");
   return user;
 }
@@ -198,54 +198,58 @@ const unfollowArtist = async (userId, artistId) => {
 };
 
 async function topSongThisMonth(limit = 10) {
-  const now         = new Date();
-  const monthStart  = new Date(now.getFullYear(), now.getMonth(), 1);
-  const nextMonth   = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   const histories = await PlayHistory.find({
     itemType: "song",
-    playedAt: { $gte: monthStart, $lt: nextMonth }
+    playedAt: { $gte: monthStart, $lt: nextMonth },
   })
     .sort({ playCount: -1 })
     .limit(limit)
     .populate({
       path: "itemId",
-      select: "title audioUrl imageUrl artistId",
-      model: "Song"
+      select: "title audioUrl duration imageUrl artistId albumId",
+      model: "Song",
+      populate: [
+        {
+          path: "artistId",
+          select: "name avatarUrl",
+          model: "User",
+        },
+        {
+          path: "albumId",
+          select: "title",
+          model: "Album",
+        },
+      ],
     })
     .lean();
 
-  return histories.map(h => ({
-    song:      h.itemId,
-    playCount: h.playCount
-  }));
+  return histories.map((h) => h.itemId);
 }
 
 async function topArtistThisMonth(limit = 10) {
-  const now        = new Date();
+  const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const nextMonth  = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   const histories = await PlayHistory.find({
     itemType: "artist",
-    playedAt: { $gte: monthStart, $lt: nextMonth }
+    playedAt: { $gte: monthStart, $lt: nextMonth },
   })
     .sort({ playCount: -1 })
     .limit(limit)
     .populate({
       path: "itemId",
       model: "User",
-      select: "username avatarUrl"
+      select: "username avatarUrl",
     })
     .lean();
 
-  return histories.map(h => ({
-    artist:    h.itemId,           
-    playCount: h.playCount
-  }));
+  return histories.map((h) => h.itemId);
 }
-
-
 
 module.exports = {
   getAllUsers,

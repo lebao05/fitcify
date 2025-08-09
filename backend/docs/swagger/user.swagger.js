@@ -4,7 +4,6 @@
  *   name: Users
  *   description: User-related routes
  */
-
 /**
  * @swagger
  * /api/user/profile/all:

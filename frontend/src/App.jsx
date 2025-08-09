@@ -7,6 +7,8 @@ import SignupStep1 from "./pages/authentication/SignupStep1";
 import SignupStep2 from "./pages/authentication/SignupStep2";
 import LoginOtp from "./pages/authentication/LoginOtp";
 import MainPlayout from "./pages/user/MainPlayout";
+import ProtectedRoute from './components/user/ProtectedRoute';
+import AccessDenied from "./components/user/AccessDenied";
 import ArtistLayout from "./components/artist/ArtistLayout";
 import ArtistProfile from "./pages/artist/ArtistProfile";
 import ArtistDashboard from "./pages/artist/ArtistDashboard";
@@ -26,6 +28,7 @@ import ForgotPassword from "./pages/authentication/ForgotPassword";
 function App() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
+  const user = useSelector((state) => state.user.myAuth);
 
   const isInitialized = useSelector((state) => state.user.isInitialized);
   useEffect(() => {
@@ -62,15 +65,22 @@ function App() {
         <Route path="/signup-step1" element={<SignupStep1 />} />
         <Route path="/signup-step2" element={<SignupStep2 />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/artist" element={<ArtistLayout />}>
-          <Route path="profile" element={<ArtistProfile isOwner={true} />} />
-          {/* <Route index element={<Navigate to="dashboard" replace />} /> */}
-          <Route path="dashboard" element={<ArtistDashboard />} />
-          <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />
-          <Route path="albums" element={<ArtistAlbum />} />
-          <Route path="music" element={<ArtistSong songs={[]} />} />
-          <Route index element={<Navigate to="dashboard" replace />} />
+        <Route 
+          path="/artist" 
+          element={
+            <ProtectedRoute allowedRoles={['artist']} userRole={user.role}>
+              <ArtistLayout />
+            </ProtectedRoute>
+          }
+        >           
+          <Route path="profile" element={<ArtistProfile isOwner={true} />} />           
+          <Route path="dashboard" element={<ArtistDashboard />} />           
+          <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />           
+          <Route path="albums" element={<ArtistAlbum />} />           
+          <Route path="music" element={<ArtistSong songs={[]} />} />           
+          <Route index element={<Navigate to="dashboard" replace />} />         
         </Route>
+        <Route path="/access-denied" element={<AccessDenied />} />
         <Route path="/*" element={<MainPlayout />} />
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />

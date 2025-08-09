@@ -276,6 +276,41 @@
  */
 /**
  * @swagger
+ * /api/music/toggle-repeat:
+ *   post:
+ *     summary: Enable repeat mode for the current user's player
+ *     tags: [Music]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Repeat mode has been enabled for the current user's player
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Message:
+ *                   type: string
+ *                   example: Repeat mode enabled
+ *                 repeatMode:
+ *                   type: boolean
+ *                   example: true
+ *       401:
+ *         description: Unauthorized – missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+/**
+ * @swagger
  * /api/music/top/songs:
  *   get:
  *     summary: Get top songs sorted by play count

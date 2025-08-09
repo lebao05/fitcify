@@ -56,23 +56,37 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/login"
-          element={
-            <GuestRoute user={user}>
-              <LoginPage email={email} setEmail={setEmail} />
-            </GuestRoute>
-          }
-        />
+        <Route path="/login" element={
+          <GuestRoute user={user}>
+            <LoginPage email={email} setEmail={setEmail} />
+          </GuestRoute>
+        } />
         <Route path="/loginotp" element={
           <GuestRoute user={user}>
             <LoginOtp email={email}/>
           </GuestRoute>
         } />
-        <Route path="/signup" element={<Signuppage />} />
-        <Route path="/signup-step1" element={<SignupStep1 />} />
-        <Route path="/signup-step2" element={<SignupStep2 />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/signup" element={
+          <GuestRoute user={user}>
+            <Signuppage />
+          </GuestRoute>
+        } />
+        <Route path="/signup-step1" element={
+          <GuestRoute user={user}>
+            <SignupStep1 />
+          </GuestRoute>
+        } />
+        <Route path="/signup-step2" element={
+          <GuestRoute user={user}>
+            <SignupStep2 />
+          </GuestRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <GuestRoute user={user}>
+            <ForgotPassword />
+          </GuestRoute>
+        } />
+        
         <Route 
           path="/artist" 
           element={

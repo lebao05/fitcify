@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "production": "BUILD_MODE=PRODUCTION npm install"
+    "production": "BUILD_MODE=production npm install"
   },
   "keywords": [],
   "author": "",

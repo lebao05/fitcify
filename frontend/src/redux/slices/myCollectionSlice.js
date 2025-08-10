@@ -16,6 +16,8 @@ import {
   getFollowedArtists,
   getTopArtistsThisMonth,
   getTopSongsThisMonth,
+  followArtist,
+  unfollowArtist,
 } from "../../services/userApi";
 // ───── THUNKS ─────
 // ─── THUNKS ───
@@ -201,7 +203,31 @@ export const fetchFollowee = createAsyncThunk(
     }
   }
 );
+// ── Follow / Unfollow artist ──
+export const followArtistThunk = createAsyncThunk(
+  "myCollection/followArtist",
+  async ({ artistId, artistInfo }, thunkAPI) => {
+     try {
+       const res = await followArtist(artistId);
+      // trả về kèm artistInfo để cập nhật UI ngay
+      return { artistId, artistInfo, data: res?.Data };
+     } catch (err) {
+       return thunkAPI.rejectWithValue(err?.response?.data || err?.message);
+     }
+   }
+ );
 
+export const unfollowArtistThunk = createAsyncThunk(
+  "myCollection/unfollowArtist",
+  async (artistId, thunkAPI) => {
+    try {
+      const res = await unfollowArtist(artistId);
+      return { artistId, data: res?.Data };
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err?.response?.data || err?.message);
+    }
+  }
+);
 // ───── INITIAL STATE ─────
 const initialState = {
   topArtistsMonth: [],
@@ -212,6 +238,7 @@ const initialState = {
   topAlbums: [],
   topArtists: [],
   followees: [],
+  toast: null,
   loading: false,
   error: null,
 };
@@ -220,7 +247,11 @@ const initialState = {
 const myCollectionSlice = createSlice({
   name: "myCollection",
   initialState,
-  reducers: {},
+  reducers: {
+    clearToast(state) {
+    state.toast = null;
+},
+  },
   extraReducers: (builder) => {
     builder
       // ── Fetch All ──
@@ -376,8 +407,45 @@ const myCollectionSlice = createSlice({
       .addCase(fetchTopArtistsThisMonth.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+      //Follow/unfollow
+      .addCase(followArtistThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(followArtistThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const { artistId, artistInfo } = action.payload || {};
+        const exists = (state.followees || []).some(
+          a => (a?._id || a?.id || a?.userId?._id) === artistId
+        );
+        if (!exists) {
+          state.followees = [...(state.followees || []), artistInfo];
+        }
+        state.toast = { message: "Đã thêm vào Thư viện.", type: "add" };
+      })
+      .addCase(followArtistThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(unfollowArtistThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(unfollowArtistThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const { artistId } = action.payload || {};
+        state.followees = (state.followees || []).filter(
+          a => (a?._id || a?.id || a?.userId?._id) !== artistId
+        );
+        state.toast = { message: "Đã xoá khỏi thư viện", type: "remove" };
+      })
+      .addCase(unfollowArtistThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
-
+export const { clearToast } = myCollectionSlice.actions;
 export default myCollectionSlice.reducer;

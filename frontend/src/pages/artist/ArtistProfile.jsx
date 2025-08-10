@@ -10,9 +10,13 @@ import ArtistHorizontalDots from "../../components/artist/ArtistHorizontalDots";
 import "./ArtistProfile.scss";
 import { useParams } from "react-router-dom";
 import { getArtistProfile } from "../../services/artistApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { playArtistThunk } from "../../redux/slices/playerSlice";
-
+import {
+  followArtistThunk,
+  unfollowArtistThunk,
+  clearToast,
+} from "../../redux/slices/myCollectionSlice";
 const discographyTabs = [
   { label: "Albums", value: "album" },
   { label: "Playlist", value: "playlist" },
@@ -31,12 +35,34 @@ const ArtistProfile = () => {
     };
     fetchArtistProfile();
   }, [artistId]);
+  const followees = useSelector((s) => s.myCollection.followees);
+  const toast = useSelector((s) => s.myCollection.toast);
+
+  const isFollowing =
+    Array.isArray(followees) &&
+    followees.some((a) => (a?._id || a?.id || a?.userId?._id) === artistId);
+
+  const onToggleFollow = async (e) => {
+    if (isFollowing) {
+      await dispatch(unfollowArtistThunk(artistId));
+    } else {
+      const artistInfo = {
+        _id: artistData.profile.userId._id,
+        username: artistData.profile.userId.username,
+        avatarUrl: artistData.profile.userId.avatarUrl,
+      };
+      await dispatch(followArtistThunk({ artistId, artistInfo }));
+    }
+    setTimeout(() => dispatch(clearToast()), 2000);
+  };
+
   if (!artistData) {
     return null;
   }
   const playArtist = async () => {
     await dispatch(playArtistThunk(artistId));
   };
+
   const { profile, albums, playlists, songs } = artistData;
   return (
     <div>
@@ -70,10 +96,15 @@ const ArtistProfile = () => {
       </div>
       <div className="artist-profile-actions">
         <PlayButton onClick={playArtist} />
-        <button className="follow-button" onClick={() => {}}>
-          Follow
+        <button
+          className={`follow-button${isFollowing ? " is-following" : ""}`}
+          onClick={onToggleFollow}
+        >
+          {isFollowing ? "Following" : "Follow"}
         </button>
       </div>
+      {toast && <div className="center-toast">{toast.message}</div>}
+
       <div className="artist-profile-popular">
         <SectionHeader title="Popular songs" />
         <div>

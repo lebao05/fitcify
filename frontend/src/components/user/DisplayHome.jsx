@@ -12,16 +12,16 @@ import {
   fetchTopArtists,
 } from "../../redux/slices/myCollectionSlice";
 import ScrollableTrackList from "./ScrollableTrackList.jsx";
-const shortcutItems = [
-  { id: 1, name: "Liked Songs", image: "/liked.jpg" },
-  { id: 2, name: "Hall of Fame", image: "/hall.jpg" },
-  { id: 3, name: "Nơi Này Có Anh Radio", image: "/noi-nay.jpg" },
-  { id: 4, name: "Daily Mix 4", image: "/mix4.jpg" },
-  { id: 5, name: "The Secret Power", image: "/secret.jpg" },
-  { id: 6, name: "Daily Mix 2", image: "/mix2.jpg" },
-  { id: 7, name: "m-tp M-TP", image: "/mtp.jpg" },
-  { id: 8, name: "Daily Mix 5", image: "/mix5.jpg" },
-];
+// const shortcutItems = [
+//   { id: 1, name: "Liked Songs", image: "/liked.jpg" },
+//   { id: 2, name: "Hall of Fame", image: "/hall.jpg" },
+//   { id: 3, name: "Nơi Này Có Anh Radio", image: "/noi-nay.jpg" },
+//   { id: 4, name: "Daily Mix 4", image: "/mix4.jpg" },
+//   { id: 5, name: "The Secret Power", image: "/secret.jpg" },
+//   { id: 6, name: "Daily Mix 2", image: "/mix2.jpg" },
+//   { id: 7, name: "m-tp M-TP", image: "/mtp.jpg" },
+//   { id: 8, name: "Daily Mix 5", image: "/mix5.jpg" },
+// ];
 
 const DisplayHome = () => {
   const dispatch = useDispatch();
@@ -38,7 +38,7 @@ const DisplayHome = () => {
 
   return (
     <div className="px-4 sm:px-6 md:px-8">
-      {user && (
+      {/* {user && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-5 mb-6">
           {shortcutItems.map((item) => (
             <ShortcutItem
@@ -49,7 +49,7 @@ const DisplayHome = () => {
             />
           ))}
         </div>
-      )}
+      )} */}
 
       {/* Trending Songs */}
       <section className="mb-8">
@@ -80,7 +80,7 @@ const DisplayHome = () => {
                 key={index}
                 name={item.name}
                 desc={item.desc}
-                id={item._id}
+                id={item.userId}
                 image={item.imageUrl}
               />
             ))}

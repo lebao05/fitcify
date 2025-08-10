@@ -1,22 +1,22 @@
 // models/Subscription.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const subscriptionSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     planType: {
       type: String,
-      enum: ['free', 'premium', 'family'],
+      enum: ["free", "premium", "family"],
       required: true,
     },
     status: {
       type: String,
-      enum: ['active', 'cancelled', 'expired', 'pending'],
-      default: 'pending',
+      enum: ["active", "cancelled", "expired", "pending"],
+      default: "pending",
     },
     startDate: {
       type: Date,
@@ -28,7 +28,7 @@ const subscriptionSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      default: 'PayOS',
+      default: "PayOS",
     },
     amount: {
       type: Number,
@@ -36,7 +36,7 @@ const subscriptionSchema = new mongoose.Schema(
     },
     currency: {
       type: String,
-      default: 'VND',
+      default: "VND",
     },
     autoRenew: {
       type: Boolean,
@@ -48,4 +48,4 @@ const subscriptionSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Subscription', subscriptionSchema);
+module.exports = mongoose.model("Subscription", subscriptionSchema);

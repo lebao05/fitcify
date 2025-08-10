@@ -188,7 +188,7 @@ export default function SpotifyLogin({ email, setEmail }) {
             Don't have an account?{" "}
             <span
               className="link"
-              onClick={() => (window.location.href = "/signup")}
+              onClick={() => navigate("/signup")}
               role="button"
               tabIndex={0}
             >

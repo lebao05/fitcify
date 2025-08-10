@@ -64,7 +64,7 @@ export default function EmailVerification({ email }) {
 
   const ready = code.every((d) => d !== "");
   if (!email || !email.trim()) {
-    window.location.href = "/login";
+    navigate("/login");
     return null;
   } else
     return (

@@ -91,7 +91,7 @@ export default function SpotifyLogin() {
             src={logo}
             alt="Fitcify Logo"
             className="fitcify-logo"
-            onClick={() => (window.location.href = "/")}
+            onClick={() => navigate("/")}
           />
         </div>
 
@@ -152,7 +152,7 @@ export default function SpotifyLogin() {
             Already have an account?{" "}
             <span
               className="link"
-              onClick={() => (window.location.href = "/login")}
+              onClick={() => navigate("/login")}
               role="button"
               tabIndex={0}
             >

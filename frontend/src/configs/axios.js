@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = "https://fitcify.onrender.com";
+const API_BASE_URL = "https://fitcify.onrender.com/api";
 const instance = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true, //

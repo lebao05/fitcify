@@ -80,7 +80,7 @@ const DisplayHome = () => {
                 key={index}
                 name={item.name}
                 desc={item.desc}
-                id={item._id}
+                id={item.userId}
                 image={item.imageUrl}
               />
             ))}

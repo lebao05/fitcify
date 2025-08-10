@@ -20,6 +20,7 @@ import { toggleLikeSong } from "../../services/musicApi";
 import { Heart } from "lucide-react";
 import ContextMenu from "./ContextMenu"; // Adjust path if needed
 import applogo from "../../assets/applogo.jpg";
+import NotFound from "../../pages/NotFound";
 const DisplayPlaylist = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();

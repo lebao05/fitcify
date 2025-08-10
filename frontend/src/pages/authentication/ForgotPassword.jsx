@@ -396,7 +396,7 @@ export default function ForgotPassword() {
           <div className="text-center mt-6">
             <button
               onClick={() => {
-                nagivate("/");
+                navigate("/");
               }}
               className="inline-flex cursor-pointer items-center space-x-2 text-gray-400 hover:text-white text-sm font-medium transition-colors duration-200"
             >

@@ -17,6 +17,7 @@ import {
   unfollowArtistThunk,
   clearToast,
 } from "../../redux/slices/myCollectionSlice";
+import NotFound from "../NotFound";
 const discographyTabs = [
   { label: "Albums", value: "album" },
   { label: "Playlist", value: "playlist" },

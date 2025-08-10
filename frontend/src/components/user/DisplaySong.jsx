@@ -13,6 +13,7 @@ import {
 import { addSongToPlaylist } from "../../services/playlistApi";
 import ContextMenu from "./ContextMenu";
 import applogo from "../../assets/applogo.jpg";
+import NotFound from "../../pages/NotFound";
 
 const DisplaySong = () => {
   const { id } = useParams();
@@ -25,7 +26,6 @@ const DisplaySong = () => {
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
   const playlists = useSelector((state) => state.myCollection.playlists);
   const liked = likedSongs?.some((s) => s._id === song?._id);
-
   useEffect(() => {
     if (id) {
       getSongById(id)

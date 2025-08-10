@@ -108,7 +108,12 @@ exports.changePassword = async (req, res, next) => {
 
 /* ───── Logout ───── */
 exports.logout = (req, res) => {
-  res.clearCookie("accessToken");
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    path: "/",
+  });
   req.logout(() => res.json({ Error: 0, Message: "Logged out" }));
 };
 

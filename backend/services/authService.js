@@ -17,7 +17,7 @@ const setCookie = (
   res,
   name,
   token,
-  { remember = false, sameSite = "Lax", secure = false } = {}
+  { remember = false, sameSite = "None", secure = false } = {}
 ) => {
   const maxAge = remember ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
   res.cookie(name, token, { httpOnly: true, sameSite, secure, maxAge });

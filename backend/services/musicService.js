@@ -9,6 +9,7 @@ const User = require("../models/user");
 const PlayHistory = require("../models/playHistory");
 const { normalizeString } = require("../helpers/normolize");
 const { distance } = require("fastest-levenshtein");
+
 function proxyStreamFromCloudinary(cloudinaryUrl, range) {
   return new Promise((resolve, reject) => {
     const req = https.get(
@@ -721,7 +722,7 @@ const getTopSongs = async (limit = 10) => {
 };
 const getTopArtists = async (limit = 10) => {
   const artists = await ArtistProfile.find()
-    .sort({ playCount: -1 })
+    .sort({ totalPlays: -1 })
     .limit(limit)
     .populate({
       path: "userId",

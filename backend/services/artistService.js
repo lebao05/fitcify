@@ -662,6 +662,7 @@ async function getArtistProfileById(userId) {
   if (!mongoose.isValidObjectId(userId)) {
     throw new Error("Invalid user ID");
   }
+
   const profile = await ArtistProfile.findOne({ userId }).populate(
     "userId",
     "username email avatarUrl"
@@ -670,17 +671,19 @@ async function getArtistProfileById(userId) {
   if (!profile) {
     throw new Error("Artist profile not found");
   }
+
   const albums = await Album.find({ artistId: userId })
     .populate("artistId", "username")
     .lean();
-  const playlists = await Playlist.find(
-    { ownerId: userId }.populate("ownerId", "username")
-  );
-  const songs = await Song.find({
-    artistId: userId,
-  })
+
+  const playlists = await Playlist.find({ ownerId: userId })
+    .populate("ownerId", "username")
+    .lean();
+
+  const songs = await Song.find({ artistId: userId })
     .select("title audioUrl imageUrl duration playCount")
     .lean();
+
   return { profile, albums, songs, playlists };
 }
 

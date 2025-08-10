@@ -5,7 +5,7 @@ import { playSongThunk } from "../../redux/slices/playerSlice";
 import { toggleLikeSong } from "../../services/musicApi";
 import { fetchLikedSongs } from "../../redux/slices/myCollectionSlice";
 
-const TrackItem = ({ track, index, onLike, showLikeButton = true }) => {
+const TrackItem = ({ track, index, showLikeButton = true }) => {
   const [hovered, setHovered] = useState(false);
   const dispatch = useDispatch();
   function formatDuration(seconds) {

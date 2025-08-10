@@ -300,7 +300,6 @@ const getCurrentSong = async (req, res) => {
     });
   }
 };
-
 const toggleRepeatMode = async (req, res) => {
   const userId = req.user && req.user._id;
   if (!userId) {

@@ -3,7 +3,6 @@ const normalizeString = require("../helpers/normolize").normalizeString;
 const albumSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    titleNormalized: { type: String },
     artistId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -19,10 +18,4 @@ const albumSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-albumSchema.pre("save", function (next) {
-  if (this.isModified("title")) {
-    this.titleNormalized = normalizeString(this.title);
-  }
-  next();
-});
 module.exports = mongoose.model("Album", albumSchema);

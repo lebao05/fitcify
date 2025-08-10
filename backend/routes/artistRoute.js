@@ -107,24 +107,13 @@ router.delete(
 router.get("/songs", authMiddleware, isArtist, artistController.getAllSongs);
 router.get("/songs/:id", artistController.getSongById);
 
-// View own profile
-router.get(
-  "/profile",
-  authMiddleware,
-  isArtist,
-  artistController.getMyProfileById
-);
+router.get("/profile/:artistId", artistController.getArtistProfileById);
 // Edit own profile
 router.put(
   "/profile",
   authMiddleware,
   isArtist,
   artistController.editMyProfile
-);
-router.put(
-  "/profile/update-albums",
-  isArtist,
-  artistController.updateAlbumsInArtistProfile
 );
 
 router.get("/:artistId", artistController.getPublicArtistProfile); ///

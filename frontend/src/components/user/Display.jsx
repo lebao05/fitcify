@@ -29,7 +29,7 @@ const Display = () => {
   return (
     <div
       ref={displayRef}
-      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white pt-2 pb-32 mt-16"
+      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white pb-32 mt-16"
     >
       <Routes>
         <Route path="/" element={<DisplayHome />} />

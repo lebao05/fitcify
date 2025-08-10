@@ -15,6 +15,7 @@ import PaymentSuccess from "../../pages/payment/paymentSuccess";
 import PaymentCancel from "../../pages/payment/paymentCancel";
 import DisplaySong from "./DisplaySong";
 import DisplayLikedSongs from "./DisplayLikedSongs";
+import NotFound from "../../pages/NotFound";
 const Display = () => {
   const displayRef = useRef();
   const location = useLocation();
@@ -43,7 +44,8 @@ const Display = () => {
         <Route path="/playlist/:id" element={<DisplayPlaylist />} />
         <Route path="/song/:id" element={<DisplaySong />} />
         <Route path="/search/*" element={<SearchResult />} />
-        <Route path="likedtrack" element={<DisplayLikedSongs />} />
+        <Route path="/likedtrack" element={<DisplayLikedSongs />} />
+        <Route path="*" element={<NotFound></NotFound>} />
       </Routes>
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <AudioPlayer />

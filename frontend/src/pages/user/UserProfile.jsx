@@ -16,6 +16,7 @@ import {
   fetchTopSongsThisMonth,
 } from "../../redux/slices/myCollectionSlice.js";
 import { getFollowedArtists } from "../../services/userApi.js";
+import NotFound from "../NotFound.jsx";
 
 const UserProfile = () => {
   const [isYou, setIsYou] = useState(false);
@@ -59,7 +60,8 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (!user?._id) return;
-
+    setFollowingArtists(null);
+    setPlaylists(null);
     // Fetch playlists and following artists
     fetchPlaylists(user._id);
     fetchFollowedArtists(user._id);
@@ -73,7 +75,7 @@ const UserProfile = () => {
   const handleToggleEditModal = () => {
     if (myAuth._id === id) setShowEditModal((prev) => !prev);
   };
-  if (user === null && playlists === null) return null;
+  if (user === null) return null;
   return (
     <div className="user-profile-content pb-10 h-full w-[80%] overflow-y-auto">
       {" "}

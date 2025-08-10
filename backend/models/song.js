@@ -4,7 +4,6 @@ const songSchema = new mongoose.Schema(
   {
     isApproved: { type: Boolean, default: false },
     title: { type: String, required: true, trim: true },
-    titleNormalized: { type: String, trim: true },
     artistId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -27,10 +26,4 @@ const songSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-songSchema.pre("save", function (next) {
-  if (this.isModified("title")) {
-    this.titleNormalized = normalizeString(this.title);
-  }
-  next();
-});
 module.exports = mongoose.model("Song", songSchema);

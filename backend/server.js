@@ -31,6 +31,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+
 require("./configs/passport");
 app.use(
   session({
@@ -38,9 +39,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, 
+      secure: process.env.BUILD_MODE === "PRODUCTION",
       httpOnly: true,
-      sameSite: "None",
+      sameSite: process.env.BUILD_MODE === "PRODUCTION" ? "None" : "Lax",
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
@@ -86,3 +87,4 @@ app.use(errorHandler);
     console.log("❌ Error connect to DB: ", error);
   }
 })();
+console.log(process.env.BUILD_MODE);

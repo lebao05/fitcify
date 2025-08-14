@@ -164,7 +164,7 @@ exports.googleCallback = (req, res, next) => {
       username: user.username,
     });
 
-    authService.setCookie(res, "accessToken", token, { secure: true });
+    authService.setCookie(res, "accessToken", token, cookieOpts(req));
     res.redirect(redirect);
   })(req, res, next);
 };
@@ -201,7 +201,7 @@ exports.facebookCallback = (req, res, next) => {
       username: user.username,
     });
 
-    authService.setCookie(res, "accessToken", token, { secure: true });
+    authService.setCookie(res, "accessToken", token, cookieOpts(req));
     res.redirect(redirect);
   })(req, res, next);
 };

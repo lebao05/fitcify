@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "production": "BUILD_MODE=production npm install"
+    "start": "cross-env nodemon server.js",
+    "production": "cross-env BUILD_MODE=PRODUCTION nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -37,5 +37,8 @@
     "short-unique-id": "^5.3.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
   }
 }

@@ -1,8 +1,11 @@
 import axios from "axios";
-const API_BASE_URL = "https://fitcify.onrender.com/api";
+
+// Use Vite environment variable
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const instance = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true, //
+  baseURL: VITE_API_BASE_URL,
+  withCredentials: true, // send cookies
 });
 
 instance.interceptors.request.use(

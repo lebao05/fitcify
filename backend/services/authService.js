@@ -13,14 +13,8 @@ const generateAccessToken = (payload) =>
 const isAuthenticated = (token) => jwt.verify(token, process.env.JWT_SECRET);
 
 /* ─── cookie helper ─── */
-const setCookie = (
-  res,
-  name,
-  token,
-  { remember = false, sameSite = "None", secure = true } = {}
-) => {
-  const maxAge = remember ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
-  res.cookie(name, token, { httpOnly: true, sameSite, secure, maxAge });
+const setCookie = (res, name, token, options) => {
+  res.cookie(name, token, options);
 };
 const verifyToken = (token) => {
   try {

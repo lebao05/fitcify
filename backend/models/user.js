@@ -10,7 +10,6 @@ function generateRandomString(length = 32) {
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true },
-    usernameNormalized: { type: String },
     playCount: { type: Number, default: 0 },
     /* ───────── primary auth fields ───────── */
     role: {
@@ -94,7 +93,6 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || this.authProvider !== "email") {
     return next();
   }
-  this.usernameNormalized = normalizeString(this.username);
   try {
     this.password = await bcrypt.hash(this.password, saltRounds);
     next();

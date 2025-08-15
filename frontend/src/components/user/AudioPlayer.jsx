@@ -8,6 +8,7 @@ import {
   playPreviousThunk,
   togglePlay,
 } from "../../redux/slices/playerSlice";
+import { useNavigate } from "react-router-dom";
 
 const AudioPlayer = () => {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ const AudioPlayer = () => {
   const audioRef = useRef(null);
   const seekBar = useRef(null);
   const seekBg = useRef(null);
-
+  const navigate = useNavigate();
   // Set audio volume
   useEffect(() => {
     if (audioRef.current) {
@@ -124,7 +125,7 @@ const AudioPlayer = () => {
   };
 
   const next = () => {
-     dispatch(playNextThunk());
+    dispatch(playNextThunk());
   };
 
   const handleEnded = () => {
@@ -142,8 +143,16 @@ const AudioPlayer = () => {
           className="w-12 h-12 rounded"
         />
         <div>
-          <p className="text-sm font-semibold">{currentSong?.title}</p>
-          <p className="text-xs text-gray-400">
+          <p
+            onClick={() => navigate(`song/${currentSong?._id}`)}
+            className="text-sm font-semibold hover:underline cursor-pointer"
+          >
+            {currentSong?.title}
+          </p>
+          <p
+            onClick={() => navigate(`artist/${currentSong.artistId._id}`)}
+            className="text-xs text-gray-400 hover:underline cursor-pointer"
+          >
             {currentSong?.artistId?.username}
           </p>
         </div>

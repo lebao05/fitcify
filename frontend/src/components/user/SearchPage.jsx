@@ -14,7 +14,7 @@ export default function SearchPage() {
   const query = searchParams.get("q");
   const [searchResult, setSearchResult] = useState(null);
   useEffect(() => {
-    if (!query) return;
+    if (!query && query != "") return;
     const fetchSearchResult = async () => {
       try {
         const res = await searchAll(query);
@@ -30,9 +30,9 @@ export default function SearchPage() {
       <h1 className="text-2xl font-bold mb-4">Search Results</h1>
       <FilterBar />
       <Routes>
-        <Route index element={<Navigate to="all" replace />} />
+        {/* <Route index element={<Navigate to="all" replace />} /> */}
         <Route
-          path="/all"
+          path="/"
           element={<AllSearchResult searchResult={searchResult} />}
         />
         <Route

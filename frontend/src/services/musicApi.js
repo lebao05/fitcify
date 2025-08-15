@@ -127,6 +127,17 @@ export const playPrevious = async () => {
     throw error;
   }
 };
+export const playLikedTrack = async (songOrder) => {
+  try {
+    const response = await axiosInstance.post(
+      `/music/play/liked?songOrder=${songOrder}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error going to previous track:", error);
+    throw error;
+  }
+};
 
 // === Next track ===
 export const playNext = async () => {

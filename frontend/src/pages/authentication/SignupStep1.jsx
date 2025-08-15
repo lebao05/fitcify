@@ -4,7 +4,7 @@ import "./SignupStep1.scss";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setPassword as setPasswordAction } from "../../redux/slices/signupSlice";
-import logo from "../../assets/applogo.jpg";
+import applogo from "../../assets/applogo.jpg";
 
 export default function SignupStep1() {
   const password = useSelector((state) => state.signup.password);
@@ -24,12 +24,12 @@ export default function SignupStep1() {
     <div className="signup-step1">
       {/* Spotify Logo */}
       <div className="mb-12">
-        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-          <div className="space-y-1">
-            <div className="w-6 h-0.5 bg-black rounded"></div>
-            <div className="w-6 h-0.5 bg-black rounded"></div>
-            <div className="w-6 h-0.5 bg-black rounded"></div>
-          </div>
+        <div className="mb-12">
+          <img
+            src={applogo}
+            alt="App Logo"
+            className="w-32 h-32 rounded-full object-contain"
+          />
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export default function SignupStep1() {
 
         {/* Next Button */}
         <button
-          className={`w-full h-12 rounded-full font-bold text-black transition-all ${
+          className={`w-full cursor-pointer h-12 rounded-full font-bold text-black transition-all ${
             isValid
               ? "bg-[#1DB954] hover:bg-[#1ed760]"
               : "bg-gray-600 cursor-not-allowed"
@@ -170,21 +170,6 @@ export default function SignupStep1() {
         >
           Next
         </button>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-16 text-center">
-        <p className="text-xs text-gray-500">
-          This site is protected by reCAPTCHA and the Google{" "}
-          <a href="#" className="underline hover:text-gray-400">
-            Privacy Policy
-          </a>{" "}
-          and{" "}
-          <a href="#" className="underline hover:text-gray-400">
-            Terms of Service
-          </a>{" "}
-          apply.
-        </p>
       </div>
     </div>
   );

@@ -19,7 +19,8 @@ import {
 import { toggleLikeSong } from "../../services/musicApi";
 import { Heart } from "lucide-react";
 import ContextMenu from "./ContextMenu"; // Adjust path if needed
-
+import applogo from "../../assets/applogo.jpg";
+import NotFound from "../../pages/NotFound";
 const DisplayPlaylist = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -144,8 +145,8 @@ const DisplayPlaylist = () => {
           <h4>{playlist.description}</h4>
           <p className="mt-1 text-sm text-[#a7a7a7]">
             <img
-              className="inline-block w-5 mr-1"
-              src={assets.spotify_logo}
+              className="inline-block rounded-full w-5"
+              src={applogo}
               alt="spotify"
             />
             <b>{playlist.ownerId?.username}</b> •{" "}
@@ -224,7 +225,7 @@ const DisplayPlaylist = () => {
             <p className="text-[15px]">{song.albumId?.title || ""}</p>
 
             <p className="text-[15px] hidden sm:block">
-              {new Date(song.uploadedAt).toLocaleDateString()}
+              {new Date(song.updatedAt).toLocaleDateString()}
             </p>
 
             {/* Like Icon */}

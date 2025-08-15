@@ -1,5 +1,5 @@
 const PayOS = require("@payos/node");
-const Subscription = require("../models/Subscription");
+const Subscription = require("../models/subscription");
 const Payment = require("../models/payment");
 const User = require("../models/user");
 const dayjs = require("dayjs");

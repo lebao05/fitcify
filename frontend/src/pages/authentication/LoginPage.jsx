@@ -75,15 +75,15 @@ export default function SpotifyLogin({ email, setEmail }) {
 
   const handleLoginWithGoogle = () => {
     window.location.href = getGoogleOAuthUrl(
-      "http://localhost:5173",
-      "http://localhost:5173/login"
+      "https://fitcify.vercel.app",
+      "https://fitcify.vercel.app/login"
     );
   };
 
   const handleLoginWithFacebook = () => {
     window.location.href = getFacebookOAuthUrl(
-      "http://localhost:5173",
-      "http://localhost:5173/login"
+      "https://fitcify.vercel.app",
+      "https://fitcify.vercel.app/login"
     );
   };
 
@@ -163,7 +163,7 @@ export default function SpotifyLogin({ email, setEmail }) {
               disabled={isLoading}
               aria-label={isLoading ? "Logging in..." : "Continue"}
             >
-              {isLoading ? "Logging in..." : "Continue"}
+              {isLoading ? "Logging in..." : "Continue to log in"}
             </button>
           </div>
           {loginError && (
@@ -188,7 +188,7 @@ export default function SpotifyLogin({ email, setEmail }) {
             Don't have an account?{" "}
             <span
               className="link"
-              onClick={() => (window.location.href = "/signup")}
+              onClick={() => navigate("/signup")}
               role="button"
               tabIndex={0}
             >

@@ -153,9 +153,11 @@ const deleteAlbum = async (req, res, next) => {
     next(err);
   }
 };
-async function getMyProfileById(req, res, next) {
+async function getArtistProfileById(req, res, next) {
   try {
-    const profile = await artistService.getArtistProfileById(req.user._id);
+    const profile = await artistService.getArtistProfileById(
+      req.params.artistId
+    );
     res
       .status(200)
       .json({ Error: 0, Message: "Profile fetched", Data: profile });
@@ -319,6 +321,18 @@ const updatePlaylistMetadata = async (req, res, next) => {
   }
 };
 
+async function getPublicArtistProfile(req, res, next) {
+  try {
+    const { artistId } = req.params;
+    const profile = await artistService.getArtistProfileById(artistId);
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Profile fetched", Data: profile });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   submitArtistVerification,
   uploadSong,
@@ -334,8 +348,9 @@ module.exports = {
   deletePlaylist,
   updatePlaylistMetadata,
   getPlaylistById,
-  getMyProfileById,
+  getArtistProfileById,
   editMyProfile,
   getSongById,
   getAllSongs,
+  getPublicArtistProfile,
 };

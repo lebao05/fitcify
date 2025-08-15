@@ -320,6 +320,11 @@ async function createAlbum({
     { $set: { albumId: album._id } }
   );
 
+  await ArtistProfile.findOneAndUpdate(
+    { userId: artistUserId },
+    { $push: { albums: album._id } }
+  );
+
   return album;
 }
 
@@ -637,7 +642,7 @@ async function updatePlaylistMetadata({
 
 async function getSongById(songId) {
   const song = await Song.findById(songId)
-    .populate("artistId", "username -_id")
+    .populate("artistId", "username _id")
     .populate("albumId", "title _id");
   if (!song) throw new Error("Song not found");
   return song;
@@ -657,15 +662,29 @@ async function getArtistProfileById(userId) {
   if (!mongoose.isValidObjectId(userId)) {
     throw new Error("Invalid user ID");
   }
-  const profile = await ArtistProfile.findOne({ userId })
-    .populate("userId", "name email")
-    .populate("albums", "title imageUrl")
-    .populate("songs", "title audioUrl imageUrl duration");
+
+  const profile = await ArtistProfile.findOne({ userId }).populate(
+    "userId",
+    "username email avatarUrl"
+  );
 
   if (!profile) {
     throw new Error("Artist profile not found");
   }
-  return profile;
+
+  const albums = await Album.find({ artistId: userId })
+    .populate("artistId", "username")
+    .lean();
+
+  const playlists = await Playlist.find({ ownerId: userId })
+    .populate("ownerId", "username")
+    .lean();
+
+  const songs = await Song.find({ artistId: userId })
+    .select("title audioUrl imageUrl duration playCount")
+    .lean();
+
+  return { profile, albums, songs, playlists };
 }
 
 async function updateArtistProfile(userId, data) {

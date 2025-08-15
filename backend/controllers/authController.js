@@ -3,11 +3,17 @@ const passport = require("passport");
 const authService = require("../services/authService");
 
 /* ───── Cookie Options ───── */
-const cookieOpts = (req) => ({
-  remember: Boolean(req.body.remember),
-  secure: process.env.NODE_ENV === "production",
-});
-
+const cookieOpts = (req) => {
+  const isProd = process.env.BUILD_MODE === "PRODUCTION";
+  return {
+    httpOnly: true, // prevent JS access
+    secure: isProd, // true in production (HTTPS), false in dev
+    sameSite: isProd ? "None" : "Lax", // None for cross-site in prod, Lax for localhost
+    maxAge: req.body.remember // "Remember me" functionality
+      ? 7 * 24 * 60 * 60 * 1000 // 7 days if remember is true
+      : undefined, // session cookie if false
+  };
+};
 /* ───── Base64 encode/decode helpers ───── */
 const encodeRedirect = (redirect, fail) =>
   Buffer.from(JSON.stringify({ redirect, fail })).toString("base64");
@@ -108,8 +114,20 @@ exports.changePassword = async (req, res, next) => {
 
 /* ───── Logout ───── */
 exports.logout = (req, res) => {
-  res.clearCookie("accessToken");
-  req.logout(() => res.json({ Error: 0, Message: "Logged out" }));
+  const isProd = process.env.BUILD_MODE === "PRODUCTION";
+
+  res.cookie("accessToken", "", {
+    httpOnly: true,
+    secure: isProd, // true only in production
+    sameSite: isProd ? "None" : "Lax", // None for prod, Lax for dev
+    path: "/", // same path as original cookie
+    maxAge: 0, // expire immediately
+  });
+
+  // Passport logout
+  req.logout(() => {
+    res.json({ Error: 0, Message: "Logged out" });
+  });
 };
 
 /* ───── Google OAuth ───── */
@@ -137,7 +155,7 @@ exports.googleCallback = (req, res, next) => {
 
   passport.authenticate("google", { session: false }, (err, user) => {
     if (err || !user) {
-      return res.redirect(fail || "http://localhost:5173/login");
+      return res.redirect(fail);
     }
 
     const token = authService.generateAccessToken({
@@ -146,8 +164,8 @@ exports.googleCallback = (req, res, next) => {
       username: user.username,
     });
 
-    authService.setCookie(res, "accessToken", token, { secure: true });
-    res.redirect(redirect || "http://localhost:5173");
+    authService.setCookie(res, "accessToken", token, cookieOpts(req));
+    res.redirect(redirect);
   })(req, res, next);
 };
 
@@ -174,7 +192,7 @@ exports.facebookCallback = (req, res, next) => {
 
   passport.authenticate("facebook", { session: false }, (err, user) => {
     if (err || !user) {
-      return res.redirect(fail || "http://localhost:5173/login");
+      return res.redirect(fail);
     }
 
     const token = authService.generateAccessToken({
@@ -183,8 +201,8 @@ exports.facebookCallback = (req, res, next) => {
       username: user.username,
     });
 
-    authService.setCookie(res, "accessToken", token, { secure: true });
-    res.redirect(redirect || "http://localhost:5173");
+    authService.setCookie(res, "accessToken", token, cookieOpts(req));
+    res.redirect(redirect);
   })(req, res, next);
 };
 

@@ -4,22 +4,25 @@ import "./ArtistCard.scss";
 import PlayButton from "./PlayButton.jsx";
 import { playArtistThunk } from "../../redux/slices/playerSlice.js";
 import { useDispatch } from "react-redux";
+import { FaPlay } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ArtistCard = ({ artist }) => {
   const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handlePlay = async (e) => {
     e.stopPropagation();
     await dispatch(playArtistThunk(artist._id));
   };
-  console.log(artist);
   return (
     <div
       className="artist-card"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => navigate(`/artist/${artist._id}`)}
     >
-      <div className="artist-image-container">
+      <div className="artist-image-container justify-center align-middle">
         <img
           src={artist.avatarUrl}
           alt={artist.name}
@@ -31,11 +34,10 @@ const ArtistCard = ({ artist }) => {
           </div>
         )}
       </div>
-
       <div className="artist-info">
         <h3 className="artist-name">{artist.username}</h3>
         <p className="type">Artist</p>
-      </div>
+      </div>{" "}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import {
   playPrevious,
   playNext,
   getCurrentPlayerSong,
+  playLikedTrack,
 } from "../../services/musicApi";
 
 // ─── Thunks ───
@@ -70,7 +71,6 @@ export const playArtistThunk = createAsyncThunk(
   async (artistId, thunkAPI) => {
     try {
       const data = await playAnArtist(artistId);
-      console.log(data);
       return data.Data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
@@ -79,7 +79,19 @@ export const playArtistThunk = createAsyncThunk(
     }
   }
 );
-
+export const playLikedTrackThunk = createAsyncThunk(
+  "player/playLikedTrack",
+  async (songOrder, thunkAPI) => {
+    try {
+      const data = await playLikedTrack(songOrder);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Play artist failed"
+      );
+    }
+  }
+);
 export const playPreviousThunk = createAsyncThunk(
   "player/playPrevious",
   async (_, thunkAPI) => {
@@ -168,6 +180,7 @@ const playerSlice = createSlice({
     addCases(playArtistThunk);
     addCases(playPreviousThunk);
     addCases(playNextThunk);
+    addCases(playLikedTrackThunk);
     addGetCurrentSongCases(fetchCurrentSongThunk);
   },
 });

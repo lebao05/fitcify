@@ -2,7 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { assets } from "../../assets/assets";
 import { useDispatch, useSelector } from "react-redux";
-import { playAlbumThunk } from "../../redux/slices/playerSlice";
+import {
+  playAlbumThunk,
+  playLikedTrackThunk,
+} from "../../redux/slices/playerSlice";
 import { Play, Heart } from "lucide-react";
 import { FaHeart } from "react-icons/fa";
 import {
@@ -12,7 +15,7 @@ import {
 import { toggleLikeSong } from "../../services/musicApi";
 import { addSongToPlaylist } from "../../services/playlistApi";
 import ContextMenu from "./ContextMenu"; // 👈 Make sure this is correct
-
+import applogo from "../../assets/applogo.jpg";
 const DisplayLikedSongs = () => {
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
   const playlists = useSelector((state) => state.myCollection.playlists);
@@ -35,15 +38,15 @@ const DisplayLikedSongs = () => {
     dispatch(fetchUserPlaylists());
   }, [likedSongs]);
 
-  const handlePlayLikedTracks = () => {
+  const handlePlayLikedTracks = async (songOrder) => {
     if (likedSongs.length > 0) {
-      dispatch(playAlbumThunk({ songs: likedSongs, startIndex: 0 }));
+      await dispatch(playLikedTrackThunk(songOrder));
     }
   };
 
   const toggleLike = async (songId) => {
     await toggleLikeSong(songId);
-    dispatch(fetchLikedSongs());
+    await dispatch(fetchLikedSongs());
   };
 
   const handleRightClick = (e, song) => {
@@ -84,9 +87,6 @@ const DisplayLikedSongs = () => {
     0
   );
 
-  if (!likedSongs || likedSongs.length === 0)
-    return <p className="text-white p-10">No liked songs yet.</p>;
-
   return (
     <div className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover">
       <div className="flex-1 overflow-y-auto">
@@ -102,8 +102,8 @@ const DisplayLikedSongs = () => {
             </h2>
             <p className="mt-1">
               <img
-                className="inline-block w-5"
-                src={assets.spotify_logo}
+                className="inline-block rounded-full w-5"
+                src={applogo}
                 alt="logo"
               />
               <b> {user?.username || "Unknown"} </b>
@@ -148,11 +148,7 @@ const DisplayLikedSongs = () => {
             <div className="flex items-center gap-4 text-white text-sm md:text-[15px]">
               <div
                 className="w-5 text-right"
-                onClick={() =>
-                  dispatch(
-                    playAlbumThunk({ songs: likedSongs, startIndex: index })
-                  )
-                }
+                onClick={async () => await handlePlayLikedTracks(index)}
               >
                 <span className="group-hover:hidden block text-[#a7a7a7]">
                   {index + 1}

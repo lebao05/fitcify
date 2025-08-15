@@ -28,8 +28,10 @@ export const deleteProfileAvatar = async () => {
   return res.data;
 };
 
-export const getFollowedArtists = async () => {
-  const res = await axiosInstance.get("/user/profile/followed-artists");
+export const getFollowedArtists = async (userId) => {
+  const res = await axiosInstance.get(
+    `/user/profile/followed-artists/${userId}`
+  );
   return res.data;
 };
 
@@ -40,6 +42,23 @@ export const getAccountInfo = async () => {
 };
 
 export const updateAccountInfo = async (payload) => {
-  const res = await axiosInstance.patch("/user/account", payload);
+  const res = await axiosInstance.put("/user/account", payload);
+  return res.data;
+};
+export const getTopSongsThisMonth = async () => {
+  const res = await axiosInstance.get("/user/music/top-songs-month");
+  console.log("123");
+  return res.data;
+};
+export const getTopArtistsThisMonth = async () => {
+  const res = await axiosInstance.get("/user/music/top-artists-month");
+  return res.data;
+};
+export const followArtist = async (artistId) => {
+  const res = await axiosInstance.post(`/user/artists/${artistId}/follow`);
+  return res.data;
+};
+export const unfollowArtist = async (artistId) => {
+  const res = await axiosInstance.delete(`/user/artists/${artistId}/follow`);
   return res.data;
 };

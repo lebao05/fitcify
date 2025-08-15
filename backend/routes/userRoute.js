@@ -7,33 +7,55 @@ const imageProcess = require("../middlewares/imageProcess");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-router.use(authMiddleware);
-router.get("/profile/all", userController.getAllUsers);
-router.get("/profile/followed-artists", userController.getFollowedArtists);
-router.get("/me", userController.getMyProfile);
+router.get(
+  "/profile/followed-artists/:userId",
+  userController.getFollowedArtists
+);
+router.get("/me", authMiddleware, userController.getMyProfile);
 router.get("/profile/:id", userController.getProfileInfo);
 
 router.put(
   "/profile",
+  authMiddleware,
   upload.single("avatar"),
   imageProcess(),
   userController.updateProfileInfo
 );
 
-router.delete("/profile/avatar", userController.deleteProfileAvatar);
+router.delete(
+  "/profile/avatar",
+  authMiddleware,
+  userController.deleteProfileAvatar
+);
 
-router.get("/account", userController.getAccountInfo);
+router.get("/account", authMiddleware, userController.getAccountInfo);
 
-router.patch("/account", userController.updateAccountInfo);
+router.put("/account", authMiddleware, userController.updateAccountInfo);
 
-router.post("/artists/:artistId/follow", userController.followArtist);
-router.delete("/artists/:artistId/follow", userController.unfollowArtist);
+router.post(
+  "/artists/:artistId/follow",
+  authMiddleware,
+  userController.followArtist
+);
+router.delete(
+  "/artists/:artistId/follow",
+  authMiddleware,
+  userController.unfollowArtist
+);
 router.get("/artists/:artistId/followers", userController.getArtistFollowers);
 
 // top songs this month
-router.get('/music/top-songs-month', userController.topSongsThisMonth);
+router.get(
+  "/music/top-songs-month",
+  authMiddleware,
+  userController.topSongsThisMonth
+);
 
 // top artists this month
-router.get('/music/top-artists-month', userController.topArtistsThisMonth);
+router.get(
+  "/music/top-artists-month",
+  authMiddleware,
+  userController.topArtistsThisMonth
+);
 
 module.exports = router;

@@ -10,7 +10,7 @@ export default function FilterBar() {
       {filters.map((filter) => (
         <NavLink
           key={filter}
-          to={`/search/${filter}`}
+          to={`/search/${filter === "all" ? "" : filter}`}
           className={({ isActive }) =>
             `px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 ${
               isActive

@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { albumsData } from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import UserProfile from "../../pages/user/UserProfile";
+import AccountPage from "../../pages/user/AccountPage";
+import ArtistProfile from "../../pages/artist/ArtistProfile";
 import DisplayPlaylist from "./DisplayPlayplist";
 import SearchResult from "./SearchPage";
 import AudioPlayer from "./AudioPlayer";
@@ -13,6 +15,7 @@ import PaymentSuccess from "../../pages/payment/paymentSuccess";
 import PaymentCancel from "../../pages/payment/paymentCancel";
 import DisplaySong from "./DisplaySong";
 import DisplayLikedSongs from "./DisplayLikedSongs";
+import NotFound from "../../pages/NotFound";
 const Display = () => {
   const displayRef = useRef();
   const location = useLocation();
@@ -21,18 +24,13 @@ const Display = () => {
   const isSong = location.pathname.includes("song");
   const isLikedTrack = location.pathname.includes("likedtrack");
 
-  const nagivate = useNavigate();
   useEffect(() => {
-    if (isAlbum || isPlaylist || isSong || isLikedTrack) {
-      displayRef.current.style.background = `linear-gradient(${"#316369"},#121212)`;
-    } else {
-      displayRef.current.style.background = "#121212";
-    }
+    displayRef.current.style.background = `linear-gradient(${"#3d4e56"},#070606)`;
   });
   return (
     <div
       ref={displayRef}
-      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white pt-2 pb-32 mt-16"
+      className="flex-1 h-full overflow-y-auto bg-[#121212] text-white pb-32 mt-16"
     >
       <Routes>
         <Route path="/" element={<DisplayHome />} />
@@ -40,12 +38,15 @@ const Display = () => {
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-cancel" element={<PaymentCancel />} />
         <Route path="/album/:id" element={<DisplayAlbum />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route path="/profile/:id" element={<UserProfile />} />
+        <Route path="/artist/:artistId" element={<ArtistProfile />} />
         <Route path="/playlist/:id" element={<DisplayPlaylist />} />
         <Route path="/song/:id" element={<DisplaySong />} />
         <Route path="/search/*" element={<SearchResult />} />
-        <Route path="likedtrack" element={<DisplayLikedSongs />} />
-      </Routes>{" "}
+        <Route path="/likedtrack" element={<DisplayLikedSongs />} />
+        <Route path="*" element={<NotFound></NotFound>} />
+      </Routes>
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <AudioPlayer />
       </div>

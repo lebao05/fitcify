@@ -4,6 +4,10 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
+  console.error(
+    `[${err.status || 500} Error] ${req.method} ${req.originalUrl}`
+  );
+  console.error(err.stack);
   res.status(err.status || 500).json({
     Message: err?.message,
     Stack: err?.stack,

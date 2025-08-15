@@ -90,10 +90,7 @@ const getUserPlaylistsOfAUser = async (req, res, next) => {
 const getPlaylistById = async (req, res, next) => {
   try {
     const { playlistId } = req.params;
-    const data = await playlistService.getPlaylistById(
-      playlistId,
-      req.user._id
-    );
+    const data = await playlistService.getPlaylistById(playlistId);
     res.status(200).json({ Message: "Playlist fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);

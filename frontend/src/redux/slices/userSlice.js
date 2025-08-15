@@ -4,6 +4,7 @@ import {
   login,
   logout as logoutApi,
   verifyLoginOtp,
+  verifyForgotOtp,
 } from "../../services/authApi";
 
 import {
@@ -47,7 +48,6 @@ export const fetchCurrentProfileById = createAsyncThunk(
   "user/fetchCurrentProfileById",
   async (userId, thunkAPI) => {
     try {
-      console.log("Fetching profile for userId:", userId);
       const res = await getUserProfileById(userId);
       return res.Data;
     } catch (error) {
@@ -107,7 +107,19 @@ export const loginWithOtp = createAsyncThunk(
     }
   }
 );
-
+export const verifyForgotOtpThunk = createAsyncThunk(
+  "user/verifyForgotOtp",
+  async ({ email, otp }, thunkAPI) => {
+    try {
+      const response = await verifyForgotOtp(email, otp);
+      return response.Data.user;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "OTP Forgot failed"
+      );
+    }
+  }
+);
 // ───── LOGOUT ─────
 export const logoutUserThunk = createAsyncThunk(
   "user/logoutUserThunk",
@@ -222,6 +234,19 @@ const userSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchCurrentProfileById.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      .addCase(verifyForgotOtpThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyForgotOtpThunk.fulfilled, (state, action) => {
+        state.myAuth = action.payload;
+        state.loading = false;
+      })
+      .addCase(verifyForgotOtpThunk.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       })

@@ -350,7 +350,7 @@
  * @swagger
  * /api/music/top/artists:
  *   get:
- *     summary: Get top artists sorted by total play count
+ *     summary: Get top artists sorted by totalPlays
  *     tags: [Music]
  *     security:
  *       - bearerAuth: []

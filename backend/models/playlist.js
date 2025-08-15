@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const normalizeString = require("../helpers/normolize").normalizeString;
 const playlistSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -16,10 +15,4 @@ const playlistSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-playlistSchema.pre("save", function (next) {
-  if (this.isModified("name")) {
-    this.nameNormalized = normalizeString(this.name);
-  }
-  next();
-});
 module.exports = mongoose.model("Playlist", playlistSchema);

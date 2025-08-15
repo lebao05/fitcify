@@ -8,26 +8,39 @@ const playlistController = require("../controllers/playplistController");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-router.use(authMiddleware);
-
-router.post("/", upload.single("cover"), playlistController.createPlaylist);
+router.post(
+  "/",
+  authMiddleware,
+  upload.single("cover"),
+  playlistController.createPlaylist
+);
 
 router.put(
   "/:playlistId",
+  authMiddleware,
   upload.single("cover"),
   playlistController.updatePlaylistDetails
 );
 
-router.post("/:playlistId/songs", playlistController.addSongToPlaylist);
+router.post(
+  "/:playlistId/songs",
+  authMiddleware,
+  playlistController.addSongToPlaylist
+);
 
 router.delete(
   "/:playlistId/songs/:songId",
+  authMiddleware,
   playlistController.removeSongFromPlaylist
 );
 
-router.delete("/:playlistId", playlistController.deletePlaylist);
+router.delete(
+  "/:playlistId",
+  authMiddleware,
+  playlistController.deletePlaylist
+);
 
-router.get("/", playlistController.getUserPlaylists);
+router.get("/", authMiddleware, playlistController.getUserPlaylists);
 router.get("/user/:userId", playlistController.getUserPlaylistsOfAUser);
 router.get("/:playlistId", playlistController.getPlaylistById);
 module.exports = router;

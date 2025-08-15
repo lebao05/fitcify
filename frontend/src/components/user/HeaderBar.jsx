@@ -55,6 +55,11 @@ const HeaderBar = () => {
               />
               <input
                 type="text"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/search/?q=${searchValue}`);
+                  }
+                }}
                 placeholder="What do you want to play?"
                 className="bg-transparent border-none outline-none text-white w-full placeholder-[#b3b3b3] text-[18px]"
                 value={searchValue}
@@ -77,13 +82,13 @@ const HeaderBar = () => {
               <div className="w-px h-6 bg-[#404040]" />
               <button
                 className="text-[#b3b3b3] cursor-pointer text-sm font-semibold px-5 py-2 rounded-full hover:text-white transition-transform hover:scale-[1.04]"
-                onClick={() => (window.location.href = "/signup")}
+                onClick={() => navigate("/signup")}
               >
                 Sign up
               </button>
               <button
                 className="bg-white cursor-pointer text-black text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#f1f1f1] transition-transform hover:scale-[1.04]"
-                onClick={() => (window.location.href = "/login")}
+                onClick={() => navigate("/login")}
               >
                 Log in
               </button>
@@ -97,7 +102,7 @@ const HeaderBar = () => {
                 Premium
               </button>
               <div className="w-px h-6 bg-[#404040]" />
-              <div className="relative">
+              {/* <div className="relative">
                 <button className="w-8 h-8 bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all relative">
                   <Bell size={20} />
                   <div className="absolute top-1 right-1 w-2 h-2 bg-[#1db954] rounded-full"></div>
@@ -107,7 +112,7 @@ const HeaderBar = () => {
                 <button className="w-8 h-8 bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all">
                   <Users size={20} />
                 </button>
-              </div>
+              </div> */}
               <div className="relative">
                 <button
                   onClick={toggleNav}
@@ -126,9 +131,13 @@ const HeaderBar = () => {
                       : "opacity-0 invisible -translate-y-2"
                   }`}
                 >
-                  <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
+                  <button
+                    onClick={() => navigate("/account")}
+                    className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"
+                  >
                     Account
                   </button>
+
                   <button
                     onClick={() => navigate(`/profile/${user._id}`)}
                     className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]"
@@ -149,9 +158,6 @@ const HeaderBar = () => {
                       For Artist
                     </button>
                   )}
-                  <button className="w-full text-left px-4 py-3 text-white text-sm font-semibold hover:bg-[#404040]">
-                    Support
-                  </button>
                   <div className="h-px bg-[#404040] my-2" />
                   <button
                     onClick={handleLogout}

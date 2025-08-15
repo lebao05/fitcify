@@ -28,7 +28,7 @@ const getAllUsers = async (req, res, next) => {
 };
 const getMyProfile = async (req, res, next) => {
   try {
-    const id = req.user._id; 
+    const id = req.user._id;
     const data = await userService.getProfileInfo(id);
     res.status(200).json({
       Message: "Profile fetched",
@@ -42,7 +42,7 @@ const getMyProfile = async (req, res, next) => {
 // Danh sách nghệ sĩ đã follow
 const getFollowedArtists = async (req, res, next) => {
   try {
-    const data = await userService.getFollowedArtists(req.user._id);
+    const data = await userService.getFollowedArtists(req.params.userId);
     res.status(200).json({ Message: "Artists fetched", Error: 0, Data: data });
   } catch (err) {
     next(err);
@@ -53,7 +53,7 @@ const getArtistFollowers = async (req, res, next) => {
     const { artistId } = req.params;
     const data = await userService.getArtistFollowers(artistId);
     res.status(200).json({
-      Message: 'Artist followers fetched',
+      Message: "Artist followers fetched",
       Error: 0,
       Data: data,
     });
@@ -108,7 +108,7 @@ const followArtist = async (req, res, next) => {
   try {
     const { artistId } = req.params;
     const data = await userService.followArtist(req.user._id, artistId);
-    res.status(200).json({ Message: 'Followed artist', Error: 0, Data: data });
+    res.status(200).json({ Message: "Followed artist", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
@@ -118,18 +118,21 @@ const unfollowArtist = async (req, res, next) => {
   try {
     const { artistId } = req.params;
     const data = await userService.unfollowArtist(req.user._id, artistId);
-    res.status(200).json({ Message: 'Unfollowed artist', Error: 0, Data: data });
+    res
+      .status(200)
+      .json({ Message: "Unfollowed artist", Error: 0, Data: data });
   } catch (err) {
     next(err);
   }
 };
 
-
 async function topSongsThisMonth(req, res, next) {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
     const data = await userService.topSongThisMonth(limit);
-    res.status(200).json({ Error: 0, Message: 'Top songs this month', Data: data });
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Top songs this month", Data: data });
   } catch (err) {
     next(err);
   }
@@ -139,7 +142,9 @@ async function topArtistsThisMonth(req, res, next) {
   try {
     const limit = parseInt(req.query.limit, 10) || 10;
     const data = await userService.topArtistThisMonth(limit);
-    res.status(200).json({ Error: 0, Message: 'Top artists this month', Data: data });
+    res
+      .status(200)
+      .json({ Error: 0, Message: "Top artists this month", Data: data });
   } catch (err) {
     next(err);
   }

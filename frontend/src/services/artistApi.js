@@ -91,3 +91,7 @@ export const deletePlaylist = async (playlistId) => {
   const res = await axios.delete(`/artist/playlists/${playlistId}`);
   return res.data;
 };
+export const getArtistProfile = async (artistId) => {
+  const res = await axios.get(`/artist/profile/${artistId}`);
+  return res.data;
+};

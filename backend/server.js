@@ -12,7 +12,7 @@ const playlistRoute = require("./routes/playplistRoute");
 const authRoute = require("./routes/authRoute");
 const adminRoute = require("./routes/adminRoute");
 const paymentRoute = require("./routes/paymentRoute");
-const artistRoute = require("./routes/artistRoute")
+const artistRoute = require("./routes/artistRoute");
 const userRoute = require("./routes/userRoute");
 const musicRoute = require("./routes/musicRoute");
 const session = require("express-session");
@@ -22,19 +22,31 @@ const cors = require("cors");
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5000"], // your frontend and swagger
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5000",
+      "https://fitcify.vercel.app",
+    ], // your frontend and swagger
     credentials: true, // allow cookies, sessions, etc.
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+
 require("./configs/passport");
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.BUILD_MODE === "PRODUCTION",
+      httpOnly: true,
+      sameSite: process.env.BUILD_MODE === "PRODUCTION" ? "None" : "Lax",
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(morgan("dev"));
@@ -75,3 +87,4 @@ app.use(errorHandler);
     console.log("❌ Error connect to DB: ", error);
   }
 })();
+console.log(process.env.BUILD_MODE);

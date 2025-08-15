@@ -8,7 +8,9 @@ import {
   EyeOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { changePassword, sendForgotOtp } from "../../services/authApi";
+import { useDispatch } from "react-redux";
+import { verifyForgotOtpThunk } from "../../redux/slices/userSlice";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle, loading, otp, password, success, error
@@ -21,12 +23,11 @@ export default function ForgotPassword() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const navigate = useNavigate();
   const otpRefs = useRef([]);
-
+  const dispatch = useDispatch();
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
   const maskEmail = (email) => {
     if (!email) return "";
     const [username, domain] = email.split("@");
@@ -56,11 +57,16 @@ export default function ForgotPassword() {
     }
 
     setStatus("loading");
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      setErrors("");
+      await sendForgotOtp(email);
+      setStatus("");
       setStatus("otp");
-    }, 1500);
+    } catch (err) {
+      console.log(err);
+      setErrors({ email: err.response.data.Message });
+      setStatus("");
+    }
   };
 
   const handleOtpChange = (index, value) => {
@@ -82,7 +88,7 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = async () => {
     const otpCode = otp.join("");
     if (otpCode.length !== 6) {
       setErrors({ otp: "Please enter the complete 6-digit code" });
@@ -91,20 +97,17 @@ export default function ForgotPassword() {
 
     setErrors({});
     setStatus("loading");
-
-    // Simulate OTP verification
-    setTimeout(() => {
-      if (otpCode === "123456") {
-        // Demo: correct code
-        setStatus("password");
-      } else {
-        setErrors({ otp: "Invalid code. Please try again." });
-        setStatus("otp");
-      }
-    }, 1000);
+    try {
+      await dispatch(verifyForgotOtpThunk({ email, otp: otpCode }));
+      setStatus("password");
+    } catch (err) {
+      console.log(err);
+      setErrors({ otp: "Invalid code. Please try again." });
+      setStatus("otp");
+    }
   };
 
-  const handlePasswordSubmit = () => {
+  const handlePasswordSubmit = async () => {
     setErrors({});
 
     if (!password) {
@@ -123,15 +126,18 @@ export default function ForgotPassword() {
     }
 
     setStatus("loading");
-
-    // Simulate password reset
-    setTimeout(() => {
+    try {
+      await changePassword(email, password);
       setStatus("success");
-    }, 1500);
+    } catch (err) {
+      setStatus("password");
+      setErrors({ generalError: "Please try again.Something went wrong!" });
+    }
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     setResendCooldown(60);
+    await sendForgotOtp(email);
     setOtp(["", "", "", "", "", ""]);
     setErrors({});
 
@@ -168,8 +174,8 @@ export default function ForgotPassword() {
   // OTP Screen
   if (status === "otp") {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-gray-800 rounded-lg p-8">
+      <div className="min-h-screen bg-gradient-to-b from-[#222222] to-[#040404] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <svg
@@ -236,19 +242,9 @@ export default function ForgotPassword() {
                 Verifying...
               </>
             ) : (
-              "Log in"
+              "Verify"
             )}
           </button>
-
-          {/* Log in with password */}
-          <div className="text-center">
-            <button
-              onClick={() => setStatus("password")}
-              className="text-white cursor-pointer hover:text-green-400 font-medium transition-colors duration-200 underline"
-            >
-              Log in with a password
-            </button>
-          </div>
 
           {/* Back Button */}
           <div className="text-center mt-6">
@@ -270,8 +266,8 @@ export default function ForgotPassword() {
   // Password Reset Screen
   if (status === "password") {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-gray-800 rounded-lg p-8">
+      <div className="min-h-screen bg-gradient-to-b from-[#222222] to-[#040404] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <svg
@@ -372,6 +368,12 @@ export default function ForgotPassword() {
                   </p>
                 </div>
               )}
+              {errors.generalError && (
+                <div className="flex items-center space-x-2 mt-2">
+                  <AlertCircle className="w-4 h-4 text-red-500" />
+                  <p className="text-red-500 text-sm">{errors.generalError}</p>
+                </div>
+              )}{" "}
             </div>
 
             <button
@@ -394,7 +396,7 @@ export default function ForgotPassword() {
           <div className="text-center mt-6">
             <button
               onClick={() => {
-                nagivate("/");
+                navigate("/");
               }}
               className="inline-flex cursor-pointer items-center space-x-2 text-gray-400 hover:text-white text-sm font-medium transition-colors duration-200"
             >
@@ -410,8 +412,8 @@ export default function ForgotPassword() {
   // Success Screen
   if (status === "success") {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-gray-800 rounded-lg p-8">
+      <div className="min-h-screen bg-gradient-to-b from-[#222222] to-[#040404] flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-black" />
@@ -426,10 +428,10 @@ export default function ForgotPassword() {
           </div>
 
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => navigate("/")}
             className="w-full cursor-pointer bg-green-500 hover:bg-green-400 hover:scale-105 text-black font-bold py-3 px-6 rounded-full transition-all duration-200 transform"
           >
-            Continue to Spotify
+            Go to Fitcify
           </button>
         </div>
       </div>
@@ -438,8 +440,8 @@ export default function ForgotPassword() {
 
   // Initial Email Screen
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-gray-800 rounded-lg p-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#222222] to-[#040404] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
         {/* Header */}
         <div className="text-center mb-8">
           {/* Spotify Logo */}
@@ -528,7 +530,7 @@ export default function ForgotPassword() {
               className="text-white cursor-pointer hover:text-green-400 font-medium transition-colors duration-200 underline"
               onClick={() => navigate("/signup")}
             >
-              Sign up for Spotify
+              Sign up for Fitcify
             </button>
           </p>
         </div>

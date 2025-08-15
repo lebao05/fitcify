@@ -8,127 +8,69 @@ import PlaylistCard from "../../components/user/PlaylistCard";
 import AlbumCard from "../../components/user/AlbumCard";
 import ArtistHorizontalDots from "../../components/artist/ArtistHorizontalDots";
 import "./ArtistProfile.scss";
-
-const popularTracks = [
-  {
-    title: "Azizam",
-    artist: "Ed Sheeran",
-    album: "Azizam (Single)",
-    image: "/azizam.jpg",
-    duration: "2:42",
-    isPlaying: false,
-    plays: "171,807,362",
-  },
-  {
-    title: "Sapphire",
-    artist: "Ed Sheeran",
-    album: "Sapphire (Single)",
-    image: "/sapphire.jpg",
-    duration: "2:59",
-    isPlaying: false,
-    plays: "71,448,539",
-  },
-  {
-    title: "Shape of You",
-    artist: "Ed Sheeran",
-    album: "Divide",
-    image: "/shapeofyou.jpg",
-    duration: "3:53",
-    isPlaying: false,
-    plays: "4,438,012,019",
-  },
-  {
-    title: "Perfect",
-    artist: "Ed Sheeran",
-    album: "Divide",
-    image: "/perfect.jpg",
-    duration: "4:23",
-    isPlaying: false,
-    plays: "3,507,933,266",
-  },
-  {
-    title: "Photograph",
-    artist: "Ed Sheeran",
-    album: "Multiply",
-    image: "/photograph.jpg",
-    duration: "4:18",
-    isPlaying: false,
-    plays: "2,999,986,592",
-  },
-];
-
-const albums = [
-  {
-    name: "= (Deluxe)",
-    artist: "Ed Sheeran",
-    image: testImg,
-    year: 2017,
-    type: "Album",
-  },
-  {
-    name: "=",
-    artist: "Ed Sheeran",
-    image: testImg,
-    year: 2021,
-    type: "Album",
-  },
-  {
-    name: "x (Deluxe Edition)",
-    artist: "Ed Sheeran",
-    image: testImg,
-    year: 2014,
-    type: "Album",
-  },
-  // Add singles/EPs for demo
-  {
-    name: "Azizam",
-    artist: "Ed Sheeran",
-    image: "/azizam.jpg",
-    year: 2025,
-    type: "Single",
-  },
-  {
-    name: "Sapphire",
-    artist: "Ed Sheeran",
-    image: "/sapphire.jpg",
-    year: 2025,
-    type: "Single",
-  },
-];
-
-const playlists = [
-  {
-    name: "Drive (From F1® The Movie)",
-    creator: "Ed Sheeran",
-    image: testImg,
-  },
-  {
-    name: "Azizam",
-    creator: "Ed Sheeran",
-    image: testImg,
-  },
-  {
-    name: "Sapphire",
-    creator: "Ed Sheeran",
-    image: testImg,
-  },
-];
-
+import { useParams } from "react-router-dom";
+import { getArtistProfile } from "../../services/artistApi";
+import { useDispatch, useSelector } from "react-redux";
+import { playArtistThunk } from "../../redux/slices/playerSlice";
+import {
+  followArtistThunk,
+  unfollowArtistThunk,
+  clearToast,
+} from "../../redux/slices/myCollectionSlice";
+import NotFound from "../NotFound";
 const discographyTabs = [
-  { label: "Popular releases", value: "popular" },
   { label: "Albums", value: "album" },
-  { label: "Singles and EPs", value: "single" },
+  { label: "Playlist", value: "playlist" },
 ];
+const ArtistProfile = () => {
+  const dispatch = useDispatch();
+  const { artistId } = useParams();
+  const [activeTab, setActiveTab] = useState("album");
+  const [artistData, setArtistData] = useState(null);
+  useEffect(() => {
+    const fetchArtistProfile = async () => {
+      try {
+        const result = await getArtistProfile(artistId);
+        setArtistData(result.Data); // Make sure this matches your API response
+      } catch (error) {}
+    };
+    fetchArtistProfile();
+  }, [artistId]);
+  const followees = useSelector((s) => s.myCollection.followees);
+  const toast = useSelector((s) => s.myCollection.toast);
 
-const ArtistProfile = ({ artist, isOwner }) => {
-  const [activeTab, setActiveTab] = useState("popular");
+  const isFollowing =
+    Array.isArray(followees) &&
+    followees.some((a) => (a?._id || a?.id || a?.userId?._id) === artistId);
 
+  const onToggleFollow = async (e) => {
+    if (isFollowing) {
+      await dispatch(unfollowArtistThunk(artistId));
+    } else {
+      const artistInfo = {
+        _id: artistData.profile.userId._id,
+        username: artistData.profile.userId.username,
+        avatarUrl: artistData.profile.userId.avatarUrl,
+      };
+      await dispatch(followArtistThunk({ artistId, artistInfo }));
+    }
+    setTimeout(() => dispatch(clearToast()), 2000);
+  };
+
+  if (!artistData) {
+    return null;
+  }
+  const playArtist = async () => {
+    await dispatch(playArtistThunk(artistId));
+  };
+
+  const { profile, albums, playlists, songs } = artistData;
   return (
     <div>
       <div className="artist-profile-header">
         <img
           className="artist-profile-header__bg"
-          src={edImg}
+          src={profile.userId.avatarUrl}
           alt="Artist background"
         />
         <div className="artist-profile-header__content">
@@ -145,34 +87,39 @@ const ArtistProfile = ({ artist, isOwner }) => {
             </svg>
             Verified Artist
           </div>
-          <div className="artist-profile-header__name">Ed Sheeran</div>
+          <div className="artist-profile-header__name">
+            {profile.userId.username}
+          </div>
           <div className="artist-profile-header__stats">
-            98,762,221 monthly listeners
+            {profile.totalPlays} monthly listeners
           </div>
         </div>
       </div>
       <div className="artist-profile-actions">
-        {isOwner ? (
-          <ArtistHorizontalDots artist={artist} />
-        ) : (
-          <>
-            <PlayButton onClick={() => {}} />
-            <button className="follow-button" onClick={() => {}}>
-              Follow
-            </button>
-          </>
-        )}
+        <PlayButton onClick={playArtist} />
+        <button
+          className={`follow-button${isFollowing ? " is-following" : ""}`}
+          onClick={onToggleFollow}
+        >
+          {isFollowing ? "Following" : "Follow"}
+        </button>
       </div>
+      {toast && <div className="center-toast">{toast.message}</div>}
+
       <div className="artist-profile-popular">
-        <SectionHeader title="Popular" />
+        <SectionHeader title="Popular songs" />
         <div>
-          {popularTracks.map((track, idx) => (
-            <TrackItem key={track.title} track={track} index={idx} />
-          ))}
+          {songs
+            .slice(0, 10)
+            .sort((a, b) => b.playCount - a.playCount)
+            .map((track, idx) => (
+              <TrackItem key={track._id || idx} track={track} index={idx} />
+            ))}
         </div>
       </div>
+
       <div className="artist-profile-discography">
-        <SectionHeader title="Discography" showAll />
+        <SectionHeader title="Discography" />
         <div className="artist-profile-discography__tabs">
           {discographyTabs.map((tab) => (
             <button
@@ -190,54 +137,27 @@ const ArtistProfile = ({ artist, isOwner }) => {
           ))}
         </div>
         <div className="artist-profile-discography__grid">
-          {activeTab === "popular" &&
-            [
-              ...playlists.map((p) => ({ ...p, isPlaylist: true })),
-              ...albums.map((a) => ({ ...a, isPlaylist: false })),
-            ].map((item) =>
-              item.isPlaylist ? (
-                <PlaylistCard key={item.name} playlist={item} />
-              ) : (
-                <AlbumCard key={item.name} album={item} />
-              )
-            )}
           {activeTab === "album" &&
-            albums
-              .filter((a) => a.type === "Album")
-              .map((item) => <AlbumCard key={item.name} album={item} />)}
-          {activeTab === "single" &&
-            albums
-              .filter((a) => a.type === "Single")
-              .map((item) => <AlbumCard key={item.name} album={item} />)}
+            albums.map((item) => <AlbumCard key={item.name} album={item} />)}
+          {activeTab === "playlist" &&
+            playlists.map((item) => (
+              <PlaylistCard key={item.name} playlist={item} />
+            ))}
         </div>
       </div>
-
-      {/* About Section */}
       <div className="artist-profile-about">
         <SectionHeader title="About" />
         <div className="artist-profile-about__card">
           <img
             className="artist-profile-about__img"
-            src={edImg}
+            src={profile.userId.avatarUrl}
             alt="About artist"
           />
-          <div className="artist-profile-about__badge">
-            <span className="artist-profile-about__badge-rank">#4</span>
-            <span className="artist-profile-about__badge-label">
-              in the world
-            </span>
-          </div>
           <div className="artist-profile-about__info">
             <div className="artist-profile-about__listeners">
-              <b>98,762,221 monthly listeners</b>
+              <b>{profile.totalPlays} monthly listeners</b>
             </div>
-            <div className="artist-profile-about__desc">
-              Idiosyncratic pop singer Ed Sheeran borrows from any style that
-              crosses his path, molding genres to fit a musical character all
-              his own that's charming, personable, and popular on a global
-              scale. Elements of folk, hip-hop, pop, dance, soul, and rock shape
-              his music.
-            </div>
+            <div className="artist-profile-about__desc">{profile.bio}</div>
           </div>
         </div>
       </div>

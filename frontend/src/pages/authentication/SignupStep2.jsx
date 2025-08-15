@@ -6,6 +6,7 @@ import {
   setDateOfBirth,
   setGender,
 } from "../../redux/slices/signupSlice";
+import applogo from "../../assets/applogo.jpg";
 import { registerUser } from "../../redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -23,20 +24,45 @@ export default function SignupStep2() {
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const handleDOBChange = (key, value) => {
     dispatch(setDateOfBirth({ ...dateOfBirth, [key]: value }));
   };
+  const isValidDate = (day, monthName, year) => {
+    const monthIndex = months.indexOf(monthName);
+    if (monthIndex === -1) return false; // Invalid month
 
+    const d = parseInt(day, 10);
+    const y = parseInt(year, 10);
+
+    // Year check: 1900 <= year <= current year
+    const currentYear = new Date().getFullYear();
+    if (isNaN(y) || y < 1900 || y > currentYear) return false;
+
+    // Day check: must be between 1 and the max days in that month/year
+    const maxDays = new Date(y, monthIndex + 1, 0).getDate();
+    return d >= 1 && d <= maxDays;
+  };
   const isValid =
     name.trim() !== "" &&
     dateOfBirth.day !== "" &&
     dateOfBirth.month !== "" &&
     dateOfBirth.year !== "" &&
-    gender !== "";
+    gender !== "" &&
+    isValidDate(dateOfBirth.day, dateOfBirth.month, dateOfBirth.year);
 
   const handleRegister = async () => {
     if (!isValid) return;
@@ -60,7 +86,7 @@ export default function SignupStep2() {
       );
 
       if (res.meta.requestStatus === "fulfilled") {
-        navigate("/home"); // Redirect to homepage or dashboard
+        navigate("/"); // Redirect to homepage or dashboard
       }
     } catch (error) {
       console.error("Registration failed", error);
@@ -71,12 +97,12 @@ export default function SignupStep2() {
     <div className="signup-step1">
       {/* Spotify Logo */}
       <div className="mb-12">
-        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-          <div className="space-y-1">
-            <div className="w-6 h-0.5 bg-black rounded"></div>
-            <div className="w-6 h-0.5 bg-black rounded"></div>
-            <div className="w-6 h-0.5 bg-black rounded"></div>
-          </div>
+        <div className="mb-12">
+          <img
+            src={applogo}
+            alt="App Logo"
+            className="w-32 h-32 rounded-full object-contain"
+          />
         </div>
       </div>
 
@@ -121,13 +147,6 @@ export default function SignupStep2() {
           <label className="block text-sm font-medium mb-1">
             Date of birth
           </label>
-          <p className="text-xs text-gray-400 mb-2">
-            Why do we need your date of birth?{" "}
-            <a href="#" className="text-[#1DB954] underline hover:no-underline">
-              Learn more
-            </a>
-            .
-          </p>
           <div className="flex gap-3">
             <input
               type="text"
@@ -182,14 +201,9 @@ export default function SignupStep2() {
         {/* Gender */}
         <div>
           <label className="block text-sm font-medium mb-1">Gender</label>
-          <p className="text-xs text-gray-400 mb-4">
-            We use your gender to help personalize our content recommendations and ads for you.
-          </p>
           <div className="space-y-3">
             <div className="flex flex-wrap gap-x-8 gap-y-3">
-              {[
-                "man", "woman", "non-binary", "something-else", "prefer-not-to-say"
-              ].map((g) => (
+              {["man", "woman", "other"].map((g) => (
                 <label key={g} className="flex items-center cursor-pointer">
                   <input
                     type="radio"
@@ -221,7 +235,7 @@ export default function SignupStep2() {
         <button
           onClick={handleRegister}
           disabled={!isValid || loading}
-          className={`w-full h-12 rounded-full font-bold text-black transition-all ${
+          className={`w-full h-12 cursor-pointer rounded-full font-bold text-black transition-all ${
             isValid
               ? "bg-[#1DB954] hover:bg-[#1ed760]"
               : "bg-gray-600 cursor-not-allowed"
@@ -229,15 +243,6 @@ export default function SignupStep2() {
         >
           {loading ? "Registering..." : "Register"}
         </button>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-16 text-center">
-        <p className="text-xs text-gray-500">
-          This site is protected by reCAPTCHA and the Google{" "}
-          <a href="#" className="underline hover:text-gray-400">Privacy Policy</a> and{" "}
-          <a href="#" className="underline hover:text-gray-400">Terms of Service</a> apply.
-        </p>
       </div>
     </div>
   );

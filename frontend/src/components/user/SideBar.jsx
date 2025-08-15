@@ -8,18 +8,21 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   createUserPlaylist,
+  fetchFollowee,
   fetchLikedSongs,
   fetchUserPlaylists,
 } from "../../redux/slices/myCollectionSlice.js";
 import ContextMenu from "./ContextMenu.jsx"; // ✅ Adjust this path if needed
 import { deletePlaylist } from "../../services/playlistApi.js";
-
+import default_music from "../../assets/default-music.png";
+import { unfollowArtist } from "../../services/userApi.js";
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const playlist = useSelector((state) => state.myCollection.playlists);
   const user = useSelector((state) => state.user.myAuth);
   const likedTracks = useSelector((state) => state.myCollection.likedSongs);
+  const followees = useSelector((state) => state.myCollection.followees);
   const likedItem = {
     cover: assets.liked_icon,
     title: "Liked Songs",
@@ -44,8 +47,31 @@ const Sidebar = () => {
       console.error("Failed to create playlist");
     }
   };
-
-  const handleContextMenu = (e, playlist) => {
+  const handleArtistContextMenu = (e, artist) => {
+    e.preventDefault();
+    const options = [
+      {
+        label: "Go to artist",
+        onClick: () => {
+          navigate(`/artist/${artist._id}`);
+        },
+      },
+      {
+        label: "Unfollow",
+        onClick: async () => {
+          await unfollowArtist(artist._id); // call API to unfollow
+          await dispatch(fetchFollowee(user._id)); // refresh followee list
+        },
+      },
+    ];
+    setContextMenu({
+      x: e.pageX,
+      y: e.pageY,
+      artist,
+      options,
+    });
+  };
+  const handlePlaylistContextMenu = (e, playlist) => {
     e.preventDefault();
     const options = [
       {
@@ -79,9 +105,10 @@ const Sidebar = () => {
   const closeContextMenu = () => setContextMenu(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && user?._id) {
       dispatch(fetchUserPlaylists());
       dispatch(fetchLikedSongs());
+      dispatch(fetchFollowee(user._id));
     }
   }, [user, dispatch]);
 
@@ -100,39 +127,57 @@ const Sidebar = () => {
             alt="Create Playlist"
           />
         </div>
-
-        <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover pb-32">
-          <LikedTrackBar
-            cover={likedItem.cover}
-            title={likedItem.title}
-            subtitle={likedItem.subtitle}
-            onClick={() => navigate("/likedtrack")}
-          />
-
-          {playlist?.map((item) => (
-            <div
-              key={item._id}
-              onContextMenu={(e) => handleContextMenu(e, item)} // ✅ Right-click
+        {!user && (
+          <div className="hover:bg-[#242424] text-white rounded-lg py-2 flex flex-col gap-2 mt-4 mx-2">
+            <p className="font-semibold">Create your first playlist</p>
+            <p className="text-sm text-[#b3b3b3]">It's easy, we'll help you</p>
+            <button
+              onClick={() => navigate("/login")}
+              className="bg-white cursor-pointer text-black font-semibold text-sm px-4 py-2 rounded-full w-fit"
             >
-              <PlayplistBar
-                cover={item.imageUrl || assets.music_placeholder}
-                title={item.name}
-                subtitle={`Playlist • ${item.owner?.name || "You"}`}
-                onClick={() => navigate(`/playlist/${item._id}`)}
-              />
-            </div>
-          ))}
+              Log in to create playlist
+            </button>
+          </div>
+        )}
+        {user && (
+          <div className="flex-1 overflow-y-auto pr-2 space-y-1 scroll-on-hover pb-32">
+            <LikedTrackBar
+              cover={likedItem.cover}
+              title={likedItem.title}
+              subtitle={likedItem.subtitle}
+              onClick={() => navigate("/likedtrack")}
+            />
 
-          {user?.followees &&
-            user.followees.map((item) => (
-              <ArtistBar
+            {playlist?.map((item) => (
+              <div
                 key={item._id}
-                avatar={item.avatarUrl}
-                name={item.username}
-                onClick={() => console.log("Playlist clicked", item.username)}
-              />
+                onContextMenu={(e) => handlePlaylistContextMenu(e, item)} // ✅ Right-click
+              >
+                <PlayplistBar
+                  cover={item.imageUrl || default_music}
+                  title={item.name}
+                  subtitle={`Playlist • ${item.owner?.name || "You"}`}
+                  onClick={() => navigate(`/playlist/${item._id}`)}
+                  id={item._id}
+                />
+              </div>
             ))}
-        </div>
+
+            {followees?.map((item) => (
+              <div
+                key={item._id}
+                onContextMenu={(e) => handleArtistContextMenu(e, item)}
+              >
+                <ArtistBar
+                  avatar={item.avatarUrl}
+                  id={item._id}
+                  name={item.username}
+                  onClick={() => navigate(`/artist/${item._id}`)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ✅ Context menu UI */}

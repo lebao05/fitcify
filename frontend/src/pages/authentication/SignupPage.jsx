@@ -2,19 +2,21 @@ import React, { useState } from "react";
 import "./SignupPage.scss";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setEmail } from "../../redux/slices/signupSlice"; // adjust path
-import logo from "../../assets/applogo.jpg"; // Adjust path if necessary
-import { getGoogleOAuthUrl, getFacebookOAuthUrl } from "../../services/authApi";
+import { setEmail } from "../../redux/slices/signupSlice";
+import logo from "../../assets/applogo.jpg";
+import {
+  getGoogleOAuthUrl,
+  getFacebookOAuthUrl,
+  checkEmailExists,
+} from "../../services/authApi";
 
 export default function SpotifyLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redux state
   const email = useSelector((state) => state.signup.email);
 
-  // Local state
-  const [showError, setShowError] = useState(false);
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const validateEmail = (email) => {
@@ -24,32 +26,54 @@ export default function SpotifyLogin() {
 
   const handleEmailChange = (e) => {
     dispatch(setEmail(e.target.value));
-    console.log("Email changed:", e.target.value);
-    if (showError && e.target.value.trim()) {
-      setShowError(false);
+    if (error) {
+      setError(""); // Clear error if user types again
     }
   };
 
-  const handleContinue = () => {
-    if (!email.trim() || !validateEmail(email)) {
-      setShowError(true);
+  const handleContinue = async () => {
+    setError("");
+    if (!email.trim()) {
+      setError("Please enter your email.");
       return;
     }
 
-    navigate("/signup-step1");
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const result = await checkEmailExists(email);
+      console.log(result);
+      // You can optionally validate the response here
+      if (result) {
+        setError("An account already exists with that email.");
+        return;
+      }
+
+      navigate("/signup-step1");
+    } catch (err) {
+      if (err.response?.data?.Message == "No account with that email")
+        navigate("/signup-step1");
+      else setError("Please try again.Something went wrong!");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSignupWithGoogle = () => {
     window.location.href = getGoogleOAuthUrl(
-      "http://localhost:5173",
-      "http://localhost:5173/signup"
+      "https://fitcify.vercel.app",
+      "https://fitcify.vercel.app/signup"
     );
   };
 
   const handleSignupWithFacebook = () => {
     window.location.href = getFacebookOAuthUrl(
-      "http://localhost:5173",
-      "http://localhost:5173/signup"
+      "https://fitcify.vercel.app/",
+      "https://fitcify.vercel.app/signup"
     );
   };
 
@@ -67,9 +91,10 @@ export default function SpotifyLogin() {
             src={logo}
             alt="Fitcify Logo"
             className="fitcify-logo"
-            onClick={() => (window.location.href = "/")}
+            onClick={() => navigate("/")}
           />
         </div>
+
         <div className="title">Sign up to start listening</div>
 
         <div className="login-with">
@@ -108,21 +133,17 @@ export default function SpotifyLogin() {
               value={email}
               onChange={handleEmailChange}
               onKeyPress={handleKeyPress}
-              className={`email-input ${showError ? "error" : ""}`}
+              className={`email-input ${error ? "error" : ""}`}
               disabled={isLoading}
               autoComplete="email"
             />
-            {showError && (
-              <div className="error-message">
-                {!email.trim()
-                  ? "Please enter your email or username."
-                  : "Please enter a valid email address."}
-              </div>
-            )}
+            {error && <div className="error-message">{error}</div>}
           </div>
 
           <div className="continue-button">
-            <button onClick={handleContinue}>Next</button>
+            <button onClick={handleContinue} disabled={isLoading}>
+              {isLoading ? "Loading..." : "Continue to register"}
+            </button>
           </div>
         </div>
 
@@ -131,7 +152,7 @@ export default function SpotifyLogin() {
             Already have an account?{" "}
             <span
               className="link"
-              onClick={() => (window.location.href = "/login")}
+              onClick={() => navigate("/login")}
               role="button"
               tabIndex={0}
             >

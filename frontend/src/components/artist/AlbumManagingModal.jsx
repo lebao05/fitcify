@@ -152,7 +152,11 @@ const AlbumManagingModal = ({
                     </span>
                   )}
                 </span>
-                <span className="text-sm text-gray-400">{song.duration}</span>
+                <span className="text-sm text-gray-400">
+                  {" "}
+                  {Math.floor(song.duration / 60)}:
+                  {(song.duration % 60).toString().padStart(2, "0")}
+                </span>
               </div>
             );
           })}

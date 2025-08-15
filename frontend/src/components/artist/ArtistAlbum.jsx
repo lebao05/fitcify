@@ -61,6 +61,7 @@ const ArtistAlbum = () => {
         {data.map((album) => (
           <div
             key={album._id}
+            album={album}
             style={{ cursor: "pointer" }}
             onClick={() => handleEditClick(album)}
           >

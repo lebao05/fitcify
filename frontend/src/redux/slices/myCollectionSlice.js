@@ -12,6 +12,13 @@ import {
   getTopArtists,
   getLikedSongs,
 } from "../../services/musicApi";
+import {
+  getFollowedArtists,
+  getTopArtistsThisMonth,
+  getTopSongsThisMonth,
+  followArtist,
+  unfollowArtist,
+} from "../../services/userApi";
 // ───── THUNKS ─────
 // ─── THUNKS ───
 export const fetchTopSongs = createAsyncThunk(
@@ -153,15 +160,85 @@ export const fetchLikedSongs = createAsyncThunk(
     }
   }
 );
+export const fetchTopSongsThisMonth = createAsyncThunk(
+  "music/fetchTopSongsThisMonth",
+  async ({ limit = 5 }, thunkAPI) => {
+    try {
+      const data = await getTopSongsThisMonth(limit);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message || "Failed to fetch top songs this month"
+      );
+    }
+  }
+);
 
+// Fetch Top Artists This Month (New)
+export const fetchTopArtistsThisMonth = createAsyncThunk(
+  "music/fetchTopArtistsThisMonth",
+  async ({ limit = 5 }, thunkAPI) => {
+    try {
+      const data = await getTopArtistsThisMonth(limit);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message ||
+          "Failed to fetch top artists this month"
+      );
+    }
+  }
+);
+export const fetchFollowee = createAsyncThunk(
+  "music/fetchFollowee",
+  async (userId, thunkAPI) => {
+    try {
+      const data = await getFollowedArtists(userId);
+      return data.Data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.Message ||
+          "Failed to fetch top artists this month"
+      );
+    }
+  }
+);
+// ── Follow / Unfollow artist ──
+export const followArtistThunk = createAsyncThunk(
+  "myCollection/followArtist",
+  async ({ artistId, artistInfo }, thunkAPI) => {
+     try {
+       const res = await followArtist(artistId);
+      // trả về kèm artistInfo để cập nhật UI ngay
+      return { artistId, artistInfo, data: res?.Data };
+     } catch (err) {
+       return thunkAPI.rejectWithValue(err?.response?.data || err?.message);
+     }
+   }
+ );
+
+export const unfollowArtistThunk = createAsyncThunk(
+  "myCollection/unfollowArtist",
+  async (artistId, thunkAPI) => {
+    try {
+      const res = await unfollowArtist(artistId);
+      return { artistId, data: res?.Data };
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err?.response?.data || err?.message);
+    }
+  }
+);
 // ───── INITIAL STATE ─────
 const initialState = {
+  topArtistsMonth: [],
+  topSongsMonth: [],
   playlists: [],
   likedSongs: [],
   topSongs: [],
   topAlbums: [],
   topArtists: [],
-  followee: [],
+  followees: [],
+  toast: null,
   loading: false,
   error: null,
 };
@@ -170,7 +247,11 @@ const initialState = {
 const myCollectionSlice = createSlice({
   name: "myCollection",
   initialState,
-  reducers: {},
+  reducers: {
+    clearToast(state) {
+    state.toast = null;
+},
+  },
   extraReducers: (builder) => {
     builder
       // ── Fetch All ──
@@ -286,8 +367,85 @@ const myCollectionSlice = createSlice({
       .addCase(fetchLikedSongs.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
+      })
+
+      .addCase(fetchTopSongsThisMonth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopSongsThisMonth.fulfilled, (state, action) => {
+        state.topSongsMonth = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopSongsThisMonth.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      .addCase(fetchFollowee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFollowee.fulfilled, (state, action) => {
+        state.followees = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchFollowee.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // Fetch Top Artists This Month
+      .addCase(fetchTopArtistsThisMonth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopArtistsThisMonth.fulfilled, (state, action) => {
+        state.topArtistsMonth = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchTopArtistsThisMonth.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      //Follow/unfollow
+      .addCase(followArtistThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(followArtistThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const { artistId, artistInfo } = action.payload || {};
+        const exists = (state.followees || []).some(
+          a => (a?._id || a?.id || a?.userId?._id) === artistId
+        );
+        if (!exists) {
+          state.followees = [...(state.followees || []), artistInfo];
+        }
+        state.toast = { message: "Đã thêm vào Thư viện.", type: "add" };
+      })
+      .addCase(followArtistThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(unfollowArtistThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(unfollowArtistThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const { artistId } = action.payload || {};
+        state.followees = (state.followees || []).filter(
+          a => (a?._id || a?.id || a?.userId?._id) !== artistId
+        );
+        state.toast = { message: "Đã xoá khỏi thư viện", type: "remove" };
+      })
+      .addCase(unfollowArtistThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
-
+export const { clearToast } = myCollectionSlice.actions;
 export default myCollectionSlice.reducer;

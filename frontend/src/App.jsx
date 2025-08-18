@@ -73,8 +73,8 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="profile" element={<ArtistProfile isOwner={true} />} />
-          <Route path="dashboard" element={<ArtistDashboard />} />
+          <Route path="profile" element={<div>Artist Profile Page</div>} />
+          <Route path="dashboard" element={<div>Artist Dashboard Page</div>} />
           <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />
           <Route path="albums" element={<ArtistAlbum />} />
           <Route path="music" element={<ArtistSong songs={[]} />} />

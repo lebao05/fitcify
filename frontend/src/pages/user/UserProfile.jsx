@@ -4,7 +4,6 @@ import SectionHeader from "../../components/user/SectionHeader.jsx";
 import ArtistCard from "../../components/user/ArtistCard.jsx";
 import TrackItem from "../../components/user/TrackItem.jsx";
 import PlaylistCard from "../../components/user/PlaylistCard.jsx";
-import ProfileFooter from "../../components/user/ProfileFooter.jsx";
 import EditProfileDialog from "../../components/user/EditProfileDialog.jsx"; // ✅ new import
 import "./UserProfile.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -145,7 +144,6 @@ const UserProfile = () => {
                 ))}
           </div>
         </section>
-        <ProfileFooter />
       </div>
     </div>
   );

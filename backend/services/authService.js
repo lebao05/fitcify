@@ -4,6 +4,19 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { sendMail } = require("../services/emailService");
 
+/* ─── Password helper ─── */
+function validatePasswordStrength(password) {
+  const hasLetter = /[A-Za-z]/.test(password);
+  const hasNumberOrSpecial = /[\d\W]/.test(password);
+  const longEnough = password.length >= 10;
+
+  if (!hasLetter || !hasNumberOrSpecial || !longEnough) {
+    throw new Error(
+      "Password must be at least 10 characters, include at least 1 letter and 1 number or special character."
+    );
+  }
+}
+
 /* ─── JWT helpers ─── */
 const generateAccessToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET, {
@@ -27,6 +40,8 @@ const verifyToken = (token) => {
 async function signUpWithEmail(body) {
   const { username, email, password, dateOfBirth, gender } = body;
   if (await User.findOne({ email })) throw new Error("Email already in use");
+
+  validatePasswordStrength(password);
 
   const user = await User.create({
     username,
@@ -118,6 +133,8 @@ async function verifyForgotOtp(email, otp) {
 async function changePassword(email, newPassword) {
   const user = await User.findOne({ email });
   if (!user) throw new Error("User with email not found");
+
+  validatePasswordStrength(newPassword);
 
   user.password = newPassword; // hashed by pre‑save hook
   await user.save();

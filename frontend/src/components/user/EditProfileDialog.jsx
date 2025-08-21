@@ -129,7 +129,7 @@ const EditProfileDialog = ({ user, open, onClose }) => {
             lineHeight: "1.4",
           }}
         >
-          By proceeding, you agree to give Spotify access to the image you
+          By proceeding, you agree to give Fitcify access to the image you
           choose to upload. Please make sure you have the right to upload the
           image.
         </p>

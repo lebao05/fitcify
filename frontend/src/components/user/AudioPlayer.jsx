@@ -161,7 +161,6 @@ const AudioPlayer = () => {
       {/* Center: Controls + Seekbar */}
       <div className="flex-1 flex flex-col items-center gap-2">
         <div className="flex gap-5 items-center">
-          <img src={assets.shuffle_icon} className="w-4 cursor-pointer" />
           <img
             src={assets.prev_icon}
             className="w-4 cursor-pointer"
@@ -185,7 +184,6 @@ const AudioPlayer = () => {
             className="w-4 cursor-pointer"
             onClick={next}
           />
-          <img src={assets.loop_icon} className="w-4 cursor-pointer" />
         </div>
 
         <div className="flex items-center gap-3 text-xs w-full justify-center">

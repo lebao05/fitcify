@@ -14,11 +14,57 @@ import {
 import applogo from "../../assets/applogo.jpg";
 import NotFound from "../../pages/NotFound";
 
+function CenterToast({ message, type = "info", onClose, duration = 2200 }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, duration);
+    return () => clearTimeout(t);
+  }, [onClose, duration]);
+
+  const bg =
+    type === "success" ? "rgba(22,163,74,.92)" :
+    type === "error"   ? "rgba(220,38,38,.92)" :
+                         "rgba(39,39,42,.92)";
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          pointerEvents: "auto",
+          padding: "12px 16px",
+          borderRadius: 12,
+          color: "#fff",
+          background: bg,
+          boxShadow: "0 10px 30px rgba(0,0,0,.35)",
+          fontSize: 14,
+          maxWidth: 480,
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+
 const DisplayAlbum = () => {
   const [contextMenu, setContextMenu] = useState(null);
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
   const dispatch = useDispatch();
   const playlists = useSelector((state) => state.myCollection.playlists);
+
+  const [toast, setToast] = useState(null); 
+  const showToast = (message, type = "info") => setToast({ message, type });
+
   const handleRightClick = (e, song, isLiked) => {
     e.preventDefault();
     const options = [
@@ -27,9 +73,22 @@ const DisplayAlbum = () => {
         submenu: playlists.map((pl) => ({
           label: pl.name,
           onClick: async () => {
-            console.log(`Add song '${song.title}' to playlist '${pl.label}'`);
-            await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
-            await dispatch(fetchUserPlaylists());
+            try {
+              await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
+              await dispatch(fetchUserPlaylists());
+              showToast("Đã thêm vào playlist", "success");
+            } catch (err) {
+              const status = err?.response?.status || err?.status;
+              if (status === 409) {
+                showToast("Bài hát đã có sẵn trong playlist", "info");
+              } else if (status === 404) {
+                showToast("Playlist hoặc bài hát không tồn tại", "error");
+              } else if (status === 403) {
+                showToast("Bạn không có quyền sửa playlist này", "error");
+              } else {
+                showToast("Thêm bài hát thất bại. Vui lòng thử lại!", "error");
+              }
+            }
           },
         })),
       },
@@ -157,7 +216,7 @@ const DisplayAlbum = () => {
               <div
                 key={song._id}
                 onClick={() => handlePlayAlbum(index)}
-                onContextMenu={(e) => handleRightClick(e, song, isLiked)} // 👈 Add this line
+                onContextMenu={(e) => handleRightClick(e, song, isLiked)} 
                 className="group grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 songs-center text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer rounded"
               >
                 {/* Title + image */}
@@ -224,6 +283,7 @@ const DisplayAlbum = () => {
           );
         })}
       </div>
+
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
@@ -232,6 +292,16 @@ const DisplayAlbum = () => {
           onClose={() => setContextMenu(null)}
         />
       )}
+
+      {/* ===== Render toast (chỉ thêm mới) ===== */}
+      {toast && (
+        <CenterToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+      {/* ====================================== */}
     </div>
   );
 };

@@ -21,6 +21,49 @@ import { Heart } from "lucide-react";
 import ContextMenu from "./ContextMenu"; // Adjust path if needed
 import applogo from "../../assets/applogo.jpg";
 import NotFound from "../../pages/NotFound";
+
+function CenterToast({ message, type = "info", onClose, duration = 2200 }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, duration);
+    return () => clearTimeout(t);
+  }, [onClose, duration]);
+
+  const bg =
+    type === "success" ? "rgba(22,163,74,.92)" :
+    type === "error"   ? "rgba(220,38,38,.92)" :
+                         "rgba(39,39,42,.92)";
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          pointerEvents: "auto",
+          padding: "12px 16px",
+          borderRadius: 12,
+          color: "#fff",
+          background: bg,
+          boxShadow: "0 10px 30px rgba(0,0,0,.35)",
+          fontSize: 14,
+          maxWidth: 480,
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+
 const DisplayPlaylist = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,6 +77,10 @@ const DisplayPlaylist = () => {
   const user = useSelector((state) => state.user.myAuth);
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
   const playlists = useSelector((state) => state.myCollection.playlists);
+
+
+  const [toast, setToast] = useState(null); 
+  const showToast = (message, type = "info") => setToast({ message, type });
 
   const handleSave = async ({ name, description, cover }) => {
     try {
@@ -79,8 +126,22 @@ const DisplayPlaylist = () => {
         submenu: playlists.map((pl) => ({
           label: pl.name,
           onClick: async () => {
-            await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
-            await dispatch(fetchUserPlaylists());
+            try {
+              await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
+              await dispatch(fetchUserPlaylists());
+              showToast("Đã thêm vào playlist", "success");
+            } catch (err) {
+              const status = err?.response?.status || err?.status;
+              if (status === 409) {
+                showToast("Bài hát đã có sẵn trong playlist", "info");
+              } else if (status === 404) {
+                showToast("Playlist hoặc bài hát không tồn tại", "error");
+              } else if (status === 403) {
+                showToast("Bạn không có quyền sửa playlist này", "error");
+              } else {
+                showToast("Thêm bài hát thất bại. Vui lòng thử lại!", "error");
+              }
+            }
           },
         })),
       },
@@ -276,6 +337,16 @@ const DisplayPlaylist = () => {
           onSave={handleSave}
         />
       )}
+
+      {/* ===== Render toast (chỉ thêm mới) ===== */}
+      {toast && (
+        <CenterToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+      {/* ====================================== */}
     </div>
   );
 };

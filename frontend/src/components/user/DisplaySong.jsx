@@ -15,6 +15,50 @@ import ContextMenu from "./ContextMenu";
 import applogo from "../../assets/applogo.jpg";
 import NotFound from "../../pages/NotFound";
 
+/* ===== Toast cục bộ (giữa màn hình) — chỉ thêm mới, không ảnh hưởng logic khác ===== */
+function CenterToast({ message, type = "info", onClose, duration = 2200 }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, duration);
+    return () => clearTimeout(t);
+  }, [onClose, duration]);
+
+  const bg =
+    type === "success" ? "rgba(22,163,74,.92)" :
+    type === "error"   ? "rgba(220,38,38,.92)" :
+                         "rgba(39,39,42,.92)";
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        style={{
+          pointerEvents: "auto",
+          padding: "12px 16px",
+          borderRadius: 12,
+          color: "#fff",
+          background: bg,
+          boxShadow: "0 10px 30px rgba(0,0,0,.35)",
+          fontSize: 14,
+          maxWidth: 480,
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </div>
+    </div>
+  );
+}
+/* ===== Hết phần toast ===== */
+
 const DisplaySong = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,6 +70,11 @@ const DisplaySong = () => {
   const likedSongs = useSelector((state) => state.myCollection.likedSongs);
   const playlists = useSelector((state) => state.myCollection.playlists);
   const liked = likedSongs?.some((s) => s._id === song?._id);
+
+
+  const [toast, setToast] = useState(null); 
+  const showToast = (message, type = "info") => setToast({ message, type });
+
   useEffect(() => {
     if (id) {
       getSongById(id)
@@ -61,8 +110,24 @@ const DisplaySong = () => {
         submenu: playlists.map((pl) => ({
           label: pl.name,
           onClick: async () => {
-            await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
-            await dispatch(fetchUserPlaylists());
+            try {
+              await addSongToPlaylist({ playlistId: pl._id, songId: song._id });
+              await dispatch(fetchUserPlaylists());
+              // ✅ Toast khi thành công
+              showToast("Đã thêm vào playlist", "success");
+            } catch (err) {
+              // ✅ Toast theo status code từ backend
+              const status = err?.response?.status || err?.status;
+              if (status === 409) {
+                showToast("Bài hát đã có sẵn trong playlist", "info");
+              } else if (status === 404) {
+                showToast("Playlist hoặc bài hát không tồn tại", "error");
+              } else if (status === 403) {
+                showToast("Bạn không có quyền sửa playlist này", "error");
+              } else {
+                showToast("Thêm bài hát thất bại. Vui lòng thử lại!", "error");
+              }
+            }
           },
         })),
       },
@@ -90,7 +155,7 @@ const DisplaySong = () => {
   return (
     <div
       className="h-full px-5 overflow-y-auto pr-4 scroll-on-hover"
-      onContextMenu={handleRightClick} // 👈 Apply right click handler on container
+      onContextMenu={handleRightClick} // 👈 vẫn giữ handler tại container
     >
       <div className="flex-1 overflow-y-auto">
         {/* Song Info */}
@@ -217,6 +282,16 @@ const DisplaySong = () => {
           onClose={() => setContextMenu(null)}
         />
       )}
+
+      {/* ===== Render toast (chỉ thêm mới) ===== */}
+      {toast && (
+        <CenterToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+      {/* ====================================== */}
     </div>
   );
 };

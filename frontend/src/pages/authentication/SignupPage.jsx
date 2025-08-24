@@ -49,7 +49,7 @@ export default function SpotifyLogin() {
       console.log(result);
       // You can optionally validate the response here
       if (result) {
-        setError("An account already exists with that email.");
+        setError("Account exists, log in instead.");
         return;
       }
 

@@ -57,7 +57,7 @@ export default function ForgotPassword() {
       setStatus("otp");
     } catch (err) {
       console.log(err);
-      setErrors({ email: err.response.data.Message });
+      setErrors({ email: "Email not found" });
       setStatus("");
     }
   };
@@ -152,7 +152,6 @@ export default function ForgotPassword() {
       <div className="min-h-screen bg-gradient-to-b from-[#222222] to-[#040404] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
           <div className="text-center mb-8">
-
             <h1 className="text-2xl font-bold text-white mb-4">
               Enter the 6-digit code sent to you at {maskEmail(email)}.
             </h1>
@@ -235,7 +234,6 @@ export default function ForgotPassword() {
       <div className="min-h-screen bg-gradient-to-b from-[#222222] to-[#040404] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
           <div className="text-center mb-8">
-
             <h1 className="text-3xl font-bold text-white mb-2">
               Create new password
             </h1>
@@ -401,7 +399,6 @@ export default function ForgotPassword() {
       <div className="w-full max-w-md bg-[#121212] rounded-lg p-8">
         {/* Header */}
         <div className="text-center mb-8">
-
           <h1 className="text-3xl font-bold text-white mb-2">
             Reset your password
           </h1>
@@ -418,7 +415,7 @@ export default function ForgotPassword() {
               htmlFor="email"
               className="block text-white font-medium mb-2"
             >
-              Email or username
+              Email
             </label>
             <input
               id="email"
@@ -428,7 +425,7 @@ export default function ForgotPassword() {
               className={`w-full px-4 py-3 bg-gray-700 border ${
                 errors.email ? "border-red-500" : "border-gray-600"
               } rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-500 transition-all duration-200`}
-              placeholder="Email or username"
+              placeholder="Email"
               disabled={status === "loading"}
             />
             {errors.email && (

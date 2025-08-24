@@ -75,15 +75,15 @@ export default function SpotifyLogin({ email, setEmail }) {
 
   const handleLoginWithGoogle = () => {
     window.location.href = getGoogleOAuthUrl(
-      "https://fitcify.vercel.app",
-      "https://fitcify.vercel.app/login"
+      "http://localhost:5173",
+      "http://localhost:5173/login"
     );
   };
 
   const handleLoginWithFacebook = () => {
     window.location.href = getFacebookOAuthUrl(
-      "https://fitcify.vercel.app",
-      "https://fitcify.vercel.app/login"
+      "http://localhost:5173",
+      "http://localhost:5173/login"
     );
   };
 

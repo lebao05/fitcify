@@ -75,23 +75,23 @@ const menu = [
     ),
     path: "/artist/playlists",
   },
-  {
-    label: "Profile",
-    icon: (
-      <svg
-        width="20"
-        height="20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        viewBox="0 0 24 24"
-      >
-        <circle cx="12" cy="8" r="4" />
-        <path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
-      </svg>
-    ),
-    path: "/artist/profile",
-  },
+  // {
+  //   label: "Profile",
+  //   icon: (
+  //     <svg
+  //       width="20"
+  //       height="20"
+  //       fill="none"
+  //       stroke="currentColor"
+  //       strokeWidth="2"
+  //       viewBox="0 0 24 24"
+  //     >
+  //       <circle cx="12" cy="8" r="4" />
+  //       <path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
+  //     </svg>
+  //   ),
+  //   path: "/artist/profile",
+  // },
 ];
 
 const ArtistSidebar = () => {

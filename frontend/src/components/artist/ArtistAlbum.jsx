@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import testImg from "../../assets/test.jpg";
 import AlbumCard from "../user/AlbumCard.jsx";
 import CreateAlbumForm from "./CreateAlbumForm.jsx";
 import AlbumManagingModal from "./AlbumManagingModal.jsx";

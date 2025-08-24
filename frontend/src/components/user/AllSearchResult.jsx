@@ -37,7 +37,7 @@ export default function GeneralSearchResult({ searchResult }) {
     <div className="space-y-12 text-white">
       {/* Songs */}
       <div className="flex flex-col md:flex-row gap-8 items-stretch">
-        <div className="md:w-[70%]">
+        <div className="w-[70%]">
           <h2 className="text-xl font-bold">Songs</h2>
           <div className="space-y-2">
             {searchResult?.songs.slice(0, 5).map((song) => (

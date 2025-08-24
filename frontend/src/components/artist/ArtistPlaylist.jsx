@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import testImg from "../../assets/test.jpg";
 import PlaylistCard from "../user/PlaylistCard.jsx";
 import CreatePlaylistForm from "./CreatePlaylistForm.jsx";
 import PlaylistManagingModal from "./PlaylistManagingModal.jsx";

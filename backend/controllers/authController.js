@@ -6,12 +6,10 @@ const authService = require("../services/authService");
 const cookieOpts = (req) => {
   const isProd = process.env.BUILD_MODE === "PRODUCTION";
   return {
-    httpOnly: true, // prevent JS access
-    secure: isProd, // true in production (HTTPS), false in dev
-    sameSite: isProd ? "None" : "Lax", // None for cross-site in prod, Lax for localhost
-    maxAge: req.body.remember // "Remember me" functionality
-      ? 7 * 24 * 60 * 60 * 1000 // 7 days if remember is true
-      : undefined, // session cookie if false
+    httpOnly: true,
+    secure: isProd, 
+    sameSite: isProd ? "None" : "Lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 };
 /* ───── Base64 encode/decode helpers ───── */
@@ -152,9 +150,9 @@ exports.googleInit = (req, res, next) => {
 
 exports.googleCallback = (req, res, next) => {
   const { redirect, fail } = decodeRedirect(req.query.state);
-
   passport.authenticate("google", { session: false }, (err, user) => {
     if (err || !user) {
+      console.log(err);
       return res.redirect(fail);
     }
 
@@ -165,6 +163,7 @@ exports.googleCallback = (req, res, next) => {
     });
 
     authService.setCookie(res, "accessToken", token, cookieOpts(req));
+    console.log(redirect);
     res.redirect(redirect);
   })(req, res, next);
 };

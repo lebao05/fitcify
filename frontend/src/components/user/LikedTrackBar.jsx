@@ -16,7 +16,7 @@ const LikedTrackBar = ({ title, subtitle, onClick }) => {
       onClick={() => navigate(`/likedtrack`)}
     >
       {/* Gradient box with heart icon */}
-      <div className="w-12 h-12 rounded bg-gradient-to-br from-[#450af5] via-[#c4efd9] to-[#8e8ee5] flex items-center justify-center">
+      <div className="w-12 h-12   rounded bg-gradient-to-br from-[#450af5] via-[#c4efd9] to-[#8e8ee5] flex items-center justify-center">
         <FaHeart className="text-white text-lg" />
       </div>
 

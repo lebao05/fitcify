@@ -136,9 +136,6 @@ const playerSlice = createSlice({
         state.isPlaying = !state.isPlaying;
       }
     },
-    setAutoplay(state, action) {
-      state.autoplay = action.payload;
-    },
   },
   extraReducers: (builder) => {
     const addCases = (thunk) => {
@@ -186,4 +183,4 @@ const playerSlice = createSlice({
 });
 
 export default playerSlice.reducer;
-export const { togglePlay, setAutoplay } = playerSlice.actions;
+export const { togglePlay } = playerSlice.actions;

@@ -12,7 +12,6 @@ import {
   fetchUserPlaylists,
 } from "../../redux/slices/myCollectionSlice";
 import applogo from "../../assets/applogo.jpg";
-import NotFound from "../../pages/NotFound";
 
 function CenterToast({ message, type = "info", onClose, duration = 2200 }) {
   useEffect(() => {

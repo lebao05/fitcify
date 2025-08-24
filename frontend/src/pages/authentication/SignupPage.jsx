@@ -124,12 +124,12 @@ export default function SpotifyLogin() {
         <div className="email-container">
           <div className="email-input-container">
             <label htmlFor="email-input" className="email-label">
-              Email or username
+              Email
             </label>
             <input
               id="email-input"
               type="email"
-              placeholder="Email or username"
+              placeholder="Email"
               value={email}
               onChange={handleEmailChange}
               onKeyPress={handleKeyPress}

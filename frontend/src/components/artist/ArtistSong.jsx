@@ -22,15 +22,10 @@ const TrackItem = ({ track, index }) => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await dispatch(deleteArtistSong(id));
-      await dispatch(fetchArtistSongs());
-      await dispatch(getAlbumsOfAnArtist());
-      await dispatch(getPlaylistsOfAnArtist());
-      alert("Song deleted successfully!");
-    } catch (err) {
-      alert("Something went wrong!");
-    }
+    await dispatch(deleteArtistSong(id));
+    await dispatch(fetchArtistSongs());
+    await dispatch(getAlbumsOfAnArtist());
+    await dispatch(getPlaylistsOfAnArtist());
   };
 
   function formatDuration(seconds) {

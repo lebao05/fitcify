@@ -117,12 +117,12 @@ export default function SpotifyLogin({ email, setEmail }) {
         <div className="email-container">
           <div className="email-input-container">
             <label htmlFor="email-input" className="email-label">
-              Email or username
+              Email
             </label>
             <input
               id="email-input"
               type="email"
-              placeholder="Email or username"
+              placeholder="Email"
               value={email}
               onChange={handleEmailChange}
               onKeyPress={handleKeyPress}
@@ -133,7 +133,7 @@ export default function SpotifyLogin({ email, setEmail }) {
             {showError && (
               <div className="error-message">
                 {!email.trim()
-                  ? "Please enter your email or username."
+                  ? "Please enter your email."
                   : "Please enter a valid email address."}
               </div>
             )}

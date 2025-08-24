@@ -12,7 +12,6 @@ import {
   fetchUserPlaylists,
 } from "../../redux/slices/myCollectionSlice";
 import applogo from "../../assets/applogo.jpg";
-import NotFound from "../../pages/NotFound";
 
 const DisplayAlbum = () => {
   const [contextMenu, setContextMenu] = useState(null);

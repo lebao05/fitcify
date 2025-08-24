@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import PlayplistBar from "./PlayplistBar.jsx";
 import ArtistBar from "./ArtistBar.jsx";
-import AlbumBar from "./AlbumBar.jsx";
 import LikedTrackBar from "./LikedTrackBar.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";

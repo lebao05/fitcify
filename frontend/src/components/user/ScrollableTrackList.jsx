@@ -3,33 +3,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react"; // or any icon library
 
 const ScrollableTrackList = ({ children }) => {
   const scrollRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
 
-  const scrollByAmount = 300; // px per arrow click
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1; // scroll speed multiplier
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
+  const scrollByAmount = 300;
 
   const scrollLeftClick = () => {
     scrollRef.current.scrollBy({ left: -scrollByAmount, behavior: "smooth" });
@@ -40,7 +15,7 @@ const ScrollableTrackList = ({ children }) => {
   };
 
   return (
-    <div className="relative w-full group">
+    <div className="relative group">
       {/* Left Arrow */}
       <button
         onClick={scrollLeftClick}
@@ -52,11 +27,7 @@ const ScrollableTrackList = ({ children }) => {
       {/* Scrollable Content */}
       <div
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide gap-4 cursor-grab select-none px-6"
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
+        className="flex overflow-x-auto scrollbar-hide gap-4 cursor-pointer select-none px-6"
       >
         {children}
       </div>

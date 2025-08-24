@@ -22,7 +22,7 @@ const HeaderBar = () => {
 
   return (
     <div className="fixed top-0 left-0 w-full bg-black border-b border-[#282828] shadow-md z-[1000]">
-      <div className="flex items-center justify-between px-4 py-2 h-16">
+      <div className="flex  items-center justify-between px-4 py-2 h-16">
         {/* Left Section */}
         <div className="flex items-center">
           <div
@@ -38,7 +38,7 @@ const HeaderBar = () => {
         </div>
 
         {/* Center Section */}
-        <div className="flex items-center gap-4 flex-1 max-w-[700px] mx-4 relative left-[12%] lg:left-0 lg:justify-center lg:px-3">
+        <div className="flex items-center gap-4 flex-1 max-w-[700px] mx-4 relative lg:left-0 lg:justify-center lg:px-3">
           <button
             className="w-12 h-12 cursor-pointer bg-[#282828] rounded-full flex items-center justify-center text-[#b3b3b3] hover:bg-[#404040] hover:text-white transition-all"
             onClick={() => navigate("/")}
@@ -121,7 +121,7 @@ const HeaderBar = () => {
                   <img
                     src={user.avatarUrl || appLogo}
                     alt="User Profile"
-                    className="cursor-pointer rounded-full w-7 h-7 object-cover"
+                    className="cursor-pointer rounded-full w-full h-full object-cover"
                   />
                 </button>
                 <div

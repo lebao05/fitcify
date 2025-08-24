@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
-import testImg from "../../assets/test.jpg";
-import edImg from "../../assets/edsheeran.jpg";
 import PlayButton from "../../components/user/PlayButton";
 import TrackItem from "../../components/user/TrackItem";
 import SectionHeader from "../../components/user/SectionHeader";
 import PlaylistCard from "../../components/user/PlaylistCard";
 import AlbumCard from "../../components/user/AlbumCard";
-import ArtistHorizontalDots from "../../components/artist/ArtistHorizontalDots";
 import "./ArtistProfile.scss";
 import { useParams } from "react-router-dom";
 import { getArtistProfile } from "../../services/artistApi";
@@ -17,7 +14,6 @@ import {
   unfollowArtistThunk,
   clearToast,
 } from "../../redux/slices/myCollectionSlice";
-import NotFound from "../NotFound";
 const discographyTabs = [
   { label: "Albums", value: "album" },
   { label: "Playlist", value: "playlist" },

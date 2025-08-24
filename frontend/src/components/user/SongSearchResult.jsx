@@ -1,23 +1,4 @@
 import { useNavigate } from "react-router-dom";
-
-const songs = [
-  {
-    id: 1,
-    title: "Đừng Làm Trái Tim Anh Đau",
-    artist: "Sơn Tùng M-TP",
-    album: "Đừng Làm Trái Tim Anh Đau",
-    duration: "4:39",
-    img: "/covers/cover1.jpg",
-  },
-  {
-    id: 2,
-    title: "Hãy Trao Cho Anh",
-    artist: "Sơn Tùng M-TP, Snoop Dogg",
-    album: "Hãy Trao Cho Anh",
-    duration: "4:05",
-    img: "/covers/cover2.jpg",
-  },
-];
 export default function SongSearchResult({ searchResult }) {
   console.log(searchResult);
   const navigate = useNavigate();

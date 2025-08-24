@@ -15,7 +15,6 @@ import {
   fetchTopSongsThisMonth,
 } from "../../redux/slices/myCollectionSlice.js";
 import { getFollowedArtists } from "../../services/userApi.js";
-import NotFound from "../NotFound.jsx";
 
 const UserProfile = () => {
   const [isYou, setIsYou] = useState(false);
@@ -44,6 +43,7 @@ const UserProfile = () => {
         dispatch(fetchTopSongsThisMonth({ limit: 5 })).unwrap(),
         dispatch(fetchTopArtistsThisMonth({ limit: 5 })).unwrap(),
       ]);
+      console.log(topSongs);
     } catch (err) {
       console.error("Failed to fetch top content:", err);
     }
@@ -101,7 +101,7 @@ const UserProfile = () => {
                 showAll={false}
               />
               <div className="artists-card-container">
-                {topArtists.slice(0, 10).map((artist, index) => (
+                {topArtists.slice(0, 5).map((artist, index) => (
                   <ArtistCard key={index} artist={artist} />
                 ))}
               </div>
@@ -113,9 +113,12 @@ const UserProfile = () => {
                 showAll={false}
               />
               <div className="tracks-item-container">
-                {topSongs.map((track, index) => (
-                  <TrackItem key={index} track={track} index={index} />
-                ))}
+                {topSongs &&
+                  topSongs.map((track, index) =>
+                    track ? (
+                      <TrackItem key={index} track={track} index={index} />
+                    ) : null
+                  )}
               </div>
             </section>
           </>

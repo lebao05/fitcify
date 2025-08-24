@@ -7,22 +7,19 @@ import SignupStep1 from "./pages/authentication/SignupStep1";
 import SignupStep2 from "./pages/authentication/SignupStep2";
 import LoginOtp from "./pages/authentication/LoginOtp";
 import MainPlayout from "./pages/user/MainPlayout";
-import {ProtectedRoute, GuestRoute} from './components/user/ProtectedRoute';
+import { ProtectedRoute } from "./components/user/ProtectedRoute";
 import AccessDenied from "./components/user/AccessDenied";
 import ArtistLayout from "./components/artist/ArtistLayout";
-import ArtistProfile from "./pages/artist/ArtistProfile";
-import ArtistDashboard from "./pages/artist/ArtistDashboard";
 import ArtistPlaylist from "./components/artist/ArtistPlaylist";
 import ArtistAlbum from "./components/artist/ArtistAlbum";
 import ArtistSong from "./components/artist/ArtistSong";
 import { Navigate } from "react-router-dom";
-
+import ArtistDashboard from "./pages/artist/ArtistDashboard";
 import { useState, useEffect } from "react";
 import NotFound from "./pages/NotFound";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserFromCookie } from "./redux/slices/userSlice";
-import UserProfile from "./pages/user/UserProfile";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 
 function App() {
@@ -65,16 +62,16 @@ function App() {
         <Route path="/signup-step1" element={<SignupStep1 />} />
         <Route path="/signup-step2" element={<SignupStep2 />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route 
-          path="/artist" 
+        <Route
+          path="/artist"
           element={
-            <ProtectedRoute allowedRoles={['artist']} userRole={user?.role}>
+            <ProtectedRoute allowedRoles={["artist"]} userRole={user?.role}>
               <ArtistLayout />
             </ProtectedRoute>
           }
         >
           <Route path="profile" element={<div>Artist Profile Page</div>} />
-          <Route path="dashboard" element={<div>Artist Dashboard Page</div>} />
+          <Route path="dashboard" element={<ArtistDashboard />} />
           <Route path="playlists" element={<ArtistPlaylist playlists={[]} />} />
           <Route path="albums" element={<ArtistAlbum />} />
           <Route path="music" element={<ArtistSong songs={[]} />} />

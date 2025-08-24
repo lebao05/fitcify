@@ -9,7 +9,7 @@ import {
   togglePlay,
 } from "../../redux/slices/playerSlice";
 import { useNavigate } from "react-router-dom";
-
+import axiosInstance from "../../configs/axios";
 const AudioPlayer = () => {
   const dispatch = useDispatch();
   // Get Redux state
@@ -37,9 +37,9 @@ const AudioPlayer = () => {
     const loadAudio = async () => {
       if (!currentSong) return;
       try {
-        const url = await fetchAudioStreamUrl(currentSong._id);
-        setAudioUrl(url);
-
+        setAudioUrl(
+          `${axiosInstance.defaults.baseURL}/music/songs/${currentSong._id}/stream`
+        );
         if (audioRef.current) {
           const audio = audioRef.current;
 
@@ -231,7 +231,7 @@ const AudioPlayer = () => {
         src={audioUrl || ""}
         onTimeUpdate={updateProgress}
         onEnded={handleEnded}
-        preload="auto"
+        preload="metadata"
       />
     </div>
   );

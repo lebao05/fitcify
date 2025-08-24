@@ -1,12 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-  ArrowLeft,
-  Mail,
-  CheckCircle,
-  AlertCircle,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import React, { useState, useRef } from "react";
+import { ArrowLeft, CheckCircle, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { changePassword, sendForgotOtp } from "../../services/authApi";
 import { useDispatch } from "react-redux";
@@ -151,24 +144,6 @@ export default function ForgotPassword() {
         return prev - 1;
       });
     }, 1000);
-  };
-
-  const handleBack = () => {
-    if (status === "otp") {
-      setStatus("idle");
-      setOtp(["", "", "", "", "", ""]);
-    } else if (status === "password") {
-      setStatus("otp");
-      setPassword("");
-      setConfirmPassword("");
-    } else {
-      setStatus("idle");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      setOtp(["", "", "", "", "", ""]);
-    }
-    setErrors({});
   };
 
   // OTP Screen

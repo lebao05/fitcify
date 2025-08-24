@@ -125,23 +125,22 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
   }
 
   const now = new Date();
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "album",
-      itemId:   album._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: album._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: now }
+      $inc: { playCount: 1 },
+      $set: { playedAt: now },
     },
-    { upsert: true }  
+    { upsert: true }
   );
-
 
   const songs = album.songs;
   if (!songs || songs.length === 0) {
@@ -186,32 +185,31 @@ const playAnAlbum = async (albumId, songOrder = 0, user) => {
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   songDoc._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: songDoc._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   songDoc.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: songDoc.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
-
 
   return currentSong;
 };
@@ -276,35 +274,35 @@ const playAPlaylist = async (playlistId, songOrder = 0, user) => {
 
   //Record history for song & artist
   const now = new Date();
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  
+
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   song._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   song.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   return currentSong;
@@ -340,35 +338,35 @@ async function playAnArtist(user, artistId) {
 
   // —— Bổ sung: ghi lịch sử cho song và artist ——
   const now = new Date();
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  
+
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   song._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   song.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   return currentSong;
@@ -382,45 +380,46 @@ async function previousTrack(user) {
   }
 
   // If already at the beginning of the queue
-  if (player.currentIndex <= 0) {
+  if (player.currentIndex === 0) {
     const first = player.queue[0];
     // ghi history cho lần phát lại đầu tiên
     const now = new Date();
-    await Song.findByIdAndUpdate(first, { $inc: { playCount: 1 } });
+    const song = await Song.findByIdAndUpdate(first, {
+      $inc: { playCount: 1 },
+    });
     await User.updateOne({ _id: first.artistId }, { $inc: { playCount: 1 } });
-    const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    
+
     await PlayHistory.findOneAndUpdate(
       {
-        userId:   user._id,
+        userId: user._id,
         itemType: "song",
-        itemId:   song._id,
-        playedAt: { $gte: monthStart, $lt: nextMonthStart }
+        itemId: song._id,
+        playedAt: { $gte: monthStart, $lt: nextMonthStart },
       },
       {
-        $inc: { playCount: 1 }, 
-        $set: { playedAt: Date.now() }
+        $inc: { playCount: 1 },
+        $set: { playedAt: Date.now() },
       },
-      { upsert: true }  
+      { upsert: true }
     );
 
     await PlayHistory.findOneAndUpdate(
       {
-        userId:   user._id,
+        userId: user._id,
         itemType: "artist",
-        itemId:   song.artistId,
-        playedAt: { $gte: monthStart, $lt: nextMonthStart }
+        itemId: song.artistId,
+        playedAt: { $gte: monthStart, $lt: nextMonthStart },
       },
       {
-        $inc: { playCount: 1 }, 
-        $set: { playedAt: Date.now() }
+        $inc: { playCount: 1 },
+        $set: { playedAt: Date.now() },
       },
-      { upsert: true }  
+      { upsert: true }
     );
     return first;
   }
-
   player.currentIndex -= 1;
   const currentSong = player.queue[player.currentIndex];
   await player.save();
@@ -433,35 +432,35 @@ async function previousTrack(user) {
 
   // record history
   const now = new Date();
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  
+
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   song._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   song.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   return currentSong;
@@ -511,35 +510,35 @@ async function playASong(user, songId) {
 
   // record history
   const now = new Date();
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  
+
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   song._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   song.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   return mainSong;
@@ -555,7 +554,7 @@ async function nextTrack(user) {
 
   if (currentIndex + 1 >= queue.length) {
     // End of queue: add 5 new random songs (excluding existing ones)
-    const excludedIds = queue.map((id) => mongoose.Types.ObjectId(id));
+    const excludedIds = queue.map((id) => new mongoose.Types.ObjectId(id));
 
     const additionalSongs = await Song.aggregate([
       { $match: { _id: { $nin: excludedIds } } },
@@ -592,35 +591,35 @@ async function nextTrack(user) {
 
   // —— Bổ sung: ghi lịch sử cho song và artist ——
   const now = new Date();
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  
+
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   song._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   song.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: song.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   return currentSong;
@@ -679,35 +678,35 @@ async function playLikedTrack(songOrder = 0, user) {
   await User.updateOne({ _id: songDoc.artistId }, { $inc: { playCount: 1 } });
 
   // 5) Record PlayHistory for song and artist
-  const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  
+
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "song",
-      itemId:   songDoc._id,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: songDoc._id,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   await PlayHistory.findOneAndUpdate(
     {
-      userId:   user._id,
+      userId: user._id,
       itemType: "artist",
-      itemId:   songDoc.artistId,
-      playedAt: { $gte: monthStart, $lt: nextMonthStart }
+      itemId: songDoc.artistId,
+      playedAt: { $gte: monthStart, $lt: nextMonthStart },
     },
     {
-      $inc: { playCount: 1 }, 
-      $set: { playedAt: Date.now() }
+      $inc: { playCount: 1 },
+      $set: { playedAt: Date.now() },
     },
-    { upsert: true }  
+    { upsert: true }
   );
 
   return currentSong;
@@ -790,7 +789,7 @@ async function search(query) {
     Song.find({}, "title audioUrl imageUrl playCount artistId")
       .populate("artistId", "username")
       .lean(),
-    Playlist.find({}, "name imageUrl playCount ownerId")
+    Playlist.find({ isArtistPlaylist: true }, "name imageUrl playCount ownerId")
       .populate("ownerId", "username")
       .lean(),
     User.find({}, "username role avatarUrl playCount").lean(),

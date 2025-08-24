@@ -18,8 +18,8 @@ export const registerUser = createAsyncThunk(
   "user/registerUser",
   async (formData, thunkAPI) => {
     try {
-      const user = await signup(formData);
-      return user;
+      const data = await signup(formData);
+      return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.Message || "Signup failed"

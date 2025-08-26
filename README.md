@@ -1,8 +1,5 @@
 
 # 🎵 Fitcify - Music Streaming Platform
-
-**Phiên bản:** 1.1  
-**Ngày cập nhật:** 19/07/2025  
 **Nhóm phát triển:** Fitcify Team  
 
 Fitcify là một **ứng dụng web streaming nhạc** dành cho desktop, lấy cảm hứng từ Spotify, cung cấp trải nghiệm nghe nhạc cá nhân hóa, playlist thông minh, AI gợi ý bài hát dựa trên tâm trạng và thói quen nghe nhạc.  
@@ -117,23 +114,6 @@ frontend/  # UI frontend
 - **Công cụ**: Google Sheets (test case), Google Docs (test plan), GitHub (code), Google Meet (trao đổi nhóm).
 
 ---
-
-## 📊 Bảng Use Case
-| Mã | Tên Use Case | Mô tả ngắn |
-|----|--------------|------------|
-| AU1.1 | Log In | Đăng nhập qua Email/Password hoặc OAuth |
-| AU1.2 | Log Out | Đăng xuất, xóa token |
-| AU1.3 | Forgot Password | Reset mật khẩu qua email/OTP |
-| AU1.4 | Sign Up | Đăng ký tài khoản mới |
-| L1.1 | Follow/Unfollow | Theo dõi hoặc bỏ theo dõi nghệ sĩ |
-| L1.2 | Like Song | Thích/bỏ thích bài hát |
-| L2.1 | View & Update Profile | Xem & chỉnh sửa hồ sơ |
-| L2.2 | Edit Personal Info | Cập nhật email, giới tính, ngày sinh |
-| L3 | Register & Pay Premium | Đăng ký gói Premium/Family qua PayOS |
-| L4.1 | Search Content | Tìm kiếm nhạc, album, playlist, nghệ sĩ, profile |
-| L4.3 | AI Recommendations | Gợi ý nhạc dựa trên tâm trạng và lịch sử nghe |
-| L5.1-L5.3 | Playlist CRUD | Tạo, sửa, xóa playlist |
-| AR3.1-AR3.3 | Song CRUD | Upload, chỉnh sửa, xóa bài hát |
 
 ---
 
